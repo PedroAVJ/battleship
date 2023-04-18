@@ -1,6 +1,7 @@
 export interface RootState {
-    difficulty: '' | 'easy' | 'medium' | 'hard';
-    map: '' | 'map1' | 'map2' | 'map3';
+
+    // Metadata about the game configuration and state.
+    map: MapType;
     supplyBoatCount: number;
     destroyerCount: number;
     battleshipCount: number;
@@ -8,23 +9,49 @@ export interface RootState {
     hasUsedAircraftCarrierAbility: boolean;
     hasUsedSubmarineAbility: boolean;
 
-    // The board is a matrix consisting of numbers representing the type of tile.
-    // 0 = water
-    // 1 = land
-    // 2 = miss
-    // 3 = hit
-    // 4 = uncovered ship
-    // 5 = ship
-    enemyBoard: number[][];
-    playerBoard: number[][];
+    // The boards are a matrix of Tile enums.
+    enemyBoard: Board;
+    playerBoard: Board;
 
-    // The player's ships are represented by an array of objects representing the ship's position and orientation.
-    ships: {
-        type: 'supplyBoat' | 'destroyer' | 'battleship' | 'frigate' | 'aircraftCarrier' | 'submarine';
-        orientation: 'N' | 'E' | 'S' | 'W';
-        position: {
-            x: number;
-            y: number;
-        };
-    }[];
+    ships: Ship[];
+    gameInProgress: boolean;
+}
+
+export enum MapType {
+    DEFAULT = '',
+    MAP1 = 'map1',
+    MAP2 = 'map2',
+    MAP3 = 'map3',
+}
+
+export enum Tile {
+    WATER = 0,
+    LAND = 1,
+    MISS = 2,
+    HIT = 3,
+    UNCOVERED_SHIP = 4,
+    SHIP = 5,
+}
+
+export type Board = Tile[][];
+
+export enum ShipType {
+    SUPPLY_BOAT = 'supplyBoat',
+    DESTROYER = 'destroyer',
+    BATTLESHIP = 'battleship',
+    FRIGATE = 'frigate',
+    AIRCRAFT_CARRIER = 'aircraftCarrier',
+    SUBMARINE = 'submarine',
+}
+
+export enum ShipOrientation {
+    HORIZONTAL = 'horizontal',
+    VERTICAL = 'vertical',
+}
+
+export interface Ship {
+    type: ShipType;
+    orientation: ShipOrientation;
+    x: number;
+    y: number;
 }

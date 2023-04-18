@@ -8,19 +8,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/Index.vue')
   },
   {
-    path: '/join-room',
-    name: 'JoinRoom',
-    component: () => import('@/views/JoinRoom.vue')
-  },
-  {
-    path: '/select-difficulty',
-    name: 'DifficultySelect',
-    component: () => import('@/views/DifficultySelect.vue')
-  },
-  {
     path: '/game',
-    name: 'Board',
-    component: () => import('@/views/Board.vue')
+    name: 'Game',
+    component: () => import('@/views/Game.vue')
   },
   {
     path: '/select-map',
@@ -31,11 +21,6 @@ const routes: Array<RouteRecordRaw> = [
     path: '/select-ship',
     name: 'ShipSelect',
     component: () => import('@/views/ShipSelect.vue')
-  },
-  {
-    path: '/waiting-room',
-    name: 'WaitingForJoin',
-    component: () => import('@/views/WaitingForJoin.vue')
   },
 ]
 
