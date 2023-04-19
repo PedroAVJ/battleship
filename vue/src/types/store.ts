@@ -36,22 +36,26 @@ export enum Tile {
 export type Board = Tile[][];
 
 export enum ShipType {
+    SUBMARINE = 'submarine',
     SUPPLY_BOAT = 'supplyBoat',
     DESTROYER = 'destroyer',
     BATTLESHIP = 'battleship',
     FRIGATE = 'frigate',
     AIRCRAFT_CARRIER = 'aircraftCarrier',
-    SUBMARINE = 'submarine',
 }
 
-export enum ShipOrientation {
+export enum Orientation {
     HORIZONTAL = 'horizontal',
     VERTICAL = 'vertical',
 }
 
 export interface Ship {
+    
+    // Orientation, x, and y are optional because they are set in the game view
     type: ShipType;
-    orientation: ShipOrientation;
-    x: number;
-    y: number;
+    orientation?: Orientation;
+
+    // The coordinates of the top-left corner of the ship.
+    x?: number;
+    y?: number;
 }

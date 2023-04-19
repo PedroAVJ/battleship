@@ -53,6 +53,7 @@
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { Ship, ShipType } from '@/types/store';
 
 
 const router = useRouter()
@@ -64,10 +65,33 @@ const battleshipCount = ref(0)
 const frigateCount = ref(0)
 
 function setShips() {
+
+    // Set ship counts
     store.commit('setSupplyBoatCount', supplyBoatCount.value)
     store.commit('setDestroyerCount', destroyerCount.value)
     store.commit('setBattleshipCount', battleshipCount.value)
     store.commit('setFrigateCount', frigateCount.value)
+
+    // Create ships
+    const ships: Ship[] = []
+    for (let i = 0; i < supplyBoatCount.value; i++) {
+        const ship: Ship = { type: ShipType.SUPPLY_BOAT }
+        ships.push(ship)
+    }
+    for (let i = 0; i < destroyerCount.value; i++) {
+        const ship: Ship = { type: ShipType.DESTROYER }
+        ships.push(ship)
+    }
+    for (let i = 0; i < battleshipCount.value; i++) {
+        const ship: Ship = { type: ShipType.BATTLESHIP }
+        ships.push(ship)
+    }
+    for (let i = 0; i < frigateCount.value; i++) {
+        const ship: Ship = { type: ShipType.FRIGATE }
+        ships.push(ship)
+    }
+    store.commit('setShips', ships)
+
     router.push({ name: 'Game' })
 }
 </script>

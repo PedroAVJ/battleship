@@ -70,21 +70,6 @@ const store = createStore<RootState>({
     },
   },
   actions: {
-    // Randomize the boards
-    randomizeBoards({ commit }) {
-      const enemyBoard: RootState['enemyBoard'] = [];
-      const playerBoard: RootState['playerBoard'] = [];
-      for (let i = 0; i < 10; i++) {
-        enemyBoard.push([]);
-        playerBoard.push([]);
-        for (let j = 0; j < 10; j++) {
-          enemyBoard[i].push(Math.random() < 0.2 ? 1 : 0);
-          playerBoard[i].push(Math.random() < 0.2 ? 1 : 0);
-        }
-      }
-      commit('setEnemyBoard', enemyBoard);
-      commit('setPlayerBoard', playerBoard);
-    },
     // Initialize the boards, based on the map
     initializeBoards({ commit, state }) {
       const enemyBoard: RootState['enemyBoard'] = [];

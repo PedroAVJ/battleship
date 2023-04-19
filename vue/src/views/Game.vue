@@ -13,15 +13,17 @@
     </div>
     <div class="gui">
       <h2>GUI</h2>
-      <!-- Add your GUI components here -->
+      <ShipDrawer />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import Board from '@/components/Board.vue'
+import ShipDrawer from '@/components/ShipDrawer.vue';
 import { useStore } from '@/store'
 import { onMounted } from 'vue';
+
 
 const store = useStore()
 
