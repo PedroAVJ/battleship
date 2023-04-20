@@ -21,14 +21,12 @@ import { computed, ref } from 'vue';
 interface ShipItemProps {
   shipType: string,
   shipName: string,
-  orientation: Orientation,
   count: number
 }
 
 const props = defineProps<ShipItemProps>();
 
-// A prop is immutable, so we need to create a ref to change it
-const orientation = ref<Orientation>(props.orientation);
+const orientation = ref(Orientation.HORIZONTAL);
 
 const dragStart = (e: DragEvent) => {
   e.dataTransfer?.setData('shipType', props.shipType);
@@ -45,7 +43,7 @@ const orientationButtonClass = computed(() => {
 
 const orientationButtonText = computed(() => {
 
-    // This capitalizes the first letter of the orientation, and lowercases the rest
+    // Title case the orientation
     return orientation.value.charAt(0).toUpperCase() + orientation.value.slice(1).toLowerCase();
 });
 </script>
@@ -60,7 +58,6 @@ const orientationButtonText = computed(() => {
   padding: 15px;
   border: 2px solid #ccc;
   border-radius: 6px;
-  background-color: #f9f9f9;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 

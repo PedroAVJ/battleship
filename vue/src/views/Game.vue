@@ -22,14 +22,9 @@
 import Board from '@/components/Board.vue'
 import ShipDrawer from '@/components/ShipDrawer.vue';
 import { useStore } from '@/store'
-import { onMounted } from 'vue';
 
 
 const store = useStore()
-
-onMounted(() => {
-    store.dispatch('initializeBoards')
-})
 </script>
 
 <style scoped>

@@ -5,13 +5,29 @@
   @dragleave="dragLeave"
   @dragover.prevent
   @drop="drop"
-  ></div>
+  >
+   <!-- HIT goes first, as the tile could have a hit, and a ship at the same time -->
+   <Hit v-if="cell === Tile.HIT" />
+   <Miss v-if="cell === Tile.MISS" />
+   <Uncovered v-if="cell === Tile.UNCOVERED_SHIP" />
+
+   <!-- If the cell is an object, it's a ship -->
+   <div v-if="typeof cell === 'object'">
+     <Submarine v-if="cell.type === ShipType.SUBMARINE" />
+     <SupplyBoat v-if="cell.type === ShipType.SUPPLY_BOAT" />
+     <Destroyer v-if="cell.type === ShipType.DESTROYER" />
+     <Battleship v-if="cell.type === ShipType.BATTLESHIP" />
+     <Frigate v-if="cell.type === ShipType.FRIGATE" />
+     <AircraftCarrier v-if="cell.type === ShipType.AIRCRAFT_CARRIER" />
+   </div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { Tile } from '@/types/store';
+import { Tile, ShipType, Ship } from '@/types/store';
 import { ref } from 'vue';
 import { useStore } from '@/store';
+import { Orientation } from '@/types/store';
 
 // SVG imports
 import Miss from './Miss.vue';
@@ -26,12 +42,15 @@ import AircraftCarrier from './AircraftCarrier.vue';
 
 
 interface CellProps {
-  tile: Tile;
+  tile: (Tile | Ship)
   row: number;
   col: number;
 }
 
 const props = defineProps<CellProps>();
+const store = useStore();
+
+const cell = ref(store.state.playerBoard[props.row][props.col]);
 
 const cellClass = ref([
   'cell',
@@ -56,8 +75,30 @@ const drop = (e: DragEvent) => {
   const shipType = e.dataTransfer?.getData('shipType');
   const orientation = e.dataTransfer?.getData('orientation');
   
-  console.log(shipType, orientation);
-  console.log('drop');
+  // Set the ship on the board
+  const board = store.state.playerBoard;
+  board[props.row][props.col] = {
+
+    // Hacky way to get around the fact that shipType is a string
+    type: shipType as ShipType,
+    orientation: orientation === Orientation.HORIZONTAL ? Orientation.HORIZONTAL : Orientation.VERTICAL,
+  };
+  store.commit('setPlayerBoard', board);
+
+  // Decrement the count on the GUI
+  if (shipType === ShipType.SUBMARINE) {
+    store.commit('setGuiSubmarineCount', store.state.guiSubmarineCount - 1);
+  } else if (shipType === ShipType.AIRCRAFT_CARRIER) {
+    store.commit('setGuiAircraftCarrierCount', store.state.guiAircraftCarrierCount - 1);
+  } else if (shipType === ShipType.DESTROYER) {
+    store.commit('setGuiDestroyerCount', store.state.guiDestroyerCount - 1);
+  } else if (shipType === ShipType.FRIGATE) {
+    store.commit('setGuiFrigateCount', store.state.guiFrigateCount - 1);
+  } else if (shipType === ShipType.SUPPLY_BOAT) {
+    store.commit('setGuiSupplyBoatCount', store.state.guiSupplyBoatCount - 1);
+  } else if (shipType === ShipType.BATTLESHIP) {
+    store.commit('setGuiBattleshipCount', store.state.guiBattleshipCount - 1);
+  }
 };
 </script>
 

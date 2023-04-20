@@ -20,6 +20,7 @@ const store = useStore();
 
 function setMap(map: RootState['map']) {
   store.commit('setMap', map);
+  store.dispatch('initializeBoards')
   router.push({ name: 'ShipSelect' });
 }
 </script>

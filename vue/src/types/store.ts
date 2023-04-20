@@ -8,13 +8,20 @@ export interface RootState {
     frigateCount: number;
     hasUsedAircraftCarrierAbility: boolean;
     hasUsedSubmarineAbility: boolean;
+    gameInProgress: boolean;
 
-    // The boards are a matrix of Tile enums.
+    // The boards are a matrix of tiles or ships.
     enemyBoard: Board;
     playerBoard: Board;
 
-    ships: Ship[];
-    gameInProgress: boolean;
+    // This is to coordinate the state between the count of ships on tne GUI
+    // and the event handler on the drop function in the cell
+    guiSubmarineCount: number;
+    guiSupplyBoatCount: number;
+    guiDestroyerCount: number;
+    guiBattleshipCount: number;
+    guiFrigateCount: number;
+    guiAircraftCarrierCount: number;
 }
 
 export enum MapType {
@@ -30,10 +37,9 @@ export enum Tile {
     MISS = 2,
     HIT = 3,
     UNCOVERED_SHIP = 4,
-    SHIP = 5,
 }
 
-export type Board = Tile[][];
+export type Board = (Tile | Ship)[][];
 
 export enum ShipType {
     SUBMARINE = 'submarine',
@@ -50,12 +56,6 @@ export enum Orientation {
 }
 
 export interface Ship {
-    
-    // Orientation, x, and y are optional because they are set in the game view
     type: ShipType;
-    orientation?: Orientation;
-
-    // The coordinates of the top-left corner of the ship.
-    x?: number;
-    y?: number;
+    orientation: Orientation;
 }

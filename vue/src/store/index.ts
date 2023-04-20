@@ -9,6 +9,8 @@ export const key: InjectionKey<Store<RootState>> = Symbol();
 // Create a typed store
 const store = createStore<RootState>({
   state: {
+
+    // Metadata about the game configuration and state.
     map: localStorage.getItem('map') as MapType || MapType.DEFAULT,
     supplyBoatCount: parseInt(localStorage.getItem('supplyBoatCount') || '0', 0),
     destroyerCount: parseInt(localStorage.getItem('destroyerCount') || '0', 0),
@@ -16,10 +18,20 @@ const store = createStore<RootState>({
     frigateCount: parseInt(localStorage.getItem('frigateCount') || '0', 0),
     hasUsedAircraftCarrierAbility: localStorage.getItem('hasUsedAircraftCarrierAbility') === 'true',
     hasUsedSubmarineAbility: localStorage.getItem('hasUsedSubmarineAbility') === 'true',
+    gameInProgress: localStorage.getItem('gameInProgress') === 'true',
+
+    // The boards are a matrix of tiles or ships.
     enemyBoard: JSON.parse(localStorage.getItem('enemyBoard') || '[[]]'),
     playerBoard: JSON.parse(localStorage.getItem('playerBoard') || '[[]]'),
-    ships: JSON.parse(localStorage.getItem('ships') || '[]'),
-    gameInProgress: localStorage.getItem('gameInProgress') === 'true',
+
+    // This is to coordinate the state between the count of ships on tne GUI
+    // and the event handler on the drop function in the cell
+    guiSubmarineCount: parseInt(localStorage.getItem('guiSubmarineCount') || '0', 0),
+    guiSupplyBoatCount: parseInt(localStorage.getItem('guiSupplyBoatCount') || '0', 0),
+    guiDestroyerCount: parseInt(localStorage.getItem('guiDestroyerCount') || '0', 0),
+    guiBattleshipCount: parseInt(localStorage.getItem('guiBattleshipCount') || '0', 0),
+    guiFrigateCount: parseInt(localStorage.getItem('guiFrigateCount') || '0', 0),
+    guiAircraftCarrierCount: parseInt(localStorage.getItem('guiAircraftCarrierCount') || '0', 0),
   },
   getters: {
   },
@@ -60,13 +72,33 @@ const store = createStore<RootState>({
       state.playerBoard = board;
       localStorage.setItem('playerBoard', JSON.stringify(board));
     },
-    setShips(state, ships: RootState['ships']) {
-      state.ships = ships;
-      localStorage.setItem('ships', JSON.stringify(ships));
-    },
     setGameInProgress(state, value: boolean) {
       state.gameInProgress = value;
       localStorage.setItem('gameInProgress', value.toString());
+    },
+    setGuiSubmarineCount(state, count: number) {
+      state.guiSubmarineCount = count;
+      localStorage.setItem('guiSubmarineCount', count.toString());
+    },
+    setGuiSupplyBoatCount(state, count: number) {
+      state.guiSupplyBoatCount = count;
+      localStorage.setItem('guiSupplyBoatCount', count.toString());
+    },
+    setGuiDestroyerCount(state, count: number) {
+      state.guiDestroyerCount = count;
+      localStorage.setItem('guiDestroyerCount', count.toString());
+    },
+    setGuiBattleshipCount(state, count: number) {
+      state.guiBattleshipCount = count;
+      localStorage.setItem('guiBattleshipCount', count.toString());
+    },
+    setGuiFrigateCount(state, count: number) {
+      state.guiFrigateCount = count;
+      localStorage.setItem('guiFrigateCount', count.toString());
+    },
+    setGuiAircraftCarrierCount(state, count: number) {
+      state.guiAircraftCarrierCount = count;
+      localStorage.setItem('guiAircraftCarrierCount', count.toString());
     },
   },
   actions: {
