@@ -25,22 +25,22 @@
         <div class="ship-inputs">
           <div class="ship-input">
             <label for="supplyBoatCount" class="ship-name">Supply Boat</label>
-            <input type="number" id="supplyBoatCount" class="ship-count-input" v-model="supplyBoatCount" max="5" />
+            <input type="number" id="supplyBoatCount" class="ship-count-input" v-model="supplyBoatCount" max="5" min="0" />
             <span class="ship-description">Size: 2x1</span>
           </div>
           <div class="ship-input">
             <label for="destroyerCount" class="ship-name">Destroyer</label>
-            <input type="number" id="destroyerCount" class="ship-count-input" v-model="destroyerCount" max="5" />
+            <input type="number" id="destroyerCount" class="ship-count-input" v-model="destroyerCount" max="5" min="0" />
             <span class="ship-description">Size: 3x1</span>
           </div>
           <div class="ship-input">
             <label for="battleshipCount" class="ship-name">Battleship</label>
-            <input type="number" id="battleshipCount" class="ship-count-input" v-model="battleshipCount" max="5" />
+            <input type="number" id="battleshipCount" class="ship-count-input" v-model="battleshipCount" max="5" min="0" />
             <span class="ship-description">Size: 4x1</span>
           </div>
           <div class="ship-input">
             <label for="frigateCount" class="ship-name">Frigate</label>
-            <input type="number" id="frigateCount" class="ship-count-input" v-model="frigateCount" max="5" />
+            <input type="number" id="frigateCount" class="ship-count-input" v-model="frigateCount" max="5" min="0" />
             <span class="ship-description">Size: 5x1</span>
           </div>
         </div>
@@ -66,18 +66,24 @@ const frigateCount = ref(0)
 function setShips() {
 
     // Set ship counts
-    store.commit('setSupplyBoatCount', supplyBoatCount.value)
-    store.commit('setDestroyerCount', destroyerCount.value)
-    store.commit('setBattleshipCount', battleshipCount.value)
-    store.commit('setFrigateCount', frigateCount.value)
+    store.commit('setGameShipCounts', {
+        supplyBoatCount: supplyBoatCount.value,
+        destroyerCount: destroyerCount.value,
+        battleshipCount: battleshipCount.value,
+        frigateCount: frigateCount.value,
+        submarineCount: 1,
+        aircraftCarrierCount: 1
+    })
 
-    // Set gui ship counts
-    store.commit('setGuiSupplyBoatCount', supplyBoatCount.value)
-    store.commit('setGuiDestroyerCount', destroyerCount.value)
-    store.commit('setGuiBattleshipCount', battleshipCount.value)
-    store.commit('setGuiFrigateCount', frigateCount.value)
-    store.commit('setGuiAircraftCarrierCount', 1)
-    store.commit('setGuiSubmarineCount', 1)
+    // Set GUI ship counts
+    store.commit('setGuiShipCounts', {
+        supplyBoatCount: supplyBoatCount.value,
+        destroyerCount: destroyerCount.value,
+        battleshipCount: battleshipCount.value,
+        frigateCount: frigateCount.value,
+        submarineCount: 1,
+        aircraftCarrierCount: 1
+    })
 
     router.push({ name: 'Game' })
 }

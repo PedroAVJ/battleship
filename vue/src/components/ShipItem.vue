@@ -1,7 +1,7 @@
 <template>
   <div :id="shipType" class="ship-item">
     <h2>{{ shipName }}</h2>
-    <div class="svg-container" draggable="true" @dragstart="dragStart">
+    <div class="svg-container" :draggable="count > 0" @dragstart="dragStart">
       <slot></slot>
     </div>
     <div class="controls">
@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Orientation } from '@/types/store';
+import { Orientation } from '@/types/store.interface.js';
 import { computed, ref } from 'vue';
 
 

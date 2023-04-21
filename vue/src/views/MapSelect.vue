@@ -12,8 +12,8 @@
 <script lang="ts" setup>
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
-import { RootState } from '@/types/store';
-import { MapType } from '@/types/store';
+import { RootState } from '@/types/store.interface.js';
+import { MapType } from '@/types/store.interface.js';
 
 const router = useRouter();
 const store = useStore();

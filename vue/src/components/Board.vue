@@ -2,7 +2,7 @@
   <div class="board">
     <div v-for="(row, rowIndex) in board" :key="rowIndex" class="board-row">
       <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-        <Cell :tile="col" :row="rowIndex" :col="colIndex" />
+        <Cell :cell="col" :row="rowIndex" :col="colIndex" />
       </div>
     </div>
   </div>
@@ -10,7 +10,7 @@
 
 <script setup lang="ts">
 import Cell from '@/components/Cell.vue';
-import { Board } from '@/types/store';
+import { Board } from '@/types/store.interface.js';
 
 
 interface BoardProps {

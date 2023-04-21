@@ -1,21 +1,21 @@
 <template>
   <div class="ship-container">
-    <ShipItem shipType="aircraftCarrier" shipName="Aircraft Carrier" :count="store.state.guiAircraftCarrierCount">
+    <ShipItem shipType="aircraftCarrier" shipName="Aircraft Carrier" :count="store.state.guiShipCounts.aircraftCarrierCount">
       <AircraftCarrier class="svg" />
     </ShipItem>
-    <ShipItem shipType="submarine" shipName="Submarine" :count="store.state.guiSubmarineCount">
+    <ShipItem shipType="submarine" shipName="Submarine" :count="store.state.guiShipCounts.submarineCount">
       <Submarine class="svg" />
     </ShipItem>
-    <ShipItem shipType="destroyer" shipName="Destroyer" :count="store.state.guiDestroyerCount">
+    <ShipItem shipType="destroyer" shipName="Destroyer" :count="store.state.guiShipCounts.destroyerCount">
       <Destroyer class="svg" />
     </ShipItem>
-    <ShipItem shipType="battleship" shipName="Battleship" :count="store.state.guiBattleshipCount">
+    <ShipItem shipType="battleship" shipName="Battleship" :count="store.state.guiShipCounts.battleshipCount">
       <Battleship class="svg" />
     </ShipItem>
-    <ShipItem shipType="frigate" shipName="Frigate" :count="store.state.guiFrigateCount">
+    <ShipItem shipType="frigate" shipName="Frigate" :count="store.state.guiShipCounts.frigateCount">
       <Frigate class="svg" />
     </ShipItem>
-    <ShipItem shipType="supplyBoat" shipName="Supply Boat" :count="store.state.guiSupplyBoatCount">
+    <ShipItem shipType="supplyBoat" shipName="Supply Boat" :count="store.state.guiShipCounts.supplyBoatCount">
       <SupplyBoat class="svg" />
     </ShipItem>
   </div>
