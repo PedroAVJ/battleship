@@ -1,21 +1,65 @@
 export interface RootState {
-  map: Map;
-  is_game_in_progress: boolean;
-  game_ship_counts: ShipCounts;
-  gui_ship_counts: ShipCounts;
-  has_used_aircraft_carrier_ability: boolean;
-  has_used_submarine_ability: boolean;
-  enemy_board: Board;
-  player_board: Board;
+  map: Tile[][];
+  game: {
+    isInProgress: boolean;
+    isPlayersTurn: boolean;
+    
+    submarineCount: number;
+    supplyBoatCount: number;
+    destroyerCount: number;
+    battleshipCount: number;
+    frigateCount: number;
+    aircraftCarrierCount: number;
+  };
+  gui: {
+    submarineCount: number;
+    supplyBoatCount: number;
+    destroyerCount: number;
+    battleshipCount: number;
+    frigateCount: number;
+    aircraftCarrierCount: number;
+  };
+  player: {
+    isUsingSubmarineAbility: boolean;
+    isUsingAircraftCarrierAbility: boolean;
+
+    hasUsedSubmarineAbility: boolean;
+    hasUsedAircraftCarrierAbility: boolean;
+
+    board: Tile[][];
+  },
+  enemy: { board: Tile[][]; },
 }
 
-export interface ShipCounts {
-  submarine_count: number;
-  supply_boat_count: number;
-  destroyer_count: number;
-  battleship_count: number;
-  frigate_count: number;
-  aircraft_carrier_count: number;
+export interface Tile {
+  background: {
+    isWater: boolean;
+    isLand: boolean;
+  };
+  contains: {
+    shipHitbox: boolean;
+    missedShot: boolean;
+    successfulShot: boolean;
+    uncoveredShip: boolean;
+  };
+
+  /**
+   * We use this to determine where to start drawing the ship sprite
+   */
+  ship?: {
+    name: ShipName;
+    length: number;
+    orientation: Orientation;
+  };
+}
+
+export enum ShipName {
+  SUBMARINE = "submarine",
+  SUPPLY_BOAT = "supplyBoat",
+  DESTROYER = "destroyer",
+  BATTLESHIP = "battleship",
+  FRIGATE = "frigate",
+  AIRCRAFT_CARRIER = "aircraftCarrier",
 }
 
 export enum Orientation {
@@ -23,63 +67,62 @@ export enum Orientation {
   VERTICAL = "vertical",
 }
 
-export const SHIPS = {
-  submarine: { name: "submarine", length: 1 },
-  supply_boat: { name: "supply_boat", length: 2 },
-  destroyer: { name: "destroyer", length: 3 },
-  battleship: { name: "battleship", length: 4 },
-  frigate: { name: "frigate", length: 5 },
-  aircraft_carrier: { name: "aircraft_carrier", length: 6 },
+export const SHIP_LENGTHS = {
+  submarine: 1,
+  supplyBoat: 2,
+  destroyer: 3,
+  battleship: 4,
+  frigate: 5,
+  aircraftCarrier: 5,
 } as const;
 
-export type Ship = typeof SHIPS[keyof typeof SHIPS];
-
-export interface Cell {
-  is_water: boolean;
-  is_land: boolean;
-  was_missed: boolean;
-  was_hit: boolean;
-  has_uncovered_ship: boolean;
-  has_ship_hitbox: boolean;
-
-  /**
-   * We use this to determine where to start drawing the ship sprite
-   */
-  ship?: Ship;
-  ship_orientation?: Orientation;
+export enum MapName {
+  MAP1 = "map1",
+  MAP2 = "map2",
+  MAP3 = "map3",
 }
 
-export type Board = Cell[][];
 
-
-// 
-export type Map = typeof MAPS[keyof typeof MAPS];
-
-const _: Cell = {
-  is_water: true,
-
-  is_land: false,
-  was_missed: false,
-  was_hit: false,
-  has_uncovered_ship: false,
-  has_ship_hitbox: false,
+// Water Tile: Look at MAPS below for context on why this variable is named _
+const _: Tile = {
+  background: {
+    isWater: true,
+    isLand: false,
+  },
+  contains: {
+    shipHitbox: false,
+    missedShot: false,
+    successfulShot: false,
+    uncoveredShip: false,
+  },
 };
 
-const M: Cell = {
-  is_land: true,
-
-  is_water: false,
-  was_missed: false,
-  was_hit: false,
-  has_uncovered_ship: false,
-  has_ship_hitbox: false,
+// Land Tile: Look at MAPS below for context on why this variable is named M
+const M: Tile = {
+  background: {
+    isWater: false,
+    isLand: true,
+  },
+  contains: {
+    shipHitbox: false,
+    missedShot: false,
+    successfulShot: false,
+    uncoveredShip: false,
+  },
 };
+
 
 /**
- * Stringify and parse the map to make a deep copy
+ * WARNING: Stringify, parse and cast to Tile[][] before using,
+ * as the nested Tile[][] can still be mutated.
  */
+// This is were I draw and sketch out the maps
+// M is land and _ is water
+// This gave me the best ratio of height to width on my screen
+// Using '.' for water and '#' for land inside nested lists was too wide
+// Using strings on each line like this '..#..#..#.' was too tall
 export const MAPS = {
-  MAP1: [
+  [MapName.MAP1]: [
     [_, _, _, _, _, _, _, _, _, _],
     [_, M, M, M, M, M, M, M, M, _],
     [_, M, _, _, _, _, _, _, M, _],
@@ -87,11 +130,11 @@ export const MAPS = {
     [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, M, _, _, M, _, M, _],
-    [_, M, _, M, M, M, M, _, M, _],
+    [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, _, _, _, _, _, M, _],
     [_, M, M, M, M, M, M, M, M, _],
   ],
-  MAP2: [
+  [MapName.MAP2]: [
     [_, _, _, _, _, _, _, _, _, _],
     [_, M, M, M, M, M, M, M, M, _],
     [_, M, _, _, _, _, _, _, M, _],
@@ -99,11 +142,11 @@ export const MAPS = {
     [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, M, _, _, M, _, M, _],
-    [_, M, _, M, M, M, M, _, M, _],
+    [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, _, _, _, _, _, M, _],
     [_, M, M, M, M, M, M, M, M, _],
   ],
-  MAP3: [
+  [MapName.MAP3]: [
     [_, _, _, _, _, _, _, _, _, _],
     [_, M, M, M, M, M, M, M, M, _],
     [_, M, _, _, _, _, _, _, M, _],
@@ -111,7 +154,7 @@ export const MAPS = {
     [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, M, _, _, M, _, M, _],
-    [_, M, _, M, M, M, M, _, M, _],
+    [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, _, _, _, _, _, M, _],
     [_, M, M, M, M, M, M, M, M, _],
   ],

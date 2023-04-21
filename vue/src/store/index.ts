@@ -1,190 +1,152 @@
 import { InjectionKey } from 'vue';
 import { createStore, Store, useStore as baseUseStore } from 'vuex';
-import { RootState, MapType, Board } from '@/types/store.interface';
+import { MAPS, MapName, RootState, Tile } from '@/types/store.interface';
 
 
-// Define injection key
+// This key allows TypeScript to infer the type of the store
 export const key: InjectionKey<Store<RootState>> = Symbol();
 
-// Create a typed store
+/**
+ * So long as useStore is imported from '@/store' and not from 'vuex',
+ * the store will have type annotations
+ */
+export function useStore() {
+  return baseUseStore(key);
+}
+
 const store = createStore<RootState>({
   state: {
-    map: localStorage.getItem('map') as MapType || MapType.DEFAULT,
-    is_game_in_progress: localStorage.getItem('is_game_in_progress') === 'true',
-    game_ship_counts: {
-      submarine_count: parseInt(localStorage.getItem('submarine_count') || '0', 0),
-      supply_boat_count: parseInt(localStorage.getItem('supply_boat_count') || '0', 0),
-      destroyer_count: parseInt(localStorage.getItem('destroyer_count') || '0', 0),
-      battleship_count: parseInt(localStorage.getItem('battleship_count') || '0', 0),
-      frigate_count: parseInt(localStorage.getItem('frigate_count') || '0', 0),
-      aircraft_carrier_count: parseInt(localStorage.getItem('aircraft_carrier_count') || '0', 0),
+    map: JSON.parse(localStorage.getItem('map') || '[[]]'),
+    game: {
+      isInProgress: localStorage.getItem('isInProgress') === 'true',
+      isPlayersTurn: localStorage.getItem('isPlayersTurn') === 'true',
+
+      submarineCount: parseInt(localStorage.getItem('gameSubmarineCount') || '0'),
+      supplyBoatCount: parseInt(localStorage.getItem('gameSupplyBoatCount') || '0'),
+      destroyerCount: parseInt(localStorage.getItem('gameDestroyerCount') || '0'),
+      battleshipCount: parseInt(localStorage.getItem('gameBattleshipCount') || '0'),
+      frigateCount: parseInt(localStorage.getItem('gameFrigateCount') || '0'),
+      aircraftCarrierCount: parseInt(localStorage.getItem('gameAircraftCarrierCount') || '0'),
     },
-    gui_ship_counts: {
-      submarine_count: parseInt(localStorage.getItem('gui_submarine_count') || '0', 0),
-      supply_boat_count: parseInt(localStorage.getItem('gui_supply_boat_count') || '0', 0),
-      destroyer_count: parseInt(localStorage.getItem('gui_destroyer_count') || '0', 0),
-      battleship_count: parseInt(localStorage.getItem('gui_battleship_count') || '0', 0),
-      frigate_count: parseInt(localStorage.getItem('gui_frigate_count') || '0', 0),
-      aircraft_carrier_count: parseInt(localStorage.getItem('gui_aircraft_carrier_count') || '0', 0),
+    gui: {
+      submarineCount: parseInt(localStorage.getItem('guiSubmarineCount') || '0'),
+      supplyBoatCount: parseInt(localStorage.getItem('guiSupplyBoatCount') || '0'),
+      destroyerCount: parseInt(localStorage.getItem('guiDestroyerCount') || '0'),
+      battleshipCount: parseInt(localStorage.getItem('guiBattleshipCount') || '0'),
+      frigateCount: parseInt(localStorage.getItem('guiFrigateCount') || '0'),
+      aircraftCarrierCount: parseInt(localStorage.getItem('guiAircraftCarrierCount') || '0'),
     },
-    has_used_aircraft_carrier_ability: localStorage.getItem('has_used_aircraft_carrier_ability') === 'true',
-    has_used_submarine_ability: localStorage.getItem('has_used_submarine_ability') === 'true',
-    enemy_board: JSON.parse(localStorage.getItem('enemy_board') || '[[]]'),
-    player_board: JSON.parse(localStorage.getItem('player_board') || '[[]]'),
+    player: {
+      isUsingSubmarineAbility: localStorage.getItem('isUsingSubmarineAbility') === 'true',
+      isUsingAircraftCarrierAbility: localStorage.getItem('isUsingAircraftCarrierAbility') === 'true',
+
+      hasUsedSubmarineAbility: localStorage.getItem('hasUsedSubmarineAbility') === 'true',
+      hasUsedAircraftCarrierAbility: localStorage.getItem('hasUsedAircraftCarrierAbility') === 'true',
+
+      board: JSON.parse(localStorage.getItem('playerBoard') || '[[]]'),
+    },
+    enemy: { board: JSON.parse(localStorage.getItem('enemyBoard') || '[[]]'), },
   },
   getters: {
   },
   mutations: {
-    set_map(state, map: RootState['map']) {
+    setMap(state, map: Tile[][]) {
       state.map = map;
-      localStorage.setItem('map', map);
+      localStorage.setItem('map', JSON.stringify(map));
     },
-    set_is_game_in_progress(state, value: boolean) {
-      state.is_game_in_progress = value;
-      localStorage.setItem('is_game_in_progress', value.toString());
+    setGameIsInProgress(state, isInProgress: boolean) {
+      state.game.isInProgress = isInProgress;
+      localStorage.setItem('isInProgress', isInProgress.toString());
     },
-    set_game_ship_counts(state, ship_counts: RootState['game_ship_counts']) {
-      state.game_ship_counts = ship_counts;
-      localStorage.setItem('submarine_count', ship_counts.submarine_count.toString());
-      localStorage.setItem('supply_boat_count', ship_counts.supply_boat_count.toString());
-      localStorage.setItem('destroyer_count', ship_counts.destroyer_count.toString());
-      localStorage.setItem('battleship_count', ship_counts.battleship_count.toString());
-      localStorage.setItem('frigate_count', ship_counts.frigate_count.toString());
-      localStorage.setItem('aircraft_carrier_count', ship_counts.aircraft_carrier_count.toString());
+    setGameIsPlayersTurn(state, isPlayersTurn: boolean) {
+      state.game.isPlayersTurn = isPlayersTurn;
+      localStorage.setItem('isPlayersTurn', isPlayersTurn.toString());
     },
-    set_gui_ship_counts(state, ship_counts: RootState['gui_ship_counts']) {
-      state.gui_ship_counts = ship_counts;
-      localStorage.setItem('gui_submarine_count', ship_counts.submarine_count.toString());
-      localStorage.setItem('gui_supply_boat_count', ship_counts.supply_boat_count.toString());
-      localStorage.setItem('gui_destroyer_count', ship_counts.destroyer_count.toString());
-      localStorage.setItem('gui_battleship_count', ship_counts.battleship_count.toString());
-      localStorage.setItem('gui_frigate_count', ship_counts.frigate_count.toString());
-      localStorage.setItem('gui_aircraft_carrier_count', ship_counts.aircraft_carrier_count.toString());
+    setGameSubmarineCount(state, submarineCount: number) {
+      state.game.submarineCount = submarineCount;
+      localStorage.setItem('gameSubmarineCount', submarineCount.toString());
     },
-    set_has_used_aircraft_carrier_ability(state, value: boolean) {
-      state.has_used_aircraft_carrier_ability = value;
-      localStorage.setItem('has_used_aircraft_carrier_ability', value.toString());
+    setGameSupplyBoatCount(state, supplyBoatCount: number) {
+      state.game.supplyBoatCount = supplyBoatCount;
+      localStorage.setItem('gameSupplyBoatCount', supplyBoatCount.toString());
     },
-    set_has_used_submarine_ability(state, value: boolean) {
-      state.has_used_submarine_ability = value;
-      localStorage.setItem('has_used_submarine_ability', value.toString());
+    setGameDestroyerCount(state, destroyerCount: number) {
+      state.game.destroyerCount = destroyerCount;
+      localStorage.setItem('gameDestroyerCount', destroyerCount.toString());
     },
-    set_enemy_board(state, board: RootState['enemy_board']) {
-      state.enemy_board = board;
-      localStorage.setItem('enemy_board', JSON.stringify(board));
+    setGameBattleshipCount(state, battleshipCount: number) {
+      state.game.battleshipCount = battleshipCount;
+      localStorage.setItem('gameBattleshipCount', battleshipCount.toString());
     },
-    set_player_board(state, board: RootState['player_board']) {
-      state.player_board = board;
-      localStorage.setItem('player_board', JSON.stringify(board));
+    setGameFrigateCount(state, frigateCount: number) {
+      state.game.frigateCount = frigateCount;
+      localStorage.setItem('gameFrigateCount', frigateCount.toString());
+    },
+    setGameAircraftCarrierCount(state, aircraftCarrierCount: number) {
+      state.game.aircraftCarrierCount = aircraftCarrierCount;
+      localStorage.setItem('gameAircraftCarrierCount', aircraftCarrierCount.toString());
+    },
+    setGuiSubmarineCount(state, submarineCount: number) {
+      state.gui.submarineCount = submarineCount;
+      localStorage.setItem('guiSubmarineCount', submarineCount.toString());
+    },
+    setGuiSupplyBoatCount(state, supplyBoatCount: number) {
+      state.gui.supplyBoatCount = supplyBoatCount;
+      localStorage.setItem('guiSupplyBoatCount', supplyBoatCount.toString());
+    },
+    setGuiDestroyerCount(state, destroyerCount: number) {
+      state.gui.destroyerCount = destroyerCount;
+      localStorage.setItem('guiDestroyerCount', destroyerCount.toString());
+    },
+    setGuiBattleshipCount(state, battleshipCount: number) {
+      state.gui.battleshipCount = battleshipCount;
+      localStorage.setItem('guiBattleshipCount', battleshipCount.toString());
+    },
+    setGuiFrigateCount(state, frigateCount: number) {
+      state.gui.frigateCount = frigateCount;
+      localStorage.setItem('guiFrigateCount', frigateCount.toString());
+    },
+    setGuiAircraftCarrierCount(state, aircraftCarrierCount: number) {
+      state.gui.aircraftCarrierCount = aircraftCarrierCount;
+      localStorage.setItem('guiAircraftCarrierCount', aircraftCarrierCount.toString());
+    },
+    setPlayerBoard(state, board: Tile[][]) {
+      state.player.board = board;
+      localStorage.setItem('playerBoard', JSON.stringify(board));
+    },
+    setPlayerIsUsingSubmarineAbility(state, isUsingSubmarineAbility: boolean) {
+      state.player.isUsingSubmarineAbility = isUsingSubmarineAbility;
+      localStorage.setItem('isUsingSubmarineAbility', isUsingSubmarineAbility.toString());
+    },
+    setPlayerIsUsingAircraftCarrierAbility(state, isUsingAircraftCarrierAbility: boolean) {
+      state.player.isUsingAircraftCarrierAbility = isUsingAircraftCarrierAbility;
+      localStorage.setItem('isUsingAircraftCarrierAbility', isUsingAircraftCarrierAbility.toString());
+    },
+    setPlayerHasUsedSubmarineAbility(state, hasUsedSubmarineAbility: boolean) {
+      state.player.hasUsedSubmarineAbility = hasUsedSubmarineAbility;
+      localStorage.setItem('hasUsedSubmarineAbility', hasUsedSubmarineAbility.toString());
+    },
+    setPlayerHasUsedAircraftCarrierAbility(state, hasUsedAircraftCarrierAbility: boolean) {
+      state.player.hasUsedAircraftCarrierAbility = hasUsedAircraftCarrierAbility;
+      localStorage.setItem('hasUsedAircraftCarrierAbility', hasUsedAircraftCarrierAbility.toString());
+    },
+    setEnemyBoard(state, board: Tile[][]) {
+      state.enemy.board = board;
+      localStorage.setItem('enemyBoard', JSON.stringify(board));
     },
   },
   actions: {
-    // Initialize the boards, based on the map
-    initialize_boards({ commit, state }) {
-      const enemy_board: RootState['enemy_board'] = [];
-      const player_board: RootState['player_board'] = [];
-      for (let i = 0; i < 10; i++) {
-        enemy_board.push([]);
-        player_board.push([]);
-        for (let j = 0; j < 10; j++) {
-          enemy_board[i].push({
-            water: true,
-            land: false,
-            miss: false,
-            hit: false,
-            uncovered_ship: false,
-            ship: false,
-            ship_sprite: undefined,
-          });
-          player_board[i].push({
-            water: true,
-            land: false,
-            miss: false,
-            hit: false,
-            uncovered_ship: false,
-            ship: false,
-            ship_sprite: undefined,
-          });
-        }
-      }
-
-      const set_land = (board: Board, row: number, col: number) => {
-        board[row][col].land = true;
-        board[row][col].water = false;
-      };
-
-      if (state.map === MapType.MAP1) {
-        set_land(enemy_board, 0, 0);
-        set_land(enemy_board, 0, 9);
-        set_land(enemy_board, 9, 0);
-        set_land(enemy_board, 9, 9);
-        set_land(player_board, 0, 0);
-        set_land(player_board, 0, 9);
-        set_land(player_board, 9, 0);
-        set_land(player_board, 9, 9);
-      } else if (state.map === MapType.MAP2) {
-        set_land(enemy_board, 0, 0);
-        set_land(enemy_board, 0, 9);
-        set_land(enemy_board, 9, 0);
-        set_land(enemy_board, 9, 9);
-        set_land(enemy_board, 4, 4);
-        set_land(enemy_board, 4, 5);
-        set_land(enemy_board, 5, 4);
-        set_land(enemy_board, 5, 5);
-        set_land(player_board, 0, 0);
-        set_land(player_board, 0, 9);
-        set_land(player_board, 9, 0);
-        set_land(player_board, 9, 9);
-        set_land(player_board, 4, 4);
-        set_land(player_board, 4, 5);
-        set_land(player_board, 5, 4);
-        set_land(player_board, 5, 5);
-      } else if (state.map === MapType.MAP3) {
-        set_land(enemy_board, 0, 0);
-        set_land(enemy_board, 0, 9);
-        set_land(enemy_board, 9, 0);
-        set_land(enemy_board, 9, 9);
-        set_land(enemy_board, 4, 4);
-        set_land(enemy_board, 4, 5);
-        set_land(enemy_board, 5, 4);
-        set_land(enemy_board, 5, 5);
-        set_land(enemy_board, 0, 4);
-        set_land(enemy_board, 0, 5);
-        set_land(enemy_board, 9, 4);
-        set_land(enemy_board, 9, 5);
-        set_land(enemy_board, 4, 0);
-        set_land(enemy_board, 4, 9);
-        set_land(enemy_board, 5, 0);
-        set_land(enemy_board, 5, 9);
-        set_land(player_board, 0, 0);
-        set_land(player_board, 0, 9);
-        set_land(player_board, 9, 0);
-        set_land(player_board, 9, 9);
-        set_land(player_board, 4, 4);
-        set_land(player_board, 4, 5);
-        set_land(player_board, 5, 4);
-        set_land(player_board, 5, 5);
-        set_land(player_board, 0, 4);
-        set_land(player_board, 0, 5);
-        set_land(player_board, 9, 4);
-        set_land(player_board, 9, 5);
-        set_land(player_board, 4, 0);
-        set_land(player_board, 4, 9);
-        set_land(player_board, 5, 0);
-        set_land(player_board, 5, 9);
-      }
-
-      commit('setEnemyBoard', enemy_board);
-      commit('setPlayerBoard', player_board);
+    createBoardBasedOnMapName({ commit }, mapName: MapName) {
+      const board = MAPS[mapName];
+      const enemyBoard = JSON.parse(JSON.stringify(board)) as Tile[][];
+      const playerBoard = JSON.parse(JSON.stringify(board)) as Tile[][];
+  
+      commit('setPlayerBoard', playerBoard);
+      commit('setEnemyBoard', enemyBoard);
     },
-  },
+  },  
   modules: {
   }
 });
-
-// Define your own `useStore` composition function
-export function useStore() {
-  return baseUseStore(key);
-}
 
 export default store;

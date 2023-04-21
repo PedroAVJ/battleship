@@ -45,7 +45,7 @@
           </div>
         </div>
       </div>
-      <button class="start-room-button" @click="setShips">Start Room</button>
+      <button class="start-room-button" @click="setShipCounts">Start Room</button>
     </div>
   </template>
 
@@ -63,27 +63,26 @@ const destroyerCount = ref(0)
 const battleshipCount = ref(0)
 const frigateCount = ref(0)
 
-function setShips() {
+function setShipCounts() {
 
-    // Set ship counts
-    store.commit('setGameShipCounts', {
-        supplyBoatCount: supplyBoatCount.value,
-        destroyerCount: destroyerCount.value,
-        battleshipCount: battleshipCount.value,
-        frigateCount: frigateCount.value,
-        submarineCount: 1,
-        aircraftCarrierCount: 1
-    })
+    store.commit('setGameSubmarineCount', 1)
+    store.commit('setGameSupplyBoatCount', supplyBoatCount.value)
+    store.commit('setGameDestroyerCount', destroyerCount.value)
+    store.commit('setGameBattleshipCount', battleshipCount.value)
+    store.commit('setGameFrigateCount', frigateCount.value)
+    store.commit('setGameAircraftCarrierCount', 1)
 
-    // Set GUI ship counts
-    store.commit('setGuiShipCounts', {
-        supplyBoatCount: supplyBoatCount.value,
-        destroyerCount: destroyerCount.value,
-        battleshipCount: battleshipCount.value,
-        frigateCount: frigateCount.value,
-        submarineCount: 1,
-        aircraftCarrierCount: 1
-    })
+    store.commit('setGuiSubmarineCount', 1)
+    store.commit('setGuiSupplyBoatCount', supplyBoatCount.value)
+    store.commit('setGuiDestroyerCount', destroyerCount.value)
+    store.commit('setGuiBattleshipCount', battleshipCount.value)
+    store.commit('setGuiFrigateCount', frigateCount.value)
+    store.commit('setGuiAircraftCarrierCount', 1)
+
+    store.commit('setPlayerHasUsedSubmarineAbility', false)
+    store.commit('setPlayerHasUsedAircraftCarrierAbility', false)
+    store.commit('setPlayerIsUsingSubmarineAbility', false)
+    store.commit('setPlayerIsUsingAircraftCarrierAbility', false)
 
     router.push({ name: 'Game' })
 }

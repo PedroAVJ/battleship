@@ -1,21 +1,21 @@
 <template>
   <div class="ship-container">
-    <ShipItem shipType="aircraftCarrier" shipName="Aircraft Carrier" :count="store.state.guiShipCounts.aircraftCarrierCount">
+    <ShipItem :shipName="ShipName.AIRCRAFT_CARRIER" shipTitle="Aircraft Carrier" :count="store.state.gui.aircraftCarrierCount">
       <AircraftCarrier class="svg" />
     </ShipItem>
-    <ShipItem shipType="submarine" shipName="Submarine" :count="store.state.guiShipCounts.submarineCount">
+    <ShipItem :shipName="ShipName.SUBMARINE" shipTitle="Submarine" :count="store.state.gui.submarineCount">
       <Submarine class="svg" />
     </ShipItem>
-    <ShipItem shipType="destroyer" shipName="Destroyer" :count="store.state.guiShipCounts.destroyerCount">
+    <ShipItem :shipName="ShipName.DESTROYER" shipTitle="Destroyer" :count="store.state.gui.destroyerCount">
       <Destroyer class="svg" />
     </ShipItem>
-    <ShipItem shipType="battleship" shipName="Battleship" :count="store.state.guiShipCounts.battleshipCount">
+    <ShipItem :shipName="ShipName.BATTLESHIP" shipTitle="Battleship" :count="store.state.gui.battleshipCount">
       <Battleship class="svg" />
     </ShipItem>
-    <ShipItem shipType="frigate" shipName="Frigate" :count="store.state.guiShipCounts.frigateCount">
+    <ShipItem :shipName="ShipName.FRIGATE" shipTitle="Frigate" :count="store.state.gui.frigateCount">
       <Frigate class="svg" />
     </ShipItem>
-    <ShipItem shipType="supplyBoat" shipName="Supply Boat" :count="store.state.guiShipCounts.supplyBoatCount">
+    <ShipItem :shipName="ShipName.SUPPLY_BOAT" shipTitle="Supply Boat" :count="store.state.gui.supplyBoatCount">
       <SupplyBoat class="svg" />
     </ShipItem>
   </div>
@@ -23,15 +23,15 @@
 
 <script lang="ts" setup>
 import { useStore } from '@/store'
+import { ShipName } from '@/types/store.interface'
+import ShipItem from '@/components/ShipItem.vue'
 
-// SVG imports
-import Submarine from './Submarine.vue';
-import SupplyBoat from './SupplyBoat.vue';
-import Destroyer from './Destroyer.vue';
-import Battleship from './Battleship.vue';
-import Frigate from './Frigate.vue';
-import AircraftCarrier from './AircraftCarrier.vue';
-import ShipItem from './ShipItem.vue';
+import Submarine from '@/components/SVG\'s/Ships/Submarine.vue'
+import SupplyBoat from '@/components/SVG\'s/Ships/SupplyBoat.vue'
+import Destroyer from '@/components/SVG\'s/Ships/Destroyer.vue'
+import Battleship from '@/components/SVG\'s/Ships/Battleship.vue'
+import Frigate from '@/components/SVG\'s/Ships/Frigate.vue'
+import AircraftCarrier from '@/components/SVG\'s/Ships/AircraftCarrier.vue'
 
 const store = useStore()
 </script>

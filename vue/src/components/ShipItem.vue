@@ -1,12 +1,15 @@
 <template>
-  <div :id="shipType" class="ship-item">
-    <h2>{{ shipName }}</h2>
+  <div :id="shipName" class="ship-item">
+    <h2>{{ shipTitle }}</h2>
     <div class="svg-container" :draggable="count > 0" @dragstart="dragStart">
       <slot></slot>
     </div>
     <div class="controls">
-      <button :class="['toggle-button', orientationButtonClass]" @click="toggleOrientation">
-        {{ orientationButtonText }}
+      <button :class="['toggle-button', orientation]" @click="toggleOrientation">
+
+        <!-- Title cases the orientation -->
+        {{ orientation.charAt(0).toUpperCase() + orientation.slice(1).toLowerCase() }}
+
       </button>
       <span>x{{ count }}</span>
     </div>
@@ -14,38 +17,32 @@
 </template>
 
 <script lang="ts" setup>
-import { Orientation } from '@/types/store.interface.js';
-import { computed, ref } from 'vue';
+import { Orientation, ShipName } from '@/types/store.interface';
+import { ref } from 'vue';
 
 
 interface ShipItemProps {
-  shipType: string,
-  shipName: string,
+  shipName: ShipName,
+  shipTitle: string,
   count: number
 }
 
 const props = defineProps<ShipItemProps>();
 
-const orientation = ref(Orientation.HORIZONTAL);
+const orientation = ref<Orientation>(Orientation.HORIZONTAL);
 
-const dragStart = (e: DragEvent) => {
-  e.dataTransfer?.setData('shipType', props.shipType);
+function dragStart(e: DragEvent) {
+  e.dataTransfer?.setData('shipName', props.shipName);
   e.dataTransfer?.setData('orientation', orientation.value);
-};
+}
 
-const toggleOrientation = () => {
-  orientation.value = orientation.value === Orientation.HORIZONTAL ? Orientation.VERTICAL : Orientation.HORIZONTAL;
-};
-
-const orientationButtonClass = computed(() => {
-    return orientation.value === Orientation.VERTICAL ? 'vertical' : 'horizontal';
-});
-
-const orientationButtonText = computed(() => {
-
-    // Title case the orientation
-    return orientation.value.charAt(0).toUpperCase() + orientation.value.slice(1).toLowerCase();
-});
+function toggleOrientation() {
+  if (orientation.value === Orientation.HORIZONTAL) {
+    orientation.value = Orientation.VERTICAL;
+  } else {
+    orientation.value = Orientation.HORIZONTAL;
+  }
+}
 </script>
 
 <style scoped>

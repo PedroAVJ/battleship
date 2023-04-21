@@ -2,9 +2,9 @@
   <div class="map-selection-container">
     <h2 class="map-selection-title">Select Map</h2>
     <div class="map-buttons">
-      <button class="map-button" @click="setMap(MapType.MAP1)">Small Map</button>
-      <button class="map-button" @click="setMap(MapType.MAP2)">Medium Map</button>
-      <button class="map-button" @click="setMap(MapType.MAP3)">Large Map</button>
+      <button class="map-button" @click="setMap(MapName.MAP1)">Small Map</button>
+      <button class="map-button" @click="setMap(MapName.MAP2)">Medium Map</button>
+      <button class="map-button" @click="setMap(MapName.MAP3)">Large Map</button>
     </div>
   </div>
 </template>
@@ -12,15 +12,14 @@
 <script lang="ts" setup>
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
-import { RootState } from '@/types/store.interface.js';
-import { MapType } from '@/types/store.interface.js';
+import { MapName } from '@/types/store.interface';
+
 
 const router = useRouter();
 const store = useStore();
 
-function setMap(map: RootState['map']) {
-  store.commit('setMap', map);
-  store.dispatch('initializeBoards')
+function setMap(map: MapName) {
+  store.dispatch('createBoardBasedOnMapName', map);
   router.push({ name: 'ShipSelect' });
 }
 </script>

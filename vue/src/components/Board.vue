@@ -2,19 +2,20 @@
   <div class="board">
     <div v-for="(row, rowIndex) in board" :key="rowIndex" class="board-row">
       <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-        <Cell :cell="col" :row="rowIndex" :col="colIndex" />
+        <Square :tile="col" :row="rowIndex" :col="colIndex" :isPlayerBoard="isPlayerBoard" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import Cell from '@/components/Cell.vue';
-import { Board } from '@/types/store.interface.js';
+import Square from '@/components/Square.vue';
+import { Tile } from '@/types/store.interface';
 
 
 interface BoardProps {
-  board: Board;
+  board: Tile[][];
+  isPlayerBoard: boolean;
 }
 
 const props = defineProps<BoardProps>();
