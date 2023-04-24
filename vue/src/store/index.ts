@@ -7,8 +7,8 @@ import { MAPS, MapName, RootState, Tile } from '@/types/store.interface';
 export const key: InjectionKey<Store<RootState>> = Symbol();
 
 /**
- * So long as useStore is imported from '@/store' and not from 'vuex',
- * the store will have type annotations
+ * Provides a typed version of the Vuex store.
+ * Make sure to import useStore from '@/store' instead of 'vuex'.
  */
 export function useStore() {
   return baseUseStore(key);
@@ -16,10 +16,9 @@ export function useStore() {
 
 const store = createStore<RootState>({
   state: {
-    map: JSON.parse(localStorage.getItem('map') || '[[]]'),
     game: {
-      isInProgress: localStorage.getItem('isInProgress') === 'true',
       isPlayersTurn: localStorage.getItem('isPlayersTurn') === 'true',
+      id: parseInt(localStorage.getItem('gameId') || '0'),
 
       submarineCount: parseInt(localStorage.getItem('gameSubmarineCount') || '0'),
       supplyBoatCount: parseInt(localStorage.getItem('gameSupplyBoatCount') || '0'),
@@ -43,6 +42,8 @@ const store = createStore<RootState>({
       hasUsedSubmarineAbility: localStorage.getItem('hasUsedSubmarineAbility') === 'true',
       hasUsedAircraftCarrierAbility: localStorage.getItem('hasUsedAircraftCarrierAbility') === 'true',
 
+      aircraftCarrierHealth: parseInt(localStorage.getItem('aircraftCarrierHealth') || '0'),
+
       board: JSON.parse(localStorage.getItem('playerBoard') || '[[]]'),
     },
     enemy: { board: JSON.parse(localStorage.getItem('enemyBoard') || '[[]]'), },
@@ -50,18 +51,15 @@ const store = createStore<RootState>({
   getters: {
   },
   mutations: {
-    setMap(state, map: Tile[][]) {
-      state.map = map;
-      localStorage.setItem('map', JSON.stringify(map));
-    },
-    setGameIsInProgress(state, isInProgress: boolean) {
-      state.game.isInProgress = isInProgress;
-      localStorage.setItem('isInProgress', isInProgress.toString());
-    },
     setGameIsPlayersTurn(state, isPlayersTurn: boolean) {
       state.game.isPlayersTurn = isPlayersTurn;
       localStorage.setItem('isPlayersTurn', isPlayersTurn.toString());
     },
+    setGameId(state, id: number) {
+      state.game.id = id;
+      localStorage.setItem('gameId', id.toString());
+    },
+
     setGameSubmarineCount(state, submarineCount: number) {
       state.game.submarineCount = submarineCount;
       localStorage.setItem('gameSubmarineCount', submarineCount.toString());
@@ -86,6 +84,7 @@ const store = createStore<RootState>({
       state.game.aircraftCarrierCount = aircraftCarrierCount;
       localStorage.setItem('gameAircraftCarrierCount', aircraftCarrierCount.toString());
     },
+
     setGuiSubmarineCount(state, submarineCount: number) {
       state.gui.submarineCount = submarineCount;
       localStorage.setItem('guiSubmarineCount', submarineCount.toString());
@@ -110,10 +109,7 @@ const store = createStore<RootState>({
       state.gui.aircraftCarrierCount = aircraftCarrierCount;
       localStorage.setItem('guiAircraftCarrierCount', aircraftCarrierCount.toString());
     },
-    setPlayerBoard(state, board: Tile[][]) {
-      state.player.board = board;
-      localStorage.setItem('playerBoard', JSON.stringify(board));
-    },
+
     setPlayerIsUsingSubmarineAbility(state, isUsingSubmarineAbility: boolean) {
       state.player.isUsingSubmarineAbility = isUsingSubmarineAbility;
       localStorage.setItem('isUsingSubmarineAbility', isUsingSubmarineAbility.toString());
@@ -122,6 +118,7 @@ const store = createStore<RootState>({
       state.player.isUsingAircraftCarrierAbility = isUsingAircraftCarrierAbility;
       localStorage.setItem('isUsingAircraftCarrierAbility', isUsingAircraftCarrierAbility.toString());
     },
+
     setPlayerHasUsedSubmarineAbility(state, hasUsedSubmarineAbility: boolean) {
       state.player.hasUsedSubmarineAbility = hasUsedSubmarineAbility;
       localStorage.setItem('hasUsedSubmarineAbility', hasUsedSubmarineAbility.toString());
@@ -130,16 +127,26 @@ const store = createStore<RootState>({
       state.player.hasUsedAircraftCarrierAbility = hasUsedAircraftCarrierAbility;
       localStorage.setItem('hasUsedAircraftCarrierAbility', hasUsedAircraftCarrierAbility.toString());
     },
+
+    setAircraftCarrierHealth(state, aircraftCarrierHealth: number) {
+      state.player.aircraftCarrierHealth = aircraftCarrierHealth;
+      localStorage.setItem('hasUsedAircraftCarrierAbility', aircraftCarrierHealth.toString());
+    },
+
+    setPlayerBoard(state, board: Tile[][]) {
+      state.player.board = board;
+      localStorage.setItem('playerBoard', JSON.stringify(board));
+    },
     setEnemyBoard(state, board: Tile[][]) {
       state.enemy.board = board;
       localStorage.setItem('enemyBoard', JSON.stringify(board));
     },
   },
   actions: {
-    createBoardBasedOnMapName({ commit }, mapName: MapName) {
-      const board = MAPS[mapName];
-      const enemyBoard = JSON.parse(JSON.stringify(board)) as Tile[][];
-      const playerBoard = JSON.parse(JSON.stringify(board)) as Tile[][];
+    initializeBoardsBasedOnMapName({ commit }, mapName: MapName) {
+      const map = MAPS[mapName];
+      const enemyBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
+      const playerBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
   
       commit('setPlayerBoard', playerBoard);
       commit('setEnemyBoard', enemyBoard);

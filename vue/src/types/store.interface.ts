@@ -1,9 +1,11 @@
 export interface RootState {
-  map: Tile[][];
   game: {
-    isInProgress: boolean;
     isPlayersTurn: boolean;
+
+    /** Id passed to the backend for recognizing the game */
+    id: number;
     
+    // Ship counts passed to the backend for ship placement
     submarineCount: number;
     supplyBoatCount: number;
     destroyerCount: number;
@@ -11,6 +13,8 @@ export interface RootState {
     frigateCount: number;
     aircraftCarrierCount: number;
   };
+
+  /** Display the number of remaining ships to place */
   gui: {
     submarineCount: number;
     supplyBoatCount: number;
@@ -20,15 +24,32 @@ export interface RootState {
     aircraftCarrierCount: number;
   };
   player: {
+
+    // GUI changes during ability usage
     isUsingSubmarineAbility: boolean;
     isUsingAircraftCarrierAbility: boolean;
 
+    // GUI changes after ability usage
     hasUsedSubmarineAbility: boolean;
-    hasUsedAircraftCarrierAbility: boolean;
+    hasUsedAircraftCarrierAbility: boolean; 
 
+    /** Sets hasUsedAircraftCarrierAbility to true when 0 */
+    aircraftCarrierHealth: number;
+    
+    /**
+     * WARNING: Use JSON.parse(JSON.stringify(board)) to get a deep copy,
+     * as the nested Tile[][] can be mutated.
+     */
     board: Tile[][];
   },
-  enemy: { board: Tile[][]; },
+  enemy: {
+
+    /**
+     * WARNING: Use JSON.parse(JSON.stringify(board)) to get a deep copy,
+     * as the nested Tile[][] can be mutated.
+     */
+    board: Tile[][];
+  },
 }
 
 export interface Tile {
@@ -37,20 +58,21 @@ export interface Tile {
     isLand: boolean;
   };
   contains: {
-    shipHitbox: boolean;
     missedShot: boolean;
     successfulShot: boolean;
     uncoveredShip: boolean;
   };
 
-  /**
-   * We use this to determine where to start drawing the ship sprite
-   */
+  /** Represents a ship's hitbox when placed on the tile */
   ship?: {
     name: ShipName;
-    length: number;
-    orientation: Orientation;
-  };
+
+    /** 
+     * Indicates whether we should start drawing the ship from this tile.
+     * If set, the ship will be drawn in the specified orientation
+     */
+    orientation?: Orientation;
+  }
 }
 
 export enum ShipName {
@@ -67,13 +89,31 @@ export enum Orientation {
   VERTICAL = "vertical",
 }
 
-export const SHIP_LENGTHS = {
-  submarine: 1,
-  supplyBoat: 2,
-  destroyer: 3,
-  battleship: 4,
-  frigate: 5,
-  aircraftCarrier: 5,
+export const SHIP_DIMENSIONS = {
+  [ShipName.SUBMARINE]: {
+    length: 1,
+    width: 1,
+  },
+  [ShipName.SUPPLY_BOAT]: {
+    length: 2,
+    width: 1,
+  },
+  [ShipName.DESTROYER]: {
+    length: 3,
+    width: 1,
+  },
+  [ShipName.BATTLESHIP]: {
+    length: 4,
+    width: 1,
+  },
+  [ShipName.FRIGATE]: {
+    length: 5,
+    width: 1,
+  },
+  [ShipName.AIRCRAFT_CARRIER]: {
+    length: 5,
+    width: 2,
+  },
 } as const;
 
 export enum MapName {
@@ -82,45 +122,41 @@ export enum MapName {
   MAP3 = "map3",
 }
 
-
-// Water Tile: Look at MAPS below for context on why this variable is named _
+// Water Tile (_): see MAPS for context
 const _: Tile = {
   background: {
     isWater: true,
     isLand: false,
   },
   contains: {
-    shipHitbox: false,
     missedShot: false,
     successfulShot: false,
     uncoveredShip: false,
   },
 };
 
-// Land Tile: Look at MAPS below for context on why this variable is named M
+// Land Tile (M): see MAPS for context
 const M: Tile = {
   background: {
     isWater: false,
     isLand: true,
   },
   contains: {
-    shipHitbox: false,
     missedShot: false,
     successfulShot: false,
     uncoveredShip: false,
   },
 };
 
-
+// Map design:
+// M represents land, _ represents water.
+// This format achieves an optimal height-to-width ratio on the screen.
+// Using '.' for water and '#' for land in nested lists was too wide.
+// Using strings like '..#..#..#.' for each row was too tall.
 /**
- * WARNING: Stringify, parse and cast to Tile[][] before using,
- * as the nested Tile[][] can still be mutated.
+ * WARNING: Use JSON.parse(JSON.stringify(board)) to get a deep copy,
+ * as the nested Tile[][] can be mutated.
  */
-// This is were I draw and sketch out the maps
-// M is land and _ is water
-// This gave me the best ratio of height to width on my screen
-// Using '.' for water and '#' for land inside nested lists was too wide
-// Using strings on each line like this '..#..#..#.' was too tall
 export const MAPS = {
   [MapName.MAP1]: [
     [_, _, _, _, _, _, _, _, _, _],

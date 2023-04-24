@@ -9,54 +9,14 @@
 
     @click="click"
   >
-
-    <Hit v-if="tile.contains.successfulShot" />
-    <Miss v-if="tile.contains.missedShot" />
-    <Uncovered v-if="tile.contains.uncoveredShip" />
-
-    <div v-if="tile.ship !== undefined">
-      <Submarine
-        v-if="tile.ship.name === ShipName.SUBMARINE"
-        :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <SupplyBoat
-        v-if="tile.ship.name === ShipName.SUPPLY_BOAT"
-        :class="['supply-boat', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <Destroyer
-        v-if="tile.ship.name === ShipName.DESTROYER"
-        :class="['destroyer', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <Battleship
-        v-if="tile.ship.name === ShipName.BATTLESHIP"
-        :class="['battleship', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <Frigate
-        v-if="tile.ship.name === ShipName.FRIGATE"
-        :class="['frigate', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <AircraftCarrier
-        v-if="tile.ship.name === ShipName.AIRCRAFT_CARRIER"
-        :class="['aircraft-carrier', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-    </div>
-
+    <Sprite :tile="tile" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ShipName, Tile, Orientation, SHIP_LENGTHS } from '@/types/store.interface';
 import { useStore } from '@/store';
-
-import Miss from '@/components/SVG\'s/Miss.vue'
-import Hit from '@/components/SVG\'s/Hit.vue'
-import Uncovered from '@/components/SVG\'s/Uncovered.vue'
-import Submarine from '@/components/SVG\'s/Ships/Submarine.vue'
-import SupplyBoat from '@/components/SVG\'s/Ships/SupplyBoat.vue'
-import Destroyer from '@/components/SVG\'s/Ships/Destroyer.vue'
-import Battleship from '@/components/SVG\'s/Ships/Battleship.vue'
-import Frigate from '@/components/SVG\'s/Ships/Frigate.vue'
-import AircraftCarrier from '@/components/SVG\'s/Ships/AircraftCarrier.vue'
+import Sprite from './Sprite.vue';
 
 
 interface CellProps {
@@ -94,7 +54,7 @@ function drop(e: DragEvent) {
   if (isInvalidMove(shipName, shipOrientation)) return;
 
   const new_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][];
-  const shipHitboxes = getShipHitboxes(shipName, shipOrientation);
+  const shipHitboxes = getShipHitboxes(shipName, shipOrientation, props.row, props.col);
   for (const hitbox of shipHitboxes) {
     const row = hitbox.row;
     const col = hitbox.col;
@@ -103,6 +63,7 @@ function drop(e: DragEvent) {
   const new_ship = {
     name: shipName,
     length: SHIP_LENGTHS[shipName],
+    health: SHIP_LENGTHS[shipName],
     orientation: shipOrientation,
   };
   new_board[props.row][props.col].ship = new_ship;
@@ -134,7 +95,7 @@ function isShipName(input: string): input is ShipName {
 }
 
 function isInvalidMove(shipName: ShipName, shipOrientation: Orientation): boolean {
-  const shipHitboxes = getShipHitboxes(shipName, shipOrientation);
+  const shipHitboxes = getShipHitboxes(shipName, shipOrientation, props.row, props.col);
   const board = store.state.player.board;
 
   for (const hitbox of shipHitboxes) {
@@ -161,26 +122,26 @@ function isInvalidSquare(board: Tile[][], row: number, col: number): boolean {
   return false;
 }
 
-function getShipHitboxes(shipName: ShipName, shipOrientation: Orientation): { row: number, col: number }[] {
+function getShipHitboxes(shipName: ShipName, shipOrientation: Orientation, row_origin: number, col_origin: number): { row: number, col: number }[] {
   const shipLength = SHIP_LENGTHS[shipName];
   const shipHitboxes: { row: number, col: number }[] = [];
 
   if (shipOrientation === Orientation.HORIZONTAL) {
     for (let col = 0; col < shipLength; col++) {
-      shipHitboxes.push({ row: props.row, col: props.col + col });
+      shipHitboxes.push({ row: row_origin, col: col_origin + col });
 
       // If it is an aircraft carrier, add the extra hitbox below
       if (shipName === ShipName.AIRCRAFT_CARRIER) {
-        shipHitboxes.push({ row: props.row + 1, col: props.col + col });
+        shipHitboxes.push({ row: row_origin + 1, col: col_origin + col });
       }
     }
   } else {
     for (let row = 0; row < shipLength; row++) {
-      shipHitboxes.push({ row: props.row + row, col: props.col });
+      shipHitboxes.push({ row: row_origin + row, col: col_origin });
 
       // If it is an aircraft carrier, add the extra hitbox to the right
       if (shipName === ShipName.AIRCRAFT_CARRIER) {
-        shipHitboxes.push({ row: props.row + row, col: props.col + 1 });
+        shipHitboxes.push({ row: row_origin + row, col: col_origin + 1 });
       }
     }
   }
@@ -194,17 +155,82 @@ function click() {
   if (!store.state.game.isPlayersTurn) return;
   if (isInvalidSquare(store.state.enemy.board, props.row, props.col)) return;
 
+  store.commit('setGameIsPlayersTurn', false);
+
+  const uncovered_tiles = [];
+  if (store.state.player.isUsingAircraftCarrierAbility) {
+    uncovered_tiles.push(...getAircraftCarrierTiles());
+  } else if (store.state.player.isUsingSubmarineAbility) {
+    uncovered_tiles.push(...getSubmarineTiles());
+  }
+
+  const player_board = JSON.parse(JSON.stringify(store.state.player.board));
+
+  fetch('http://localhost:8000/api/make_move/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      game_id: store.state.game.id,
+      row: props.row,
+      col: props.col,
+      move_is_submarine_ability: store.state.player.isUsingSubmarineAbility,
+      move_is_aircraft_carrier_ability: store.state.player.isUsingAircraftCarrierAbility,
+      uncovered_tiles: uncovered_tiles,
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    const board = store.state.enemy.board;
+    for (const result of data.results_from_player_move) {
+      if (result.action === 'successfulShot') {
+        board[result.row][result.col].contains.successfulShot = true;
+      } else if (result.action === 'missedShot') {
+        board[result.row][result.col].contains.missedShot = true;
+      } else if (result.action === 'uncoveredShip') {
+        board[result.row][result.col].contains.uncoveredShip = true;
+      }
+    }
+  });
+
   if (store.state.player.isUsingAircraftCarrierAbility) {
     store.commit('setPlayerIsUsingAircraftCarrierAbility', false);
     store.commit('setPlayerHasUsedAircraftCarrierAbility', true);
   } else if (store.state.player.isUsingSubmarineAbility) {
     store.commit('setPlayerIsUsingSubmarineAbility', false);
     store.commit('setPlayerHasUsedSubmarineAbility', true);
-  } else {
-    console.log('Attacking');
+  }
+}
+
+function getAircraftCarrierTiles(): { row: number, col: number }[] {
+  for (let row = 0; row < store.state.player.board.length; row++) {
+    for (let col = 0; col < store.state.player.board[0].length; col++) {
+      if (store.state.player.board[row][col].ship?.name === ShipName.AIRCRAFT_CARRIER) {
+        const orientation = store.state.player.board[row][col].ship?.orientation;
+        if (orientation === undefined) continue;
+        return getShipHitboxes(ShipName.AIRCRAFT_CARRIER, orientation, row, col);
+      }
+    }
   }
 
-  store.commit('setGameIsPlayersTurn', false);
+  return [];
+}
+
+function getSubmarineTiles(): { row: number, col: number }[] {
+  const tiles: { row: number, col: number }[] = [];
+
+  for (let row = 0; row < store.state.player.board.length; row++) {
+    for (let col = 0; col < store.state.player.board[0].length; col++) {
+      if (store.state.player.board[row][col].ship?.name === ShipName.SUBMARINE) {
+        const orientation = store.state.player.board[row][col].ship?.orientation;
+        if (orientation === undefined) continue;
+        tiles.push(...getShipHitboxes(ShipName.SUBMARINE, orientation, row, col));
+      }
+    }
+  }
+
+  return tiles;
 }
 </script>
 
@@ -231,95 +257,4 @@ function click() {
 .land.darken {
   background-color: #27ae60;
 }
-
-.submarine {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  z-index: 1;
-}
-
-.supply-boat {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 200%;
-  height: 100%;
-  overflow: visible;
-  z-index: 1;
-  transform: scaleX(2);
-}
-
-.destroyer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 300%;
-  height: 100%;
-  overflow: visible;
-  z-index: 1;
-  transform: scaleX(3);
-}
-
-.battleship {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 400%;
-  height: 100%;
-  overflow: visible;
-  z-index: 1;
-  transform: scaleX(4);
-}
-
-.frigate {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 500%;
-  height: 100%;
-  overflow: visible;
-  z-index: 1;
-  transform: scaleX(5) scaleY(2)
-}
-
-.aircraft-carrier {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 500%;
-  height: 100%;
-  overflow: visible;
-  z-index: 1;
-  transform: scaleX(4.5) scaleY(5) translate(-2.5%, 30%);
-}
-
-/* Transformations for rotated ships */
-.submarine.rotated {
-  transform: rotate(90deg);
-}
-
-.supply-boat.rotated {
-  transform: rotate(90deg) scaleX(2) translate(14%, 50%);
-}
-
-.destroyer.rotated {
-  transform: rotate(90deg) scaleX(3) translate(12%, 100%);
-}
-
-.battleship.rotated {
-  transform: rotate(90deg) scaleX(4) translate(10%, 150%);
-}
-
-.frigate.rotated {
-  transform: rotate(90deg) scaleX(5) scaleY(2) translate(8.5%, 100%);
-}
-
-.aircraft-carrier.rotated {
-  transform: rotate(90deg) scaleX(4.5) scaleY(5) translate(6%, 50%);
-}
-
 </style>

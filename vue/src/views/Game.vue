@@ -73,8 +73,32 @@ import { useStore } from '@/store'
 const store = useStore()
 
 function startGame() {
-  store.commit('setGameIsInProgress', true)
-  store.commit('setGameIsPlayersTurn', true)
+  fetch('http://localhost:8000/api/start_game/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      computer_board: store.state.enemy.board,
+      player_board: store.state.player.board,
+
+      submarine_count: store.state.gui.submarineCount,
+      aircraft_carrier_count: store.state.gui.aircraftCarrierCount,
+      destroyer_count: store.state.gui.destroyerCount,
+      frigate_count: store.state.gui.frigateCount,
+      battleship_count: store.state.gui.battleshipCount,
+      supply_boat_count: store.state.gui.supplyBoatCount,
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    store.commit('setGameIsInProgress', true)
+    store.commit('setGameIsPlayersTurn', true)
+    store.commit('setGameId', data.id)
+  })
+  .catch(error => {
+    console.error('Error:', error)
+  })
 }
 </script>
 
