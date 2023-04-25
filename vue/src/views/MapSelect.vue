@@ -12,14 +12,14 @@
 <script lang="ts" setup>
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
-import { MapName } from '@/types/store.interface';
+import { MapName, ActionType } from '@/types/store.interface';
 
 
 const router = useRouter();
 const store = useStore();
 
-function setMap(map: MapName) {
-  store.dispatch('createBoardBasedOnMapName', map);
+function setMap(mapName: MapName) {
+  store.dispatch(ActionType.INITIALIZE_BOARDS_BASED_ON_MAP_NAME, mapName);
   router.push({ name: 'ShipSelect' });
 }
 </script>

@@ -1,6 +1,6 @@
 import { InjectionKey } from 'vue';
 import { createStore, Store, useStore as baseUseStore } from 'vuex';
-import { MAPS, MapName, RootState, Tile } from '@/types/store.interface';
+import { MAPS, MapName, RootState, Tile, ActionType, MutationType } from '@/types/store.interface';
 
 
 // This key allows TypeScript to infer the type of the store
@@ -15,6 +15,7 @@ export function useStore() {
 }
 
 const store = createStore<RootState>({
+
   state: {
     game: {
       isPlayersTurn: localStorage.getItem('isPlayersTurn') === 'true',
@@ -48,112 +49,115 @@ const store = createStore<RootState>({
     },
     enemy: { board: JSON.parse(localStorage.getItem('enemyBoard') || '[[]]'), },
   },
-  getters: {
-  },
+
   mutations: {
-    setGameIsPlayersTurn(state, isPlayersTurn: boolean) {
+    [MutationType.SET_GAME_IS_PLAYERS_TURN](state, isPlayersTurn: boolean) {
       state.game.isPlayersTurn = isPlayersTurn;
       localStorage.setItem('isPlayersTurn', isPlayersTurn.toString());
     },
-    setGameId(state, id: number) {
+    [MutationType.SET_GAME_ID](state, id: number) {
       state.game.id = id;
       localStorage.setItem('gameId', id.toString());
     },
 
-    setGameSubmarineCount(state, submarineCount: number) {
+    [MutationType.SET_GAME_SUBMARINE_COUNT](state, submarineCount: number) {
       state.game.submarineCount = submarineCount;
       localStorage.setItem('gameSubmarineCount', submarineCount.toString());
     },
-    setGameSupplyBoatCount(state, supplyBoatCount: number) {
+    [MutationType.SET_GAME_SUPPLY_BOAT_COUNT](state, supplyBoatCount: number) {
       state.game.supplyBoatCount = supplyBoatCount;
       localStorage.setItem('gameSupplyBoatCount', supplyBoatCount.toString());
     },
-    setGameDestroyerCount(state, destroyerCount: number) {
+    [MutationType.SET_GAME_DESTROYER_COUNT](state, destroyerCount: number) {
       state.game.destroyerCount = destroyerCount;
       localStorage.setItem('gameDestroyerCount', destroyerCount.toString());
     },
-    setGameBattleshipCount(state, battleshipCount: number) {
+    [MutationType.SET_GAME_BATTLESHIP_COUNT](state, battleshipCount: number) {
       state.game.battleshipCount = battleshipCount;
       localStorage.setItem('gameBattleshipCount', battleshipCount.toString());
     },
-    setGameFrigateCount(state, frigateCount: number) {
+    [MutationType.SET_GAME_FRIGATE_COUNT](state, frigateCount: number) {
       state.game.frigateCount = frigateCount;
       localStorage.setItem('gameFrigateCount', frigateCount.toString());
     },
-    setGameAircraftCarrierCount(state, aircraftCarrierCount: number) {
+    [MutationType.SET_GAME_AIRCRAFT_CARRIER_COUNT](state, aircraftCarrierCount: number) {
       state.game.aircraftCarrierCount = aircraftCarrierCount;
       localStorage.setItem('gameAircraftCarrierCount', aircraftCarrierCount.toString());
     },
 
-    setGuiSubmarineCount(state, submarineCount: number) {
+    [MutationType.SET_GUI_SUBMARINE_COUNT](state, submarineCount: number) {
       state.gui.submarineCount = submarineCount;
       localStorage.setItem('guiSubmarineCount', submarineCount.toString());
     },
-    setGuiSupplyBoatCount(state, supplyBoatCount: number) {
+    [MutationType.SET_GUI_SUPPLY_BOAT_COUNT](state, supplyBoatCount: number) {
       state.gui.supplyBoatCount = supplyBoatCount;
       localStorage.setItem('guiSupplyBoatCount', supplyBoatCount.toString());
     },
-    setGuiDestroyerCount(state, destroyerCount: number) {
+    [MutationType.SET_GUI_DESTROYER_COUNT](state, destroyerCount: number) {
       state.gui.destroyerCount = destroyerCount;
       localStorage.setItem('guiDestroyerCount', destroyerCount.toString());
     },
-    setGuiBattleshipCount(state, battleshipCount: number) {
+    [MutationType.SET_GUI_BATTLESHIP_COUNT](state, battleshipCount: number) {
       state.gui.battleshipCount = battleshipCount;
       localStorage.setItem('guiBattleshipCount', battleshipCount.toString());
     },
-    setGuiFrigateCount(state, frigateCount: number) {
+    [MutationType.SET_GUI_FRIGATE_COUNT](state, frigateCount: number) {
       state.gui.frigateCount = frigateCount;
       localStorage.setItem('guiFrigateCount', frigateCount.toString());
     },
-    setGuiAircraftCarrierCount(state, aircraftCarrierCount: number) {
+    [MutationType.SET_GUI_AIRCRAFT_CARRIER_COUNT](state, aircraftCarrierCount: number) {
       state.gui.aircraftCarrierCount = aircraftCarrierCount;
       localStorage.setItem('guiAircraftCarrierCount', aircraftCarrierCount.toString());
     },
 
-    setPlayerIsUsingSubmarineAbility(state, isUsingSubmarineAbility: boolean) {
+    [MutationType.SET_PLAYER_IS_USING_SUBMARINE_ABILITY](state, isUsingSubmarineAbility: boolean) {
       state.player.isUsingSubmarineAbility = isUsingSubmarineAbility;
       localStorage.setItem('isUsingSubmarineAbility', isUsingSubmarineAbility.toString());
     },
-    setPlayerIsUsingAircraftCarrierAbility(state, isUsingAircraftCarrierAbility: boolean) {
+    [MutationType.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY](state, isUsingAircraftCarrierAbility: boolean) {
       state.player.isUsingAircraftCarrierAbility = isUsingAircraftCarrierAbility;
       localStorage.setItem('isUsingAircraftCarrierAbility', isUsingAircraftCarrierAbility.toString());
     },
 
-    setPlayerHasUsedSubmarineAbility(state, hasUsedSubmarineAbility: boolean) {
+    [MutationType.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY](state, hasUsedSubmarineAbility: boolean) {
       state.player.hasUsedSubmarineAbility = hasUsedSubmarineAbility;
       localStorage.setItem('hasUsedSubmarineAbility', hasUsedSubmarineAbility.toString());
     },
-    setPlayerHasUsedAircraftCarrierAbility(state, hasUsedAircraftCarrierAbility: boolean) {
+    [MutationType.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY](state, hasUsedAircraftCarrierAbility: boolean) {
       state.player.hasUsedAircraftCarrierAbility = hasUsedAircraftCarrierAbility;
       localStorage.setItem('hasUsedAircraftCarrierAbility', hasUsedAircraftCarrierAbility.toString());
     },
 
-    setAircraftCarrierHealth(state, aircraftCarrierHealth: number) {
+    [MutationType.SET_AIRCRAFT_CARRIER_HEALTH](state, aircraftCarrierHealth: number) {
       state.player.aircraftCarrierHealth = aircraftCarrierHealth;
-      localStorage.setItem('hasUsedAircraftCarrierAbility', aircraftCarrierHealth.toString());
+      localStorage.setItem('aircraftCarrierHealth', aircraftCarrierHealth.toString());
     },
 
-    setPlayerBoard(state, board: Tile[][]) {
-      state.player.board = board;
+    [MutationType.SET_PLAYER_BOARD](state, board: Tile[][]) {
+      state.player.board = JSON.parse(JSON.stringify(board)) as Tile[][];
       localStorage.setItem('playerBoard', JSON.stringify(board));
     },
-    setEnemyBoard(state, board: Tile[][]) {
-      state.enemy.board = board;
+    [MutationType.SET_ENEMY_BOARD](state, board: Tile[][]) {
+      state.enemy.board = JSON.parse(JSON.stringify(board)) as Tile[][];
       localStorage.setItem('enemyBoard', JSON.stringify(board));
     },
   },
+
   actions: {
-    initializeBoardsBasedOnMapName({ commit }, mapName: MapName) {
+    [ActionType.INITIALIZE_BOARDS_BASED_ON_MAP_NAME]({ commit }, mapName: MapName) {
       const map = MAPS[mapName];
       const enemyBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
       const playerBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
   
-      commit('setPlayerBoard', playerBoard);
-      commit('setEnemyBoard', enemyBoard);
+      commit(MutationType.SET_PLAYER_BOARD, playerBoard);
+      commit(MutationType.SET_ENEMY_BOARD, enemyBoard);
     },
-  },  
+  },
+
   modules: {
-  }
+  },
+  getters: {
+  },  
 });
 
 export default store;

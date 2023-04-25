@@ -1,31 +1,33 @@
 <template>
-    <Hit v-if="tile.contains.successfulShot" />
+    <Hit v-if="tile.contains.successfulShot" class="hit" />
     <Miss v-if="tile.contains.missedShot" />
-    <Uncovered v-if="tile.contains.uncoveredShip" />
+
+    <!-- Only show uncovered ship if it's the enemy board -->
+    <Uncovered v-if="tile.contains.uncoveredShip && !isPlayerBoard && !tile.contains.successfulShot" />
 
     <div v-if="tile.ship !== undefined">
       <Submarine
-        v-if="tile.ship.name === ShipName.SUBMARINE"
+        v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
         :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
       />
       <SupplyBoat
-        v-if="tile.ship.name === ShipName.SUPPLY_BOAT"
+        v-if="tile.ship.name === ShipName.SUPPLY_BOAT && tile.ship.orientation"
         :class="['supply-boat', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
       />
       <Destroyer
-        v-if="tile.ship.name === ShipName.DESTROYER"
+        v-if="tile.ship.name === ShipName.DESTROYER && tile.ship.orientation"
         :class="['destroyer', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
       />
       <Battleship
-        v-if="tile.ship.name === ShipName.BATTLESHIP"
+        v-if="tile.ship.name === ShipName.BATTLESHIP && tile.ship.orientation"
         :class="['battleship', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
       />
       <Frigate
-        v-if="tile.ship.name === ShipName.FRIGATE"
+        v-if="tile.ship.name === ShipName.FRIGATE && tile.ship.orientation"
         :class="['frigate', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
       />
       <AircraftCarrier
-        v-if="tile.ship.name === ShipName.AIRCRAFT_CARRIER"
+        v-if="tile.ship.name === ShipName.AIRCRAFT_CARRIER && tile.ship.orientation"
         :class="['aircraft-carrier', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
       />
     </div>
@@ -47,12 +49,23 @@ import AircraftCarrier from '@/components/SVG\'s/Ships/AircraftCarrier.vue'
 
 interface CellProps {
   tile: Tile;
+  isPlayerBoard: boolean;
 }
 
 const props = defineProps<CellProps>();
 </script>
 
 <style scoped>
+.hit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  z-index: 2;
+}
+
 .submarine {
   position: absolute;
   top: 0;
@@ -61,6 +74,7 @@ const props = defineProps<CellProps>();
   height: 100%;
   overflow: visible;
   z-index: 1;
+  pointer-events: none;
 }
 
 .supply-boat {
@@ -72,6 +86,7 @@ const props = defineProps<CellProps>();
   overflow: visible;
   z-index: 1;
   transform: scaleX(2);
+  pointer-events: none;
 }
 
 .destroyer {
@@ -83,6 +98,7 @@ const props = defineProps<CellProps>();
   overflow: visible;
   z-index: 1;
   transform: scaleX(3);
+  pointer-events: none;
 }
 
 .battleship {
@@ -94,6 +110,7 @@ const props = defineProps<CellProps>();
   overflow: visible;
   z-index: 1;
   transform: scaleX(4);
+  pointer-events: none;
 }
 
 .frigate {
@@ -104,7 +121,8 @@ const props = defineProps<CellProps>();
   height: 100%;
   overflow: visible;
   z-index: 1;
-  transform: scaleX(5) scaleY(2)
+  transform: scaleX(5) scaleY(2);
+  pointer-events: none;
 }
 
 .aircraft-carrier {
@@ -115,6 +133,7 @@ const props = defineProps<CellProps>();
   height: 100%;
   overflow: visible;
   z-index: 1;
+  pointer-events: none;
   transform: scaleX(4.5) scaleY(5) translate(-2.5%, 30%);
 }
 

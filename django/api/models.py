@@ -11,6 +11,8 @@ class Game(Model):
     player_has_used_submarine_ability = BooleanField(default=False)
     player_has_used_aircraft_carrier_ability = BooleanField(default=False)
 
+    aircraft_carrier_health = IntegerField(default=10)
+
     submarine_count = IntegerField()
     aircraft_carrier_count = IntegerField()
     destroyer_count = IntegerField()

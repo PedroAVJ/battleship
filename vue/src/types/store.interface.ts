@@ -63,8 +63,9 @@ export interface Tile {
     uncoveredShip: boolean;
   };
 
-  /** Represents a ship's hitbox when placed on the tile */
   ship?: {
+
+    /** Represents a ship's hitbox when placed on the tile */
     name: ShipName;
 
     /** 
@@ -120,6 +121,39 @@ export enum MapName {
   MAP1 = "map1",
   MAP2 = "map2",
   MAP3 = "map3",
+}
+
+export enum GetterType {
+  PLAYER_BOARD = "playerBoard",
+  ENEMY_BOARD = "enemyBoard",
+}
+
+export enum ActionType {
+  INITIALIZE_BOARDS_BASED_ON_MAP_NAME = 'initializeBoardsBasedOnMapName',
+}
+
+export enum MutationType {
+  SET_GAME_IS_PLAYERS_TURN = 'setGameIsPlayersTurn',
+  SET_GAME_ID = 'setGameId',
+  SET_GAME_SUBMARINE_COUNT = 'setGameSubmarineCount',
+  SET_GAME_SUPPLY_BOAT_COUNT = 'setGameSupplyBoatCount',
+  SET_GAME_DESTROYER_COUNT = 'setGameDestroyerCount',
+  SET_GAME_BATTLESHIP_COUNT = 'setGameBattleshipCount',
+  SET_GAME_FRIGATE_COUNT = 'setGameFrigateCount',
+  SET_GAME_AIRCRAFT_CARRIER_COUNT = 'setGameAircraftCarrierCount',
+  SET_GUI_SUBMARINE_COUNT = 'setGuiSubmarineCount',
+  SET_GUI_SUPPLY_BOAT_COUNT = 'setGuiSupplyBoatCount',
+  SET_GUI_DESTROYER_COUNT = 'setGuiDestroyerCount',
+  SET_GUI_BATTLESHIP_COUNT = 'setGuiBattleshipCount',
+  SET_GUI_FRIGATE_COUNT = 'setGuiFrigateCount',
+  SET_GUI_AIRCRAFT_CARRIER_COUNT = 'setGuiAircraftCarrierCount',
+  SET_PLAYER_IS_USING_SUBMARINE_ABILITY = 'setPlayerIsUsingSubmarineAbility',
+  SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY = 'setPlayerIsUsingAircraftCarrierAbility',
+  SET_PLAYER_HAS_USED_SUBMARINE_ABILITY = 'setPlayerHasUsedSubmarineAbility',
+  SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY = 'setPlayerHasUsedAircraftCarrierAbility',
+  SET_AIRCRAFT_CARRIER_HEALTH = 'setAircraftCarrierHealth',
+  SET_PLAYER_BOARD = 'setPlayerBoard',
+  SET_ENEMY_BOARD = 'setEnemyBoard',
 }
 
 // Water Tile (_): see MAPS for context
@@ -187,8 +221,8 @@ export const MAPS = {
     [_, M, M, M, M, M, M, M, M, _],
     [_, M, _, _, _, _, _, _, M, _],
     [_, M, _, M, M, M, M, _, M, _],
-    [_, M, _, M, _, _, M, _, M, _],
-    [_, M, _, M, _, _, M, _, M, _],
+    [_, M, _, _, _, _, _, _, M, _],
+    [_, M, _, _, _, _, _, _, M, _],
     [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, M, _, _, M, _, M, _],
     [_, M, _, _, _, _, _, _, M, _],

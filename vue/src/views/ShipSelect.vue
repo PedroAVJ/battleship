@@ -53,6 +53,7 @@
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { MutationType } from '@/types/store.interface'
 
 
 const router = useRouter()
@@ -65,24 +66,24 @@ const frigateCount = ref(0)
 
 function setShipCounts() {
 
-    store.commit('setGameSubmarineCount', 1)
-    store.commit('setGameSupplyBoatCount', supplyBoatCount.value)
-    store.commit('setGameDestroyerCount', destroyerCount.value)
-    store.commit('setGameBattleshipCount', battleshipCount.value)
-    store.commit('setGameFrigateCount', frigateCount.value)
-    store.commit('setGameAircraftCarrierCount', 1)
+    store.commit(MutationType.SET_GAME_SUBMARINE_COUNT, 1)
+    store.commit(MutationType.SET_GAME_SUPPLY_BOAT_COUNT, supplyBoatCount.value)
+    store.commit(MutationType.SET_GAME_DESTROYER_COUNT, destroyerCount.value)
+    store.commit(MutationType.SET_GAME_BATTLESHIP_COUNT, battleshipCount.value)
+    store.commit(MutationType.SET_GAME_FRIGATE_COUNT, frigateCount.value)
+    store.commit(MutationType.SET_GAME_AIRCRAFT_CARRIER_COUNT, 1)
 
-    store.commit('setGuiSubmarineCount', 1)
-    store.commit('setGuiSupplyBoatCount', supplyBoatCount.value)
-    store.commit('setGuiDestroyerCount', destroyerCount.value)
-    store.commit('setGuiBattleshipCount', battleshipCount.value)
-    store.commit('setGuiFrigateCount', frigateCount.value)
-    store.commit('setGuiAircraftCarrierCount', 1)
-
-    store.commit('setPlayerHasUsedSubmarineAbility', false)
-    store.commit('setPlayerHasUsedAircraftCarrierAbility', false)
-    store.commit('setPlayerIsUsingSubmarineAbility', false)
-    store.commit('setPlayerIsUsingAircraftCarrierAbility', false)
+    store.commit(MutationType.SET_GUI_SUBMARINE_COUNT, 1)
+    store.commit(MutationType.SET_GUI_SUPPLY_BOAT_COUNT, supplyBoatCount.value)
+    store.commit(MutationType.SET_GUI_DESTROYER_COUNT, destroyerCount.value)
+    store.commit(MutationType.SET_GUI_BATTLESHIP_COUNT, battleshipCount.value)
+    store.commit(MutationType.SET_GUI_FRIGATE_COUNT, frigateCount.value)
+    store.commit(MutationType.SET_GUI_AIRCRAFT_CARRIER_COUNT, 1)
+    
+    store.commit(MutationType.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, false)
+    store.commit(MutationType.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, false)
+    store.commit(MutationType.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, false)
+    store.commit(MutationType.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false)
 
     router.push({ name: 'Game' })
 }
