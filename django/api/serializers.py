@@ -1,9 +1,9 @@
 from rest_framework.serializers import ModelSerializer
 
-from .models import *
+from . import models
 
 
 class GameSerializer(ModelSerializer):
     class Meta:
-        model = Game
+        model = models.Game
         fields = '__all__'

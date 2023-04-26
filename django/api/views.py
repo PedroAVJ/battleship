@@ -1,38 +1,56 @@
 import json
 import random
+from enum import Enum
+from typing import Any, Dict, List
 
 from rest_framework.generics import CreateAPIView
-from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_200_OK
+from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.request import Request
+from rest_framework.serializers import BaseSerializer
 
-from .models import *
+from . import models
 from .serializers import *
 
 
+class ShipName(Enum):
+    SUBMARINE = 'submarine'
+    SUPPLY_BOAT = 'supplyBoat'
+    DESTROYER = 'destroyer'
+    BATTLESHIP = 'battleship'
+    FRIGATE = 'frigate'
+    AIRCRAFT_CARRIER = 'aircraftCarrier'
+
+
+class Orientation(Enum):
+    HORIZONTAL = 'horizontal'
+    VERTICAL = 'vertical'
+
+
 SHIP_DIMENSIONS = {
-    'submarine': {
+    ShipName.SUBMARINE: {
         'length': 1,
         'width': 1,
     },
-    'supply_boat': {
+    ShipName.SUPPLY_BOAT: {
         'length': 2,
         'width': 1,
     },
-    'destroyer': {
+    ShipName.DESTROYER: {
         'length': 3,
         'width': 1,
     },
-    'battleship': {
+    ShipName.BATTLESHIP: {
         'length': 4,
         'width': 1,
     },
-    'frigate': {
+    ShipName.FRIGATE: {
         'length': 5,
         'width': 1,
     },
-    'aircraft_carrier': {
+    ShipName.AIRCRAFT_CARRIER: {
         'length': 5,
         'width': 2,
     },
@@ -40,23 +58,20 @@ SHIP_DIMENSIONS = {
 
 
 class StartGameView(CreateAPIView):
-    queryset = Game.objects.all()
+    queryset = models.Game.objects.all()
     serializer_class = GameSerializer
     permission_classes = [AllowAny]
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         response = super().create(request, *args, **kwargs)
 
-        if response.status_code == HTTP_201_CREATED and response.data:
-            game_id = response.data.get('id')
+        # If the game was created, just return the game id, as to not expose the computer board
+        if response.status_code == HTTP_201_CREATED:
+            response.data = {'id': response.data.get('id')}
 
-            # Instead of returning the game object, we return the game id
-            # Thus, preventing the client from seeing the computer board
-            return Response({'id': game_id}, status=HTTP_201_CREATED)
-        else:
-            return response
+        return response
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer: BaseSerializer) -> None:
         game = serializer.save()
 
         # After creating the game, we randomly place the ships on the board
@@ -64,70 +79,38 @@ class StartGameView(CreateAPIView):
         game.save()
 
 
-def place_ships_on_board(game):
+def place_ships_on_board(game: models.Game) -> None:
 
     # We order the ships by length so that we can place the longer ships first
-    ships = [
-        ('aircraft_carrier', game.aircraft_carrier_count),
-        ('frigate', game.frigate_count),
-        ('battleship', game.battleship_count),
-        ('destroyer', game.destroyer_count),
-        ('supply_boat', game.supply_boat_count),
-        ('submarine', game.submarine_count),
-    ]
+    ships = (
+        (ShipName.AIRCRAFT_CARRIER, game.aircraft_carrier_count),
+        (ShipName.FRIGATE, game.frigate_count),
+        (ShipName.BATTLESHIP, game.battleship_count),
+        (ShipName.DESTROYER, game.destroyer_count),
+        (ShipName.SUPPLY_BOAT, game.supply_boat_count),
+        (ShipName.SUBMARINE, game.submarine_count),
+    )
 
-    # Parse it as json so that we can access the board as a 2D array
-    computer_board = json.loads(game.computer_board)
+    # Parse the computer board from JSON to a matrix of tiles
+    computer_board: List[List[Dict[str, Any]]] = json.loads(game.computer_board)
+
     for ship_name, ship_count in ships:
         for _ in range(ship_count):
-            place_ship(computer_board, ship_name)
+            while True:
+
+                # We randomly select a tile on the board and check if it is a valid placement, if not, we try again
+                if shipPlacementSuccessful(computer_board, ship_name):
+                    break
     
     game.computer_board = json.dumps(computer_board)
 
-def place_ship(computer_board, ship_name):
+def shipPlacementSuccessful(computer_board: List[List[Dict[str, Any]]], ship_name: ShipName) -> bool:
 
-    # We randomly select a tile on the board and check if it is a valid placement, if not, we try again
-    while True:
-        row = random.randint(0, len(computer_board) - 1)
-        col = random.randint(0, len(computer_board[0]) - 1)
+    row_origin = random.randint(0, len(computer_board) - 1)
+    col_origin = random.randint(0, len(computer_board[0]) - 1)
+    orientation = random.choice([Orientation.HORIZONTAL, Orientation.VERTICAL])
 
-        if computer_board[row][col]['background']['isLand']:
-            continue
-
-        # Ship hitbox check
-        if 'ship' in computer_board[row][col]:
-            continue
-
-        orientation = random.choice(['horizontal', 'vertical'])
-        if is_valid_placement(computer_board, row, col, ship_name, orientation):
-            for row_offset, col_offset in get_ship_hit_boxes(row, col, ship_name, orientation):
-                computer_board[row_offset][col_offset]['ship'] = {
-                    'name': ship_name,
-                }
-            break
-
-
-def is_valid_placement(computer_board, row, col, ship_name, orientation):
-    for row_offset, col_offset in get_ship_hit_boxes(row, col, ship_name, orientation):
-
-        # Out of bounds check
-        if row_offset < 0 or row_offset >= len(computer_board):
-            return False
-        if col_offset < 0 or col_offset >= len(computer_board[0]):
-            return False
-
-        if computer_board[row_offset][col_offset]['background']['isLand']:
-            return False
-        
-        # Ship hitbox check
-        if 'ship' in computer_board[row_offset][col_offset]:
-            return False
-
-    return True
-
-def get_ship_hit_boxes(row, col, ship_name, orientation):
-    hit_boxes = []
-
+    ship_hit_boxes = []
     length = SHIP_DIMENSIONS[ship_name]['length']
     width = SHIP_DIMENSIONS[ship_name]['width']
 
@@ -136,41 +119,72 @@ def get_ship_hit_boxes(row, col, ship_name, orientation):
 
             # You can think of row and col as the origin of the ship
             # Traverse the ship in the direction of the orientation
-            if orientation == 'horizontal':
-                hit_boxes.append((row + i, col + j))
+            if orientation == Orientation.HORIZONTAL:
+                ship_hit_boxes.append((row_origin + i, col_origin + j))
             else:
-                hit_boxes.append((row + j, col + i))
+                ship_hit_boxes.append((row_origin + j, col_origin + i))
 
-    return hit_boxes
+    # If the placement is invalid, we try again
+    for row, col in ship_hit_boxes:
+
+        # Out of bounds check
+        if row < 0 or row >= len(computer_board):
+            return False
+        if col < 0 or col >= len(computer_board[0]):
+            return False
+
+        # Ship hitbox check
+        if 'ship' in computer_board[row][col]:
+            return False
+
+        if computer_board[row][col]['background']['isLand']:
+            return False
+    
+    # Placement is valid, we place the ship
+    for row, col in ship_hit_boxes:
+        computer_board[row][col]['ship'] = {
+            'name': ship_name,
+        }
+        if row_origin == row and col == col_origin:
+            computer_board[row][col]['ship']['orientation'] = orientation
+
+    return True
 
 
 class MakeMoveView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+
+        # Request
         game = request.data.get('game')
         player = request.data.get('player')
 
-        game_id = request.data.get('game_id')
+        """ game_id = request.data.get('game_id')
         player_board = request.data.get('player_board')
         row = request.data.get('row')
         col = request.data.get('col')
         move_is_submarine_ability = request.data.get('move_is_submarine_ability')
-        move_is_aircraft_carrier_ability = request.data.get('move_is_aircraft_carrier_ability')
+        move_is_aircraft_carrier_ability = request.data.get('move_is_aircraft_carrier_ability') """
 
-        if isInvalidInput(game_id, player_board, row, col, move_is_submarine_ability, move_is_aircraft_carrier_ability):
-            return Response({'error': 'Invalid input'}, status=HTTP_400_BAD_REQUEST)
+        # Response
+        response = {
+            'player': {
+                'won': False,
+            },
+            'computer': {
+                'board': None,
+                'move': {
+                    'row': None,
+                    'col': None,
+                    'isSubmarineAbility': False,
+                    'isAircraftCarrierAbility': False,
+                }
+            },
+        }
 
-        game = Game.objects.get(id=game_id)
-        results_from_player_move = run_player_move(game, row, col, move_is_submarine_ability, move_is_aircraft_carrier_ability)
-
-        player_won = True
-        computer_board = json.loads(game.computer_board)
-        for row in computer_board:
-            for tile in row:
-                if 'ship' in tile and not tile['contains']['successfulShot']:
-                    player_won = False
-                    break
+        make_player_move(game, player, response)
+        make_computer_move(response)
 
         # Make random move
         player_board = json.loads(player_board)
@@ -232,127 +246,99 @@ class MakeMoveView(APIView):
                         })
 
         game.save()
-        return Response({
-            'player': {
-                'won': player_won,
-            },
-            'computer': {
-                'board': computer_board,
-                'move': {
-                    'row': row,
-                    'col': col,
-                    'is_submarine_ability': move_is_submarine_ability,
-                    'is_aircraft_carrier_ability': move_is_aircraft_carrier_ability,
-                }
-            },
-        }, status=HTTP_200_OK)
+        return Response(response, status=HTTP_200_OK)
 
-def isInvalidInput(game_id, player_board, row, col, move_is_submarine_ability, move_is_aircraft_carrier_ability):
-    if not game_id or not player_board:
-        return True
-    
-    if not row and row != 0 or not col and col != 0:
-        return True
+def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dict[str, Any]):
 
-    if move_is_submarine_ability and move_is_aircraft_carrier_ability:
-        return True
-    
-    try:
-        game = Game.objects.get(pk=game_id)
-    except Game.DoesNotExist:
-        return True
+    game_id = game['id']
+    game_instance = models.Game.objects.get(id=game_id)
+    computer_board: List[List[Dict[str, Any]]] = json.loads(game_instance.computer_board)
 
-    # Out of bounds check
-    if row < 0 or row >= len(json.loads(game.computer_board)):
-        return True
-    if col < 0 or col >= len(json.loads(game.computer_board)[0]):
-        return True
-    
-    if game.player_has_used_submarine_ability and move_is_submarine_ability:
-        return True
-    if game.player_has_used_aircraft_carrier_ability and move_is_aircraft_carrier_ability:
-        return True
-    
-    move = json.loads(game.computer_board)[row][col]
-    if move['background']['isLand'] or move['contains']['successfulShot'] or move['contains']['missedShot']:
-        return True
-    
-    return False
+    row_origin = player['move']['row']
+    col_origin = player['move']['col']
 
-def run_player_move(game: Game, row, col, move_is_submarine_ability, move_is_aircraft_carrier_ability):
-    results_from_player_move = []
-    computer_board = json.loads(game.computer_board)
-    if move_is_aircraft_carrier_ability:
-        game.player_has_used_aircraft_carrier_ability = True
+    if player['move']['isSubmarineAbility']:
+        game_instance.player_has_used_aircraft_carrier_ability = True
+
+        # Create a tuple of all the tiles that the submarine will hit
+        tiles = [
+            (row, col) for row in range(-1, 2) for col in range(-1, 2)
+
+            # Out of bounds check
+            if row + row_origin >= 0 and row + row_origin < len(computer_board) and col + col_origin >= 0 and col + col_origin < len(computer_board[0])
+        ]
 
         # Aircraft Carrier ability: Destroy all ships in a 3x3 area around the tile
-        for row_offset in range(-1, 2):
-            for col_offset in range(-1, 2):
+        for row in range(-1, 2):
+            for col in range(-1, 2):
 
                 # Out of bounds check
-                if row_offset + row < 0 or row_offset + row >= len(computer_board) or col_offset + col < 0 or col_offset + col >= len(computer_board[0]):
+                if row + row_origin < 0 or row + row_origin >= len(computer_board) or col + col_origin < 0 or col + col_origin >= len(computer_board[0]):
                     continue
 
-                tile = computer_board[row_offset + row][col_offset + col]
+                tile = computer_board[row + row_origin][col + col_origin]
 
                 if tile['background']['isLand']:
                     continue
 
                 if 'ship' in tile:
                     tile['contains']['successfulShot'] = True
-                    results_from_player_move.append({'row': row_offset + row, 'col': col_offset + col, 'action': 'successfulShot'})
 
                     # If the submarine or aircraft carrier is destroyed before their respective abilities are used, the abilities will be used
                     if tile['ship']['name'] == 'submarine':
 
                         # Since the submarine only has 1 health, it is destroyed when it is hit
-                        game.computer_has_used_aircraft_carrier_ability = True
+                        game_instance.computer_has_used_aircraft_carrier_ability = True
 
                     elif tile['ship']['name'] == 'aircraftCarrier':
-                        game.aircraft_carrier_health -= 1
-                        if game.aircraft_carrier_health == 0:
-                            game.computer_has_used_aircraft_carrier_ability = True
+                        game_instance.aircraft_carrier_health -= 1
 
                 else:
                     tile['contains']['missedShot'] = True
-                    results_from_player_move.append({'row': row_offset + row, 'col': col_offset + col, 'action': 'missedShot'})
+        
+        # Check if the aircraft carrier was destroyed
+        if game_instance.aircraft_carrier_health == 0:
+            game_instance.computer_has_used_aircraft_carrier_ability = True
 
-    elif move_is_submarine_ability:
-        game.player_has_used_submarine_ability = True
+    elif player['move']['isAircraftCarrierAbility']:
+        game_instance.player_has_used_submarine_ability = True
 
         # Submarine ability: Uncovers ships in a 3x3 area around the tile
-        for row_offset in range(-1, 2):
-            for col_offset in range(-1, 2):
+        for row in range(-1, 2):
+            for col in range(-1, 2):
 
                 # Out of bounds check
-                if row_offset + row < 0 or row_offset + row >= len(computer_board) or col_offset + col < 0 or col_offset + col >= len(computer_board[0]):
+                if row + row_origin < 0 or row + row_origin >= len(computer_board) or col + col_origin < 0 or col + col_origin >= len(computer_board[0]):
                     continue
 
-                tile = computer_board[row_offset + row][col_offset + col]
+                tile = computer_board[row + row_origin][col + col_origin]
                 if 'ship' in tile:
                     tile['contains']['uncovered'] = True
-                    results_from_player_move.append({'row': row_offset + row, 'col': col_offset + col, 'action': 'uncoveredShip'})
 
     else:
 
-        move = computer_board[row][col]
-        if 'ship' in move:
-            move['contains']['successfulShot'] = True
-            results_from_player_move.append({'row': row, 'col': col, 'action': 'successfulShot'})
+        tile = computer_board[row_origin][col_origin]
+        if 'ship' in tile:
+            tile['contains']['successfulShot'] = True
 
             # If the submarine or aircraft carrier is destroyed before their respective abilities are used, the abilities will be used
-            if move['ship']['name'] == 'submarine':
+            if tile['ship']['name'] == 'submarine':
 
                 # Since the submarine only has 1 health, it is destroyed when it is hit
-                game.computer_has_used_submarine_ability = True
+                game_instance.computer_has_used_aircraft_carrier_ability = True
 
-            elif move['ship']['name'] == 'aircraftCarrier':
-                game.aircraft_carrier_health -= 1
-                if game.aircraft_carrier_health == 0:
-                    game.computer_has_used_aircraft_carrier_ability = True
+            elif tile['ship']['name'] == 'aircraftCarrier':
+                game_instance.aircraft_carrier_health -= 1
+                if game_instance.aircraft_carrier_health == 0:
+                    game_instance.computer_has_used_aircraft_carrier_ability = True
 
         else:
-            move['contains']['missedShot'] = True
-            results_from_player_move.append({'row': row, 'col': col, 'action': 'missedShot'})
-    
-    return results_from_player_move
+            tile['contains']['missedShot'] = True
+
+    # Check if the player won
+    for row in range(len(computer_board)):
+        for col in range(len(computer_board[0])):
+            tile = computer_board[row][col]
+            if 'ship' in tile and not tile['contains']['successfulShot']:
+                response['player']['won'] = False
+                break
