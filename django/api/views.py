@@ -1,6 +1,5 @@
 import json
 import random
-from enum import Enum
 from typing import Any, Dict, List
 
 from rest_framework.generics import CreateAPIView
@@ -13,48 +12,7 @@ from rest_framework.serializers import BaseSerializer
 
 from . import models
 from .serializers import *
-
-
-class ShipName(Enum):
-    SUBMARINE = 'submarine'
-    SUPPLY_BOAT = 'supplyBoat'
-    DESTROYER = 'destroyer'
-    BATTLESHIP = 'battleship'
-    FRIGATE = 'frigate'
-    AIRCRAFT_CARRIER = 'aircraftCarrier'
-
-
-class Orientation(Enum):
-    HORIZONTAL = 'horizontal'
-    VERTICAL = 'vertical'
-
-
-SHIP_DIMENSIONS = {
-    ShipName.SUBMARINE: {
-        'length': 1,
-        'width': 1,
-    },
-    ShipName.SUPPLY_BOAT: {
-        'length': 2,
-        'width': 1,
-    },
-    ShipName.DESTROYER: {
-        'length': 3,
-        'width': 1,
-    },
-    ShipName.BATTLESHIP: {
-        'length': 4,
-        'width': 1,
-    },
-    ShipName.FRIGATE: {
-        'length': 5,
-        'width': 1,
-    },
-    ShipName.AIRCRAFT_CARRIER: {
-        'length': 5,
-        'width': 2,
-    },
-}
+from .types import SHIP_DIMENSIONS, ShipName, Orientation
 
 
 class StartGameView(CreateAPIView):
@@ -160,12 +118,22 @@ class MakeMoveView(APIView):
         game = request.data.get('game')
         player = request.data.get('player')
 
-        """ game_id = request.data.get('game_id')
-        player_board = request.data.get('player_board')
-        row = request.data.get('row')
-        col = request.data.get('col')
-        move_is_submarine_ability = request.data.get('move_is_submarine_ability')
-        move_is_aircraft_carrier_ability = request.data.get('move_is_aircraft_carrier_ability') """
+        """
+        request = {
+            'game': {
+                'id': bool,
+            },
+            'player': {
+                'board': Tile[][],
+                'move': {
+                    'row': number,
+                    'col': number,
+                    'isSubmarineAbility': bool,
+                    'isAircraftCarrierAbility': bool,
+                }
+            },
+        }
+        """
 
         # Response
         response = {
@@ -183,72 +151,23 @@ class MakeMoveView(APIView):
             },
         }
 
+        # Make the moves
         make_player_move(game, player, response)
-        make_computer_move(response)
+        make_computer_move(game, player, response)
 
-        # Make random move
-        player_board = json.loads(player_board)
-        while True:
-            row = random.randint(0, len(player_board) - 1)
-            col = random.randint(0, len(player_board[0]) - 1)
-            print(row, col)
-            move = player_board[row][col]
-
-            # If random move isn't valid, try again
-            if move['background']['isLand'] or move['contains']['successfulShot'] or move['contains']['missedShot']:
-                continue
-            computer_move = (row, col)
-            break
-
-        # Mark uncovered tiles
-        print(tiles_uncovered_by_player)
-        for tile in tiles_uncovered_by_player:
-            player_board[tile['row']][tile['col']]['contains']['uncoveredShip'] = True
+        # Make sure to pass the computer board withouth the ships to the frontend
+        game_instance = models.Game.objects.get(id=game['id'])
+        computer_board = json.loads(game_instance.computer_board)
+        for row in computer_board:
+            for tile in row:
+                if 'ship' in tile:
+                    del tile['ship']
         
-        # Uncovered tiles take priority
-        for row in range(len(player_board)):
-            for col in range(len(player_board[0])):
-                tile = player_board[row][col]
-                if tile['contains']['uncoveredShip'] and not tile['contains']['successfulShot']:
-                    computer_move = (row, col)
-                    break
-
-        # If the computer hasn't used the aircraft carrier ability yet, use it
-        uncovered_tiles = []
-        computer_move_is_aircraft_carrier_ability = False
-        computer_move_is_submarine_ability = False
-        if not game.computer_has_used_aircraft_carrier_ability:
-            computer_move_is_aircraft_carrier_ability = True
-            game.computer_has_used_aircraft_carrier_ability = True
-
-            # Uncover aircraft carrier tiles
-            for row in range(len(computer_board)):
-                for col in range(len(computer_board[0])):
-                    tile = computer_board[row][col]
-                    if 'ship' in tile and tile['ship']['name'] == 'aircraft_carrier':
-                        uncovered_tiles.append({
-                            'row': row,
-                            'col': col,
-                        })
-
-        elif not game.computer_has_used_submarine_ability:
-            computer_move_is_submarine_ability = True
-            game.computer_has_used_submarine_ability = True
-
-            # Uncover submarine tiles
-            for row in range(len(computer_board)):
-                for col in range(len(computer_board[0])):
-                    tile = computer_board[row][col]
-                    if 'ship' in tile and tile['ship']['name'] == 'submarine':
-                        uncovered_tiles.append({
-                            'row': row,
-                            'col': col,
-                        })
-
-        game.save()
+        response['computer']['board'] = computer_board
         return Response(response, status=HTTP_200_OK)
 
-def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dict[str, Any]):
+
+def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dict[str, Any]) -> None:
 
     game_id = game['id']
     game_instance = models.Game.objects.get(id=game_id)
@@ -258,62 +177,67 @@ def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dic
     col_origin = player['move']['col']
 
     if player['move']['isSubmarineAbility']:
-        game_instance.player_has_used_aircraft_carrier_ability = True
 
-        # Create a tuple of all the tiles that the submarine will hit
+        # Submarine ability: Uncover all ships in a 3x3 area around the tile
         tiles = [
             (row, col) for row in range(-1, 2) for col in range(-1, 2)
-
-            # Out of bounds check
-            if row + row_origin >= 0 and row + row_origin < len(computer_board) and col + col_origin >= 0 and col + col_origin < len(computer_board[0])
         ]
 
-        # Aircraft Carrier ability: Destroy all ships in a 3x3 area around the tile
-        for row in range(-1, 2):
-            for col in range(-1, 2):
+        for row, col in tiles:
 
-                # Out of bounds check
-                if row + row_origin < 0 or row + row_origin >= len(computer_board) or col + col_origin < 0 or col + col_origin >= len(computer_board[0]):
-                    continue
+            # Out of bounds check
+            if row + row_origin < 0 or row + row_origin >= len(computer_board) or col + col_origin < 0 or col + col_origin >= len(computer_board[0]):
+                continue
 
-                tile = computer_board[row + row_origin][col + col_origin]
+            tile = computer_board[row + row_origin][col + col_origin]
 
-                if tile['background']['isLand']:
-                    continue
+            if tile['background']['isLand']:
+                continue
 
-                if 'ship' in tile:
-                    tile['contains']['successfulShot'] = True
-
-                    # If the submarine or aircraft carrier is destroyed before their respective abilities are used, the abilities will be used
-                    if tile['ship']['name'] == 'submarine':
-
-                        # Since the submarine only has 1 health, it is destroyed when it is hit
-                        game_instance.computer_has_used_aircraft_carrier_ability = True
-
-                    elif tile['ship']['name'] == 'aircraftCarrier':
-                        game_instance.aircraft_carrier_health -= 1
-
-                else:
-                    tile['contains']['missedShot'] = True
+            if 'ship' in tile:
+                tile['contains']['uncoveredShip'] = True
         
-        # Check if the aircraft carrier was destroyed
-        if game_instance.aircraft_carrier_health == 0:
-            game_instance.computer_has_used_aircraft_carrier_ability = True
-
-    elif player['move']['isAircraftCarrierAbility']:
         game_instance.player_has_used_submarine_ability = True
 
-        # Submarine ability: Uncovers ships in a 3x3 area around the tile
-        for row in range(-1, 2):
-            for col in range(-1, 2):
+    elif player['move']['isAircraftCarrierAbility']:
+        
+        # Aircraft carrier ability: Dstroy all ships in a 3x3 area around the tile
+        tiles = [
+            (row, col) for row in range(-1, 2) for col in range(-1, 2)
+        ]
 
-                # Out of bounds check
-                if row + row_origin < 0 or row + row_origin >= len(computer_board) or col + col_origin < 0 or col + col_origin >= len(computer_board[0]):
-                    continue
+        for row, col in tiles:
+                
+            # Out of bounds check
+            if row + row_origin < 0 or row + row_origin >= len(computer_board) or col + col_origin < 0 or col + col_origin >= len(computer_board[0]):
+                continue
 
-                tile = computer_board[row + row_origin][col + col_origin]
-                if 'ship' in tile:
-                    tile['contains']['uncovered'] = True
+            tile = computer_board[row + row_origin][col + col_origin]
+
+            if tile['background']['isLand']:
+                continue
+
+            if 'ship' in tile and tile['ship']['name'] == ShipName.AIRCRAFT_CARRIER:
+                tile['contains']['successfulShot'] = True
+                game_instance.aircraft_carrier_health -= 1
+            
+            elif 'ship' in tile and tile['ship']['name'] == ShipName.SUBMARINE:
+                tile['contains']['successfulShot'] = True
+
+                # Because the submarine has only 1 health, it is destroyed when it is hit
+                game_instance.computer_has_used_submarine_ability = True
+            
+            elif 'ship' in tile:
+                tile['contains']['successfulShot'] = True
+            
+            else:
+                tile['contains']['missedShot'] = True
+        
+        game_instance.player_has_used_aircraft_carrier_ability = True
+
+        # If the aircraft carrier is destroyed, the ability is used
+        if game_instance.aircraft_carrier_health == 0:
+            game_instance.computer_has_used_aircraft_carrier_ability = True
 
     else:
 
@@ -321,7 +245,6 @@ def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dic
         if 'ship' in tile:
             tile['contains']['successfulShot'] = True
 
-            # If the submarine or aircraft carrier is destroyed before their respective abilities are used, the abilities will be used
             if tile['ship']['name'] == 'submarine':
 
                 # Since the submarine only has 1 health, it is destroyed when it is hit
@@ -329,11 +252,16 @@ def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dic
 
             elif tile['ship']['name'] == 'aircraftCarrier':
                 game_instance.aircraft_carrier_health -= 1
-                if game_instance.aircraft_carrier_health == 0:
-                    game_instance.computer_has_used_aircraft_carrier_ability = True
 
         else:
             tile['contains']['missedShot'] = True
+        
+        # If the aircraft carrier is destroyed, the ability is used
+        if game_instance.aircraft_carrier_health == 0:
+            game_instance.computer_has_used_aircraft_carrier_ability = True
+    
+    # Save the game instance
+    game_instance.save()
 
     # Check if the player won
     for row in range(len(computer_board)):
@@ -342,3 +270,65 @@ def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dic
             if 'ship' in tile and not tile['contains']['successfulShot']:
                 response['player']['won'] = False
                 break
+
+def make_computer_move(game: Dict[str, Any], player: Dict[str, Any], response: Dict[str, Any]) -> None:
+
+    # Game instance
+    game_id = game['id']
+    game_instance = models.Game.objects.get(id=game_id)
+
+    # Override player board by player board coming from the request
+    game_instance.player_board = json.dumps(player['board'])
+    player_board: List[List[Dict[str, Any]]] = json.loads(game_instance.player_board)
+    computer_board: List[List[Dict[str, Any]]] = json.loads(game_instance.computer_board)
+
+    # Uncovered tiles take priority
+    for row in range(len(player_board)):
+        for col in range(len(player_board[0])):
+            tile = player_board[row][col]
+            if tile['contains']['uncoveredShip'] and not tile['contains']['successfulShot']:
+                response['computer']['move']['row'] = row
+                response['computer']['move']['col'] = col
+                break
+
+    # Make random move
+    while True:
+        row = random.randint(0, len(player_board) - 1)
+        col = random.randint(0, len(player_board[0]) - 1)
+        move = player_board[row][col]
+
+        # If random move isn't valid, try again
+        if move['background']['isLand'] or move['contains']['successfulShot'] or move['contains']['missedShot']:
+            continue
+        response['computer']['move']['row'] = row
+        response['computer']['move']['col'] = col
+        break
+    
+
+    # If the computer hasn't used the aircraft carrier ability yet, use it
+    if not game_instance.computer_has_used_aircraft_carrier_ability:
+        game_instance.computer_has_used_aircraft_carrier_ability = True
+        response['computer']['move']['isAircraftCarrierAbility'] = True
+
+        # Uncover aircraft carrier tiles
+        for row in range(len(computer_board)):
+            for col in range(len(computer_board[0])):
+                tile = computer_board[row][col]
+                if 'ship' in tile and tile['ship']['name'] == 'aircraft_carrier':
+                    computer_board[row][col]['contains']['uncoveredShip'] = True
+
+    # If the computer hasn't used the submarine ability yet, use it
+    elif not game_instance.computer_has_used_submarine_ability:
+        game_instance.computer_has_used_submarine_ability = True
+        response['computer']['move']['isSubmarineAbility'] = True
+
+        # Uncover submarine tiles
+        for row in range(len(computer_board)):
+            for col in range(len(computer_board[0])):
+                tile = computer_board[row][col]
+                if 'ship' in tile and tile['ship']['name'] == 'submarine':
+                    computer_board[row][col]['contains']['uncoveredShip'] = True
+    
+    # Save the computer board back to the game instance
+    game_instance.computer_board = json.dumps(computer_board)
+    game_instance.save()

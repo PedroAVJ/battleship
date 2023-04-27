@@ -20,44 +20,32 @@ const props = defineProps<CellProps>();
 const store = useStore();
 
 function click() {
+
   // If there is no id, then a game isn't in progress
   if (!store.state.game.id) return;
-
   if (!store.state.game.isPlayersTurn) return;
   if (isInvalidSquare(store.state.enemy.board, props.row, props.col)) return;
 
   store.commit(MutationType.SET_GAME_IS_PLAYERS_TURN, false);
 
-  const buf_player_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
+  // If the player is using an ability, update the board and send the move to the server
+  const player_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
   if (store.state.player.isUsingAircraftCarrierAbility) {
     for (const tile of getAircraftCarrierTiles()) {
-      buf_player_board[tile.row][tile.col].contains.uncoveredShip = true;
+      player_board[tile.row][tile.col].contains.uncoveredShip = true;
     }
   } else if (store.state.player.isUsingSubmarineAbility) {
     for (const tile of getSubmarineTiles()) {
-      buf_player_board[tile.row][tile.col].contains.uncoveredShip = true;
+      player_board[tile.row][tile.col].contains.uncoveredShip = true;
     }
   }
-
-  store.commit(MutationType.SET_PLAYER_BOARD, buf_player_board);
-
-  const uncovered_tiles = [];
-  for (let row = 0; row < store.state.enemy.board.length; row++) {
-    for (let col = 0; col < store.state.enemy.board[0].length; col++) {
-      if (store.state.enemy.board[row][col].contains.uncoveredShip) {
-        uncovered_tiles.push({
-          row: row,
-          col: col,
-        });
-      }
-    }
-  }
+  store.commit(MutationType.SET_PLAYER_BOARD, player_board);
 
   // Create a copy of the player board, without the ship positions
-  const player_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
-  for (let row = 0; row < player_board.length; row++) {
-    for (let col = 0; col < player_board[0].length; col++) {
-      delete player_board[row][col].ship;
+  const player_board_without_ships = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
+  for (const row of player_board_without_ships) {
+    for (const tile of row) {
+      delete tile.ship;
     }
   }
 
@@ -67,50 +55,45 @@ function click() {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      game_id: store.state.game.id,
-      player_board: JSON.stringify(player_board),
-      row: props.row,
-      col: props.col,
-      move_is_submarine_ability: store.state.player.isUsingSubmarineAbility,
-      move_is_aircraft_carrier_ability: store.state.player.isUsingAircraftCarrierAbility,
-      uncovered_tiles: uncovered_tiles,
+      game: {
+        id: store.state.game.id,
+      },
+      player: {
+        board: JSON.stringify(player_board_without_ships),
+        move: {
+          row: props.row,
+          col: props.col,
+          isSubmarineAbility: store.state.player.isUsingSubmarineAbility,
+          isAircraftCarrierAbility: store.state.player.isUsingAircraftCarrierAbility,
+        }
+      },
     })
   })
   .then(response => response.json())
   .then(data => {
     const player = {
-      results_from_move: data.player.results_from_move,
       won: data.player.won,
     }
-    const computer_move = {
-      row: data.computer_move.row,
-      col: data.computer_move.col,
-      is_submarine_ability: data.computer_move.is_submarine_ability,
-      is_aircraft_carrier_ability: data.computer_move.is_aircraft_carrier_ability,
-      uncovered_tiles: data.computer_move.uncovered_tiles,
-    }
-
-    console.log(computer_move);
-    if (player.won) console.log('Player won!');
-
-    // Iterate through the results from the move and update the board
-    const enemy_board = JSON.parse(JSON.stringify(store.state.enemy.board)) as Tile[][]; // Deep copy of the board
-    for (const result of player.results_from_move) {
-      const row = result.row;
-      const col = result.col;
-
-      if (result.action === 'successfulShot') {
-        enemy_board[row][col].contains.successfulShot = true;
-      } else if (result.action === 'missedShot') {
-        enemy_board[row][col].contains.missedShot = true;
-      } else if (result.action === 'uncoveredShip') {
-        enemy_board[row][col].contains.uncoveredShip = true;
+    const computer = {
+      board: JSON.parse(data.computer.board),
+      move: {
+        row: data.computer.move.row,
+        col: data.computer.move.col,
+        isSubmarineAbility: data.computer.move.isSubmarineAbility,
+        isAircraftCarrierAbility: data.computer.move.isAircraftCarrierAbility,
       }
     }
 
+    console.log(`Row: ${computer.move.row}, Col: ${computer.move.col}`);
+    if (player.won) console.log('Player won!');
+
+    // Update the enemy board
+    const enemy_board = JSON.parse(JSON.stringify(store.state.enemy.board)) as Tile[][]; // Deep copy of the board
+    store.commit(MutationType.SET_ENEMY_BOARD, enemy_board);
+
     // Now deal with the computer's move
     const player_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
-    if (computer_move.is_submarine_ability) {
+    if (computer.move.isSubmarineAbility) {
       
         // Check a 3x3 square around the tile, and uncover any ships
         for (let row = computer_move.row - 1; row <= computer_move.row + 1; row++) {
@@ -124,7 +107,7 @@ function click() {
           }
         }
 
-    } else if (computer_move.is_aircraft_carrier_ability) {
+    } else if (computer.move.isAircraftCarrierAbility) {
 
         // Attack a 3x3 square around the tile
         for (let row = computer_move.row - 1; row <= computer_move.row + 1; row++) {
@@ -147,13 +130,6 @@ function click() {
         player_board[computer_move.row][computer_move.col].contains.missedShot = true;
       }
 
-    }
-
-    // If there are uncovered tiles, update the board
-    if (computer_move.uncovered_tiles.length > 0) {
-      for (const tile of computer_move.uncovered_tiles) {
-        enemy_board[tile.row][tile.col].contains.uncoveredShip = true;
-      }
     }
 
     store.commit(MutationType.SET_PLAYER_BOARD, player_board);
@@ -202,6 +178,8 @@ function getAircraftCarrierTiles(): { row: number, col: number }[] {
   for (let row = 0; row < store.state.player.board.length; row++) {
     for (let col = 0; col < store.state.player.board[0].length; col++) {
       if (store.state.player.board[row][col].ship?.name === ShipName.AIRCRAFT_CARRIER) {
+
+        // Return hitboxes for the aircraft carrier
         const orientation = store.state.player.board[row][col].ship?.orientation;
         if (orientation === undefined) continue;
         return getShipHitboxes(ShipName.AIRCRAFT_CARRIER, orientation, row, col);
@@ -219,11 +197,10 @@ function getSubmarineTiles(): { row: number, col: number }[] {
     for (let col = 0; col < store.state.player.board[0].length; col++) {
       if (store.state.player.board[row][col].ship?.name === ShipName.SUBMARINE) {
 
-        // Since the submarine is 1x1, we can just return the tile
-        return [{
-          row: row,
-          col: col
-        }]
+        // Return hitboxes for the submarine
+        const orientation = store.state.player.board[row][col].ship?.orientation;
+        if (orientation === undefined) continue;
+        tiles.push(...getShipHitboxes(ShipName.SUBMARINE, orientation, row, col));
       }
     }
   }
