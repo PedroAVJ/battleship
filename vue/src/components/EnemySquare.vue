@@ -29,7 +29,7 @@ function click() {
   store.commit(MutationType.SET_GAME_IS_PLAYERS_TURN, false);
 
   // If the player is using an ability, update the board and send the move to the server
-  const player_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
+  const player_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][];
   if (store.state.player.isUsingAircraftCarrierAbility) {
     for (const tile of getAircraftCarrierTiles()) {
       player_board[tile.row][tile.col].contains.uncoveredShip = true;
@@ -42,7 +42,7 @@ function click() {
   store.commit(MutationType.SET_PLAYER_BOARD, player_board);
 
   // Create a copy of the player board, without the ship positions
-  const player_board_without_ships = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
+  const player_board_without_ships = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][];
   for (const row of player_board_without_ships) {
     for (const tile of row) {
       delete tile.ship;
@@ -59,7 +59,7 @@ function click() {
         id: store.state.game.id,
       },
       player: {
-        board: JSON.stringify(player_board_without_ships),
+        board: player_board_without_ships,
         move: {
           row: props.row,
           col: props.col,
@@ -71,11 +71,12 @@ function click() {
   })
   .then(response => response.json())
   .then(data => {
+    console.log(data);
     const player = {
       won: data.player.won,
     }
     const computer = {
-      board: JSON.parse(data.computer.board),
+      board: data.computer.board,
       move: {
         row: data.computer.move.row,
         col: data.computer.move.col,
@@ -84,81 +85,121 @@ function click() {
       }
     }
 
-    console.log(`Row: ${computer.move.row}, Col: ${computer.move.col}`);
-    if (player.won) console.log('Player won!');
-
     // Update the enemy board
-    const enemy_board = JSON.parse(JSON.stringify(store.state.enemy.board)) as Tile[][]; // Deep copy of the board
-    store.commit(MutationType.SET_ENEMY_BOARD, enemy_board);
-
+    store.commit(MutationType.SET_ENEMY_BOARD, computer.board);
+    
+    // If the player won, set the won state and return
+    console.log(`Row: ${computer.move.row}, Col: ${computer.move.col}`);
+    if (player.won) {
+      store.commit(MutationType.SET_PLAYER_WON, true);
+      return;
+    }
+    
     // Now deal with the computer's move
-    const player_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
+    const player_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][];
     if (computer.move.isSubmarineAbility) {
-      
-        // Check a 3x3 square around the tile, and uncover any ships
-        for (let row = computer_move.row - 1; row <= computer_move.row + 1; row++) {
-          for (let col = computer_move.col - 1; col <= computer_move.col + 1; col++) {
-            if (!isInvalidSquare(player_board, row, col)) {
-              // if ship is present, uncover it
-              if (player_board[row][col].ship) {
-                player_board[row][col].contains.uncoveredShip = true;
-              }
-            }
+
+      // Check a 3x3 square around the tile, and uncover any ships
+      for (let row = computer.move.row - 1; row <= computer.move.row + 1; row++) {
+        for (let col = computer.move.col - 1; col <= computer.move.col + 1; col++) {
+          
+          // Out of bounds check
+          if (row < 0 || row > player_board.length - 1 || col < 0 || col > player_board[0].length - 1) continue;
+
+          // if ship is present, uncover it
+          if (player_board[row][col].ship) {
+            player_board[row][col].contains.uncoveredShip = true;
           }
         }
+      }
 
     } else if (computer.move.isAircraftCarrierAbility) {
 
-        // Attack a 3x3 square around the tile
-        for (let row = computer_move.row - 1; row <= computer_move.row + 1; row++) {
-          for (let col = computer_move.col - 1; col <= computer_move.col + 1; col++) {
-            if (!isInvalidSquare(player_board, row, col)) {
-              if (player_board[row][col].ship) {
-                player_board[row][col].contains.successfulShot = true;
-              } else {
-                player_board[row][col].contains.missedShot = true;
-              }
+      // Check a 3x3 square around the tile, and uncover any ships
+      for (let row = computer.move.row - 1; row <= computer.move.row + 1; row++) {
+        for (let col = computer.move.col - 1; col <= computer.move.col + 1; col++) {
+          
+          if (isInvalidSquare(player_board, row, col)) continue;
+
+          // Attack the tile
+          const tile = player_board[row][col];
+          if (tile.ship) {
+            tile.contains.successfulShot = true;
+
+            // If it hit the aircraft carrier, lower the health by 1
+            if (tile.ship.name === ShipName.AIRCRAFT_CARRIER) {
+              store.commit(MutationType.SET_GAME_AIRCRAFT_CARRIER_HEALTH, store.state.game.aircraftCarrierHealth - 1);
+            } else if (tile.ship.name === ShipName.SUBMARINE) {
+
+              // As the submarine has 1 health, it is destroyed when hit
+              store.commit(MutationType.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, true);
             }
+
+          } else {
+            tile.contains.missedShot = true;
           }
         }
+      }
     
     } else {
 
-      if (player_board[computer_move.row][computer_move.col].ship) {
-        player_board[computer_move.row][computer_move.col].contains.successfulShot = true;
+      // Attack the tile
+      const tile = player_board[computer.move.row][computer.move.col];
+      if (tile.ship) {
+        tile.contains.successfulShot = true;
+
+        // If it hit the aircraft carrier, lower the health by 1
+        if (tile.ship.name === ShipName.AIRCRAFT_CARRIER) {
+          store.commit(MutationType.SET_GAME_AIRCRAFT_CARRIER_HEALTH, store.state.game.aircraftCarrierHealth - 1);
+        } else if (tile.ship.name === ShipName.SUBMARINE) {
+
+          // As the submarine has 1 health, it is destroyed when hit
+          store.commit(MutationType.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, true);
+        }
+
       } else {
-        player_board[computer_move.row][computer_move.col].contains.missedShot = true;
+        tile.contains.missedShot = true;
       }
 
     }
 
-    store.commit(MutationType.SET_PLAYER_BOARD, player_board);
-    store.commit(MutationType.SET_ENEMY_BOARD, enemy_board);
-    store.commit(MutationType.SET_GAME_IS_PLAYERS_TURN, true);
-
-    if (store.state.player.isUsingAircraftCarrierAbility) {
+    // If the aircraft carrier has 0 health, set the ability to used
+    if (store.state.game.aircraftCarrierHealth === 0) {
       store.commit(MutationType.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
-      store.commit(MutationType.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false);
-    } else if (store.state.player.isUsingSubmarineAbility) {
-      store.commit(MutationType.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, false);
-      store.commit(MutationType.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, true);
     }
+
+    store.commit(MutationType.SET_PLAYER_BOARD, player_board);
 
     // Check the player board and calculate if the computer has won
     let computer_won = true;
-    for (let row = 0; row < player_board.length; row++) {
-      for (let col = 0; col < player_board[0].length; col++) {
-        if (player_board[row][col].ship && !player_board[row][col].contains.successfulShot) {
+    for (const row of player_board) {
+      for (const tile of row) {
+        if (tile.ship && !tile.contains.successfulShot) {
           computer_won = false;
+          break;
         }
       }
     }
 
-    if (computer_won) console.log('Computer won!');
+    // If the computer won, set the won state and return
+    if (computer_won) {
+      store.commit(MutationType.SET_ENEMY_WON, true);
+      return;
+    }
   })
   .catch((error) => {
     console.error('Error when making move:', error);
   });
+
+  // Update the GUI
+  if (store.state.player.isUsingAircraftCarrierAbility) {
+    store.commit(MutationType.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
+    store.commit(MutationType.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false);
+  } else if (store.state.player.isUsingSubmarineAbility) {
+    store.commit(MutationType.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, true);
+    store.commit(MutationType.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, false);
+  }
+  store.commit(MutationType.SET_GAME_IS_PLAYERS_TURN, true);
 }
 
 function isInvalidSquare(board: Tile[][], row: number, col: number): boolean {

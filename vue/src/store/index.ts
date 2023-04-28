@@ -15,12 +15,12 @@ export function useStore() {
 }
 
 const store = createStore<RootState>({
-
   state: {
+
     game: {
       isPlayersTurn: localStorage.getItem('isPlayersTurn') === 'true',
       id: parseInt(localStorage.getItem('gameId') || '0'),
-
+      aircraftCarrierHealth: parseInt(localStorage.getItem('gameAircraftCarrierHealth') || '0'),
       submarineCount: parseInt(localStorage.getItem('gameSubmarineCount') || '0'),
       supplyBoatCount: parseInt(localStorage.getItem('gameSupplyBoatCount') || '0'),
       destroyerCount: parseInt(localStorage.getItem('gameDestroyerCount') || '0'),
@@ -28,6 +28,7 @@ const store = createStore<RootState>({
       frigateCount: parseInt(localStorage.getItem('gameFrigateCount') || '0'),
       aircraftCarrierCount: parseInt(localStorage.getItem('gameAircraftCarrierCount') || '0'),
     },
+
     gui: {
       submarineCount: parseInt(localStorage.getItem('guiSubmarineCount') || '0'),
       supplyBoatCount: parseInt(localStorage.getItem('guiSupplyBoatCount') || '0'),
@@ -36,21 +37,25 @@ const store = createStore<RootState>({
       frigateCount: parseInt(localStorage.getItem('guiFrigateCount') || '0'),
       aircraftCarrierCount: parseInt(localStorage.getItem('guiAircraftCarrierCount') || '0'),
     },
+
     player: {
       isUsingSubmarineAbility: localStorage.getItem('isUsingSubmarineAbility') === 'true',
       isUsingAircraftCarrierAbility: localStorage.getItem('isUsingAircraftCarrierAbility') === 'true',
-
       hasUsedSubmarineAbility: localStorage.getItem('hasUsedSubmarineAbility') === 'true',
       hasUsedAircraftCarrierAbility: localStorage.getItem('hasUsedAircraftCarrierAbility') === 'true',
-
-      aircraftCarrierHealth: parseInt(localStorage.getItem('aircraftCarrierHealth') || '0'),
-
       board: JSON.parse(localStorage.getItem('playerBoard') || '[[]]'),
+      won: localStorage.getItem('playerWon') === 'true',
     },
-    enemy: { board: JSON.parse(localStorage.getItem('enemyBoard') || '[[]]'), },
+
+    enemy: {
+      won: localStorage.getItem('enemyWon') === 'true',
+      board: JSON.parse(localStorage.getItem('enemyBoard') || '[[]]'),
+    },
   },
 
   mutations: {
+
+
     [MutationType.SET_GAME_IS_PLAYERS_TURN](state, isPlayersTurn: boolean) {
       state.game.isPlayersTurn = isPlayersTurn;
       localStorage.setItem('isPlayersTurn', isPlayersTurn.toString());
@@ -59,7 +64,10 @@ const store = createStore<RootState>({
       state.game.id = id;
       localStorage.setItem('gameId', id.toString());
     },
-
+    [MutationType.SET_GAME_AIRCRAFT_CARRIER_HEALTH](state, aircraftCarrierHealth: number) {
+      state.game.aircraftCarrierHealth = aircraftCarrierHealth;
+      localStorage.setItem('gameAircraftCarrierHealth', aircraftCarrierHealth.toString());
+    },
     [MutationType.SET_GAME_SUBMARINE_COUNT](state, submarineCount: number) {
       state.game.submarineCount = submarineCount;
       localStorage.setItem('gameSubmarineCount', submarineCount.toString());
@@ -84,6 +92,7 @@ const store = createStore<RootState>({
       state.game.aircraftCarrierCount = aircraftCarrierCount;
       localStorage.setItem('gameAircraftCarrierCount', aircraftCarrierCount.toString());
     },
+
 
     [MutationType.SET_GUI_SUBMARINE_COUNT](state, submarineCount: number) {
       state.gui.submarineCount = submarineCount;
@@ -110,6 +119,7 @@ const store = createStore<RootState>({
       localStorage.setItem('guiAircraftCarrierCount', aircraftCarrierCount.toString());
     },
 
+
     [MutationType.SET_PLAYER_IS_USING_SUBMARINE_ABILITY](state, isUsingSubmarineAbility: boolean) {
       state.player.isUsingSubmarineAbility = isUsingSubmarineAbility;
       localStorage.setItem('isUsingSubmarineAbility', isUsingSubmarineAbility.toString());
@@ -118,7 +128,6 @@ const store = createStore<RootState>({
       state.player.isUsingAircraftCarrierAbility = isUsingAircraftCarrierAbility;
       localStorage.setItem('isUsingAircraftCarrierAbility', isUsingAircraftCarrierAbility.toString());
     },
-
     [MutationType.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY](state, hasUsedSubmarineAbility: boolean) {
       state.player.hasUsedSubmarineAbility = hasUsedSubmarineAbility;
       localStorage.setItem('hasUsedSubmarineAbility', hasUsedSubmarineAbility.toString());
@@ -127,19 +136,23 @@ const store = createStore<RootState>({
       state.player.hasUsedAircraftCarrierAbility = hasUsedAircraftCarrierAbility;
       localStorage.setItem('hasUsedAircraftCarrierAbility', hasUsedAircraftCarrierAbility.toString());
     },
-
-    [MutationType.SET_AIRCRAFT_CARRIER_HEALTH](state, aircraftCarrierHealth: number) {
-      state.player.aircraftCarrierHealth = aircraftCarrierHealth;
-      localStorage.setItem('aircraftCarrierHealth', aircraftCarrierHealth.toString());
-    },
-
     [MutationType.SET_PLAYER_BOARD](state, board: Tile[][]) {
       state.player.board = JSON.parse(JSON.stringify(board)) as Tile[][];
       localStorage.setItem('playerBoard', JSON.stringify(board));
     },
+    [MutationType.SET_PLAYER_WON](state, won: boolean) {
+      state.player.won = won;
+      localStorage.setItem('playerWon', won.toString());
+    },
+
+
     [MutationType.SET_ENEMY_BOARD](state, board: Tile[][]) {
       state.enemy.board = JSON.parse(JSON.stringify(board)) as Tile[][];
       localStorage.setItem('enemyBoard', JSON.stringify(board));
+    },
+    [MutationType.SET_ENEMY_WON](state, won: boolean) {
+      state.enemy.won = won;
+      localStorage.setItem('enemyWon', won.toString());
     },
   },
 

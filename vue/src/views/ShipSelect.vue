@@ -85,6 +85,8 @@ function setShipCounts() {
     store.commit(MutationType.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, false)
     store.commit(MutationType.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false)
 
+    store.commit(MutationType.SET_GAME_AIRCRAFT_CARRIER_HEALTH, 10)
+
     router.push({ name: 'Game' })
 }
 </script>

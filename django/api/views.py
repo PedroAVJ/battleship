@@ -1,6 +1,6 @@
 import json
 import random
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 from rest_framework.generics import CreateAPIView
 from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK
@@ -34,10 +34,9 @@ class StartGameView(CreateAPIView):
 
         # After creating the game, we randomly place the ships on the board
         place_ships_on_board(game)
-        game.save()
-
 
 def place_ships_on_board(game: models.Game) -> None:
+    computer_board = json.loads(game.computer_board)
 
     # We order the ships by length so that we can place the longer ships first
     ships = (
@@ -49,9 +48,6 @@ def place_ships_on_board(game: models.Game) -> None:
         (ShipName.SUBMARINE, game.submarine_count),
     )
 
-    # Parse the computer board from JSON to a matrix of tiles
-    computer_board: List[List[Dict[str, Any]]] = json.loads(game.computer_board)
-
     for ship_name, ship_count in ships:
         for _ in range(ship_count):
             while True:
@@ -60,9 +56,11 @@ def place_ships_on_board(game: models.Game) -> None:
                 if shipPlacementSuccessful(computer_board, ship_name):
                     break
     
+    # We save the board back to the database
     game.computer_board = json.dumps(computer_board)
+    game.save()
 
-def shipPlacementSuccessful(computer_board: List[List[Dict[str, Any]]], ship_name: ShipName) -> bool:
+def shipPlacementSuccessful(computer_board, ship_name: ShipName) -> bool:
 
     row_origin = random.randint(0, len(computer_board) - 1)
     col_origin = random.randint(0, len(computer_board[0]) - 1)
@@ -101,10 +99,10 @@ def shipPlacementSuccessful(computer_board: List[List[Dict[str, Any]]], ship_nam
     # Placement is valid, we place the ship
     for row, col in ship_hit_boxes:
         computer_board[row][col]['ship'] = {
-            'name': ship_name,
+            'name': ship_name.value,
         }
         if row_origin == row and col == col_origin:
-            computer_board[row][col]['ship']['orientation'] = orientation
+            computer_board[row][col]['ship']['orientation'] = orientation.value
 
     return True
 
@@ -138,7 +136,7 @@ class MakeMoveView(APIView):
         # Response
         response = {
             'player': {
-                'won': False,
+                'won': True,
             },
             'computer': {
                 'board': None,
@@ -156,8 +154,7 @@ class MakeMoveView(APIView):
         make_computer_move(game, player, response)
 
         # Make sure to pass the computer board withouth the ships to the frontend
-        game_instance = models.Game.objects.get(id=game['id'])
-        computer_board = json.loads(game_instance.computer_board)
+        computer_board = json.loads(models.Game.objects.get(id=game['id']).computer_board)
         for row in computer_board:
             for tile in row:
                 if 'ship' in tile:
@@ -171,7 +168,7 @@ def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dic
 
     game_id = game['id']
     game_instance = models.Game.objects.get(id=game_id)
-    computer_board: List[List[Dict[str, Any]]] = json.loads(game_instance.computer_board)
+    computer_board = json.loads(game_instance.computer_board)
 
     row_origin = player['move']['row']
     col_origin = player['move']['col']
@@ -261,6 +258,7 @@ def make_player_move(game: Dict[str, Any], player: Dict[str, Any], response: Dic
             game_instance.computer_has_used_aircraft_carrier_ability = True
     
     # Save the game instance
+    game_instance.computer_board = json.dumps(computer_board)
     game_instance.save()
 
     # Check if the player won
@@ -276,26 +274,13 @@ def make_computer_move(game: Dict[str, Any], player: Dict[str, Any], response: D
     # Game instance
     game_id = game['id']
     game_instance = models.Game.objects.get(id=game_id)
-
-    # Override player board by player board coming from the request
-    game_instance.player_board = json.dumps(player['board'])
-    player_board: List[List[Dict[str, Any]]] = json.loads(game_instance.player_board)
-    computer_board: List[List[Dict[str, Any]]] = json.loads(game_instance.computer_board)
-
-    # Uncovered tiles take priority
-    for row in range(len(player_board)):
-        for col in range(len(player_board[0])):
-            tile = player_board[row][col]
-            if tile['contains']['uncoveredShip'] and not tile['contains']['successfulShot']:
-                response['computer']['move']['row'] = row
-                response['computer']['move']['col'] = col
-                break
+    computer_board = json.loads(game_instance.computer_board)
 
     # Make random move
     while True:
-        row = random.randint(0, len(player_board) - 1)
-        col = random.randint(0, len(player_board[0]) - 1)
-        move = player_board[row][col]
+        row = random.randint(0, len(player['board']) - 1)
+        col = random.randint(0, len(player['board'][0]) - 1)
+        move = player['board'][row][col]
 
         # If random move isn't valid, try again
         if move['background']['isLand'] or move['contains']['successfulShot'] or move['contains']['missedShot']:
@@ -314,7 +299,7 @@ def make_computer_move(game: Dict[str, Any], player: Dict[str, Any], response: D
         for row in range(len(computer_board)):
             for col in range(len(computer_board[0])):
                 tile = computer_board[row][col]
-                if 'ship' in tile and tile['ship']['name'] == 'aircraft_carrier':
+                if 'ship' in tile and tile['ship']['name'] == ShipName.AIRCRAFT_CARRIER.value:
                     computer_board[row][col]['contains']['uncoveredShip'] = True
 
     # If the computer hasn't used the submarine ability yet, use it
@@ -326,9 +311,17 @@ def make_computer_move(game: Dict[str, Any], player: Dict[str, Any], response: D
         for row in range(len(computer_board)):
             for col in range(len(computer_board[0])):
                 tile = computer_board[row][col]
-                if 'ship' in tile and tile['ship']['name'] == 'submarine':
+                if 'ship' in tile and tile['ship']['name'] == ShipName.SUBMARINE.value:
                     computer_board[row][col]['contains']['uncoveredShip'] = True
-    
-    # Save the computer board back to the game instance
+
+    # Uncovered tiles take priority
+    for row in range(len(player['board'])):
+        for col in range(len(player['board'][0])):
+            tile = player['board'][row][col]
+            if tile['contains']['uncoveredShip'] and not tile['contains']['successfulShot']:
+                response['computer']['move']['row'] = row
+                response['computer']['move']['col'] = col
+
+    game_instance.player_board = json.dumps(player['board'])
     game_instance.computer_board = json.dumps(computer_board)
     game_instance.save()

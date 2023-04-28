@@ -4,6 +4,9 @@ export interface RootState {
 
     /** Id passed to the backend for recognizing the game */
     id: number;
+
+    /** Sets hasUsedAircraftCarrierAbility to true when 0 */
+    aircraftCarrierHealth: number;
     
     // Ship counts passed to the backend for ship placement
     submarineCount: number;
@@ -24,31 +27,30 @@ export interface RootState {
     aircraftCarrierCount: number;
   };
   player: {
-
+    
     // GUI changes during ability usage
     isUsingSubmarineAbility: boolean;
     isUsingAircraftCarrierAbility: boolean;
-
+    
     // GUI changes after ability usage
     hasUsedSubmarineAbility: boolean;
     hasUsedAircraftCarrierAbility: boolean; 
-
-    /** Sets hasUsedAircraftCarrierAbility to true when 0 */
-    aircraftCarrierHealth: number;
     
     /**
      * WARNING: Use JSON.parse(JSON.stringify(board)) to get a deep copy,
      * as the nested Tile[][] can be mutated.
-     */
+    */
     board: Tile[][];
+    won: boolean;
   },
   enemy: {
-
+    
     /**
      * WARNING: Use JSON.parse(JSON.stringify(board)) to get a deep copy,
      * as the nested Tile[][] can be mutated.
-     */
+    */
     board: Tile[][];
+    won: boolean;
   },
 }
 
@@ -135,25 +137,30 @@ export enum ActionType {
 export enum MutationType {
   SET_GAME_IS_PLAYERS_TURN = 'setGameIsPlayersTurn',
   SET_GAME_ID = 'setGameId',
+  SET_GAME_AIRCRAFT_CARRIER_HEALTH = 'setAircraftCarrierHealth',
   SET_GAME_SUBMARINE_COUNT = 'setGameSubmarineCount',
   SET_GAME_SUPPLY_BOAT_COUNT = 'setGameSupplyBoatCount',
   SET_GAME_DESTROYER_COUNT = 'setGameDestroyerCount',
   SET_GAME_BATTLESHIP_COUNT = 'setGameBattleshipCount',
   SET_GAME_FRIGATE_COUNT = 'setGameFrigateCount',
   SET_GAME_AIRCRAFT_CARRIER_COUNT = 'setGameAircraftCarrierCount',
+
   SET_GUI_SUBMARINE_COUNT = 'setGuiSubmarineCount',
   SET_GUI_SUPPLY_BOAT_COUNT = 'setGuiSupplyBoatCount',
   SET_GUI_DESTROYER_COUNT = 'setGuiDestroyerCount',
   SET_GUI_BATTLESHIP_COUNT = 'setGuiBattleshipCount',
   SET_GUI_FRIGATE_COUNT = 'setGuiFrigateCount',
   SET_GUI_AIRCRAFT_CARRIER_COUNT = 'setGuiAircraftCarrierCount',
+
   SET_PLAYER_IS_USING_SUBMARINE_ABILITY = 'setPlayerIsUsingSubmarineAbility',
   SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY = 'setPlayerIsUsingAircraftCarrierAbility',
   SET_PLAYER_HAS_USED_SUBMARINE_ABILITY = 'setPlayerHasUsedSubmarineAbility',
   SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY = 'setPlayerHasUsedAircraftCarrierAbility',
-  SET_AIRCRAFT_CARRIER_HEALTH = 'setAircraftCarrierHealth',
   SET_PLAYER_BOARD = 'setPlayerBoard',
+  SET_PLAYER_WON = 'setPlayerWon',
+
   SET_ENEMY_BOARD = 'setEnemyBoard',
+  SET_ENEMY_WON = 'setEnemyWon',
 }
 
 // Water Tile (_): see MAPS for context

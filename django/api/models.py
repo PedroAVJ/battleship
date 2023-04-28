@@ -1,13 +1,13 @@
-from django.db.models import Model, TextField, BooleanField, IntegerField
+from django.db.models import Model, BooleanField, IntegerField, JSONField
 
 
 class Game(Model):
 
-    computer_board: TextField = TextField()
+    computer_board: JSONField = JSONField()
     computer_has_used_submarine_ability: BooleanField = BooleanField(default=False)
     computer_has_used_aircraft_carrier_ability: BooleanField = BooleanField(default=False)
 
-    player_board: TextField = TextField()
+    player_board: JSONField = JSONField()
     player_has_used_submarine_ability: BooleanField = BooleanField(default=False)
     player_has_used_aircraft_carrier_ability: BooleanField = BooleanField(default=False)
 

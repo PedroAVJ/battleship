@@ -1,4 +1,22 @@
 <template>
+
+  <!-- Modal displayed if player has won -->
+  <div v-if="store.state.player.won" class="winner-modal">
+    <div class="winner-modal-content">
+      <h2>You Win!</h2>
+      <button @click="newGame">New Game</button>
+    </div>
+  </div>
+
+  <!-- Modal displayed if player has lost -->
+  <div v-if="store.state.enemy.won" class="winner-modal">
+    <div class="winner-modal-content">
+      <h2>You Lose!</h2>
+      <button @click="newGame">New Game</button>
+    </div>
+  </div>
+
+  <!-- Actual game -->
   <div class="container">
     <h1>Battleship Game</h1>
     <div class="boards">
@@ -87,9 +105,11 @@ import PlayerSquare from '@/components/PlayerSquare.vue';
 import EnemySquare from '@/components/EnemySquare.vue';
 import { useStore } from '@/store'
 import { MutationType } from '@/types/store.interface';
+import { useRouter } from 'vue-router';
 
 
 const store = useStore()
+const router = useRouter()
 
 function startGame() {
   fetch('http://localhost:8000/api/start_game/', {
@@ -117,6 +137,44 @@ function startGame() {
   .catch(error => {
     console.error('Error when starting game:', error)
   })
+}
+
+/**
+ * Resets the game state to the initial state and redirects to the home page
+ */
+function newGame() {
+
+  // Dummy game id to indicate that a game is not in progress
+  store.commit(MutationType.SET_GAME_ID, -1)
+
+  store.commit(MutationType.SET_GAME_IS_PLAYERS_TURN, true)
+  store.commit(MutationType.SET_GAME_AIRCRAFT_CARRIER_HEALTH, 10)
+
+  store.commit(MutationType.SET_GAME_SUBMARINE_COUNT, 0)
+  store.commit(MutationType.SET_GAME_AIRCRAFT_CARRIER_COUNT, 0)
+  store.commit(MutationType.SET_GAME_DESTROYER_COUNT, 0)
+  store.commit(MutationType.SET_GAME_FRIGATE_COUNT, 0)
+  store.commit(MutationType.SET_GAME_BATTLESHIP_COUNT, 0)
+  store.commit(MutationType.SET_GAME_SUPPLY_BOAT_COUNT, 0)
+
+  store.commit(MutationType.SET_GUI_SUBMARINE_COUNT, 0)
+  store.commit(MutationType.SET_GUI_AIRCRAFT_CARRIER_COUNT, 0)
+  store.commit(MutationType.SET_GUI_DESTROYER_COUNT, 0)
+  store.commit(MutationType.SET_GUI_FRIGATE_COUNT, 0)
+  store.commit(MutationType.SET_GUI_BATTLESHIP_COUNT, 0)
+  store.commit(MutationType.SET_GUI_SUPPLY_BOAT_COUNT, 0)
+
+  store.commit(MutationType.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, false)
+  store.commit(MutationType.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false)
+  store.commit(MutationType.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, false)
+  store.commit(MutationType.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, false)
+
+  store.commit(MutationType.SET_PLAYER_BOARD, [[]])
+  store.commit(MutationType.SET_PLAYER_WON, false)
+  store.commit(MutationType.SET_ENEMY_BOARD, [[]])
+  store.commit(MutationType.SET_ENEMY_WON, false)
+
+  router.push({ name: 'Index' })
 }
 </script>
 
@@ -177,5 +235,25 @@ h2 {
   position: relative;
   border: 1px solid #2c3e50;
   box-sizing: border-box;
+}
+
+.winner-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.winner-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
 }
 </style>
