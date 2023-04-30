@@ -1,4 +1,4 @@
-import { ShipName, MapName, Orientation } from '@/store/enums'
+import { ShipName, MapName, Orientation } from './enums'
 
 
 export interface RootState {

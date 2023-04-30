@@ -1,8 +1,13 @@
 <template>
-  <div :id="shipName" class="ship-item">
-    <h2>{{ shipTitle }}</h2>
+  <div :id="name" class="ship-item">
+    <h2>
+      {{ title }}
+    </h2>
     <div class="svg-container" :draggable="count > 0" @dragstart="dragStart">
+
+      <!-- This is where the SVG is inserted from the parent component -->
       <slot></slot>
+
     </div>
     <div class="controls">
       <button :class="['toggle-button', orientation]" @click="toggleOrientation">
@@ -11,19 +16,21 @@
         {{ orientation.charAt(0).toUpperCase() + orientation.slice(1).toLowerCase() }}
 
       </button>
-      <span>x{{ count }}</span>
+      <span>
+        x{{ count }}
+      </span>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { Orientation, ShipName } from '@/types/store.interface';
+import { Orientation, ShipName } from '../store/enums';
 import { ref } from 'vue';
 
 
 interface ShipItemProps {
-  shipName: ShipName,
-  shipTitle: string,
+  name: ShipName,
+  title: string,
   count: number
 }
 
@@ -32,7 +39,7 @@ const props = defineProps<ShipItemProps>();
 const orientation = ref<Orientation>(Orientation.HORIZONTAL);
 
 function dragStart(e: DragEvent) {
-  e.dataTransfer?.setData('shipName', props.shipName);
+  e.dataTransfer?.setData('shipName', props.name);
   e.dataTransfer?.setData('orientation', orientation.value);
 }
 
@@ -81,37 +88,30 @@ h2 {
 }
 
 .toggle-button {
-    background-color: #007bff;
-    border: none;
-    color: white;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    padding: 8px 16px;
-    margin: 2px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s;
+  background-color: #007bff;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 14px;
+  padding: 8px 16px;
+  margin: 2px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
 .toggle-button.horizontal {
-    background-color: #007bff;
+  background-color: #007bff;
 }
 
 .toggle-button.vertical {
-    background-color: #ff3b30;
+  background-color: #ff3b30;
 }
 
 .toggle-button:hover {
-    opacity: 0.8;
-}
-
-.info {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  align-items: center;
+  opacity: 0.8;
 }
 
 .controls span {

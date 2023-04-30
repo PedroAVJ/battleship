@@ -29,23 +29,23 @@
 
       <!-- Display if there are still ships to place -->
       <div class="ship-container" v-if="Object.values(store.state.gui).reduce((sum, value) => sum + value, 0) !== 0">
-        <ShipItem :shipName="ShipName.AIRCRAFT_CARRIER" shipTitle="Aircraft Carrier"
+        <ShipItem :name="ShipName.AIRCRAFT_CARRIER" title="Aircraft Carrier"
           :count="store.state.gui.aircraftCarrierCount">
           <AircraftCarrier class="svg" />
         </ShipItem>
-        <ShipItem :shipName="ShipName.SUBMARINE" shipTitle="Submarine" :count="store.state.gui.submarineCount">
+        <ShipItem :name="ShipName.SUBMARINE" title="Submarine" :count="store.state.gui.submarineCount">
           <Submarine class="svg" />
         </ShipItem>
-        <ShipItem :shipName="ShipName.DESTROYER" shipTitle="Destroyer" :count="store.state.gui.destroyerCount">
+        <ShipItem :name="ShipName.DESTROYER" title="Destroyer" :count="store.state.gui.destroyerCount">
           <Destroyer class="svg" />
         </ShipItem>
-        <ShipItem :shipName="ShipName.BATTLESHIP" shipTitle="Battleship" :count="store.state.gui.battleshipCount">
+        <ShipItem :name="ShipName.BATTLESHIP" title="Battleship" :count="store.state.gui.battleshipCount">
           <Battleship class="svg" />
         </ShipItem>
-        <ShipItem :shipName="ShipName.FRIGATE" shipTitle="Frigate" :count="store.state.gui.frigateCount">
+        <ShipItem :name="ShipName.FRIGATE" title="Frigate" :count="store.state.gui.frigateCount">
           <Frigate class="svg" />
         </ShipItem>
-        <ShipItem :shipName="ShipName.SUPPLY_BOAT" shipTitle="Supply Boat" :count="store.state.gui.supplyBoatCount">
+        <ShipItem :name="ShipName.SUPPLY_BOAT" title="Supply Boat" :count="store.state.gui.supplyBoatCount">
           <SupplyBoat class="svg" />
         </ShipItem>
       </div>
@@ -55,19 +55,19 @@
 </template>
 
 <script lang="ts" setup>
-import ShipItem from '@/components/ShipItem.vue'
-import PlayerSquare from '@/components/PlayerSquare.vue';
-import { useStore } from '@/store'
-import { Mutation, ShipName } from '@/store/enums';
+import ShipItem from '../components/ShipItem.vue'
+import PlayerSquare from '../components/PlayerSquare.vue';
+import { useStore } from '../store'
+import { Mutation, ShipName } from '../store/enums';
 import { useRouter } from 'vue-router';
 
 // SVG's
-import Submarine from '@/components/SVGs/Ships/Submarine.vue'
-import SupplyBoat from '@/components/SVGs/Ships/SupplyBoat.vue'
-import Destroyer from '@/components/SVGs/Ships/Destroyer.vue'
-import Battleship from '@/components/SVGs/Ships/Battleship.vue'
-import Frigate from '@/components/SVGs/Ships/Frigate.vue'
-import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
+import Submarine from '../components/SVGs/Ships/Submarine.vue'
+import SupplyBoat from '../components/SVGs/Ships/SupplyBoat.vue'
+import Destroyer from '../components/SVGs/Ships/Destroyer.vue'
+import Battleship from '../components/SVGs/Ships/Battleship.vue'
+import Frigate from '../components/SVGs/Ships/Frigate.vue'
+import AircraftCarrier from '../components/SVGs/Ships/AircraftCarrier.vue'
 
 
 const store = useStore()
@@ -102,6 +102,7 @@ function startGame() {
   store.commit(Mutation.SET_COMPUTER_AIRCRAFT_CARRIER_HEALTH, 10)
   store.commit(Mutation.SET_COMPUTER_BATTLESHIP_HEALTH, 4)
 
+  // The computer makes the second move
   store.commit(Mutation.SET_COMPUTER_HAS_CURRENT_TURN, false)
   store.commit(Mutation.SET_COMPUTER_HAS_WON_THE_GAME, false)
 

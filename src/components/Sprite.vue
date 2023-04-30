@@ -1,58 +1,65 @@
 <template>
-    <Hit v-if="tile.contains.successfulShot" class="hit" />
-    <Miss v-if="tile.contains.missedShot" />
+  <Hit v-if="tile.contains.successfulShot" class="hit" />
+  <Miss v-if="tile.contains.missedShot" />
 
-    <!-- Only show uncovered ship if it's the enemy board -->
-    <Uncovered v-if="tile.contains.uncoveredShip && !isPlayerBoard && !tile.contains.successfulShot" />
+  <!-- Only show uncovered ship if it's the enemy board and the tile hasn't been shot at yet -->
+  <Uncovered 
+    v-if="
+      tile.contains.uncoveredShip
+      && !tile.contains.successfulShot
+      && !isPlayerSquare"
+  />
 
-    <div v-if="tile.ship !== undefined">
-      <Submarine
-        v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
-        :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <SupplyBoat
-        v-if="tile.ship.name === ShipName.SUPPLY_BOAT && tile.ship.orientation"
-        :class="['supply-boat', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <Destroyer
-        v-if="tile.ship.name === ShipName.DESTROYER && tile.ship.orientation"
-        :class="['destroyer', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <Battleship
-        v-if="tile.ship.name === ShipName.BATTLESHIP && tile.ship.orientation"
-        :class="['battleship', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <Frigate
-        v-if="tile.ship.name === ShipName.FRIGATE && tile.ship.orientation"
-        :class="['frigate', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-      <AircraftCarrier
-        v-if="tile.ship.name === ShipName.AIRCRAFT_CARRIER && tile.ship.orientation"
-        :class="['aircraft-carrier', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-      />
-    </div>
+  <div v-if="tile.ship !== undefined">
+    <Submarine
+      v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
+      :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
+    />
+    <SupplyBoat
+      v-if="tile.ship.name === ShipName.SUPPLY_BOAT && tile.ship.orientation"
+      :class="['supply-boat', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
+    />
+    <Destroyer
+      v-if="tile.ship.name === ShipName.DESTROYER && tile.ship.orientation"
+      :class="['destroyer', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
+    />
+    <Battleship
+      v-if="tile.ship.name === ShipName.BATTLESHIP && tile.ship.orientation"
+      :class="['battleship', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
+    />
+    <Frigate
+      v-if="tile.ship.name === ShipName.FRIGATE && tile.ship.orientation"
+      :class="['frigate', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
+    />
+    <AircraftCarrier
+      v-if="tile.ship.name === ShipName.AIRCRAFT_CARRIER && tile.ship.orientation"
+      :class="['aircraft-carrier', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ShipName, Tile, Orientation } from '@/types/store.interface';
+import { ShipName, Orientation } from '../store/enums'
+import { Tile } from '../store/interfaces'
 
-import Miss from '@/components/SVG\'s/Miss.vue'
-import Hit from '@/components/SVG\'s/Hit.vue'
-import Uncovered from '@/components/SVG\'s/Uncovered.vue'
-import Submarine from '@/components/SVG\'s/Ships/Submarine.vue'
-import SupplyBoat from '@/components/SVG\'s/Ships/SupplyBoat.vue'
-import Destroyer from '@/components/SVG\'s/Ships/Destroyer.vue'
-import Battleship from '@/components/SVG\'s/Ships/Battleship.vue'
-import Frigate from '@/components/SVG\'s/Ships/Frigate.vue'
-import AircraftCarrier from '@/components/SVG\'s/Ships/AircraftCarrier.vue'
+// SVG's
+import Miss from '../components/SVG\'s/Miss.vue'
+import Hit from '../components/SVG\'s/Hit.vue'
+import Uncovered from '../components/SVG\'s/Uncovered.vue'
+import Submarine from '../components/SVG\'s/Ships/Submarine.vue'
+import SupplyBoat from '../components/SVG\'s/Ships/SupplyBoat.vue'
+import Destroyer from '../components/SVG\'s/Ships/Destroyer.vue'
+import Battleship from '../components/SVG\'s/Ships/Battleship.vue'
+import Frigate from '../components/SVG\'s/Ships/Frigate.vue'
+import AircraftCarrier from '../components/SVG\'s/Ships/AircraftCarrier.vue'
 
 
-interface CellProps {
+interface SpriteProps {
   tile: Tile;
-  isPlayerBoard: boolean;
+  isPlayerSquare: boolean;
 }
 
-const props = defineProps<CellProps>();
+const props = defineProps<SpriteProps>();
 </script>
 
 <style scoped>

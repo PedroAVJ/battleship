@@ -1,30 +1,39 @@
 <template>
   <div
-    :class="['cell', tile.background.isWater ? 'water' : 'land']"
+    :class="background"
 
     @dragenter="dragEnter"
     @dragleave="dragLeave"
     @dragover.prevent
     @drop="drop"
   >
-    <Sprite :tile="tile" :isPlayerBoard="true" />
+    <Sprite :tile="tile" :isPlayerSquare="true" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ShipName, Tile, Orientation, SHIP_DIMENSIONS, MutationType } from '@/types/store.interface';
-import { useStore } from '@/store';
+import { ShipName, Orientation, Mutation } from '../store/enums';
+import { Tile } from '../store/interfaces';
+import { SHIP_DIMENSIONS } from '../store/constants';
+import { useStore } from '../store';
 import Sprite from './Sprite.vue';
+import { computed } from 'vue';
 
 
-interface CellProps {
+interface SquareProps {
   tile: Tile;
   row: number;
   col: number;
 }
 
-const props = defineProps<CellProps>();
+const props = defineProps<SquareProps>();
 const store = useStore();
+
+const background = computed(() => {
+  if (props.tile.background.isWater) return 'water';
+  if (props.tile.background.isLand) return 'land';
+  if (props.tile.background.isOutOfBounds) return 'out-of-bounds';
+});
 
 function dragEnter(e: DragEvent) {
   const target = e.target as HTMLElement;
@@ -48,32 +57,22 @@ function drop(e: DragEvent) {
   if (!isShipName(shipName)) return;
   if (isInvalidMove(shipName, shipOrientation)) return;
 
-  const new_board = JSON.parse(JSON.stringify(store.state.player.board)) as Tile[][]; // Deep copy of the board
-  const shipHitboxes = getShipHitboxes(shipName, shipOrientation, props.row, props.col);
-  for (const hitbox of shipHitboxes) {
-    const row = hitbox.row;
-    const col = hitbox.col;
-    new_board[row][col].ship = {
-      name: shipName,
+  // If it passes all the checks, place the ship
+  placeShip(shipName, shipOrientation);
 
-      // This defines the origin of where the ship sprite will be drawn
-      orientation: props.row === row && props.col === col ? shipOrientation : undefined,
-    };
-  }
-  store.commit(MutationType.SET_PLAYER_BOARD, new_board);
-
+  // Reduce the count of the ship in the GUI
   if (shipName === ShipName.SUBMARINE) {
-    store.commit(MutationType.SET_GUI_SUBMARINE_COUNT, store.state.gui.submarineCount - 1);
+    store.commit(Mutation.SET_GUI_SUBMARINE_COUNT, store.state.gui.submarineCount - 1);
   } else if (shipName === ShipName.AIRCRAFT_CARRIER) {
-    store.commit(MutationType.SET_GUI_AIRCRAFT_CARRIER_COUNT, store.state.gui.aircraftCarrierCount - 1);
+    store.commit(Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT, store.state.gui.aircraftCarrierCount - 1);
   } else if (shipName === ShipName.DESTROYER) {
-    store.commit(MutationType.SET_GUI_DESTROYER_COUNT, store.state.gui.destroyerCount - 1);
+    store.commit(Mutation.SET_GUI_DESTROYER_COUNT, store.state.gui.destroyerCount - 1);
   } else if (shipName === ShipName.FRIGATE) {
-    store.commit(MutationType.SET_GUI_FRIGATE_COUNT, store.state.gui.frigateCount - 1);
+    store.commit(Mutation.SET_GUI_FRIGATE_COUNT, store.state.gui.frigateCount - 1);
   } else if (shipName === ShipName.SUPPLY_BOAT) {
-    store.commit(MutationType.SET_GUI_SUPPLY_BOAT_COUNT, store.state.gui.supplyBoatCount - 1);
+    store.commit(Mutation.SET_GUI_SUPPLY_BOAT_COUNT, store.state.gui.supplyBoatCount - 1);
   } else if (shipName === ShipName.BATTLESHIP) {
-    store.commit(MutationType.SET_GUI_BATTLESHIP_COUNT, store.state.gui.battleshipCount - 1);
+    store.commit(Mutation.SET_GUI_BATTLESHIP_COUNT, store.state.gui.battleshipCount - 1);
   }
 };
 
@@ -88,77 +87,121 @@ function isShipName(input: string): input is ShipName {
 }
 
 function isInvalidMove(shipName: ShipName, shipOrientation: Orientation): boolean {
-  const shipHitboxes = getShipHitboxes(shipName, shipOrientation, props.row, props.col);
+  const shipHitboxes = getShipHitboxes(shipName, shipOrientation);
   const board = store.state.player.board;
 
   for (const hitbox of shipHitboxes) {
     const row = hitbox.row;
     const col = hitbox.col;
 
-    if (isInvalidSquare(board, row, col)) return true;
+    // Row and column beyond the board check
+    if (row < 0 || row >= board.length) return true;
+    if (col < 0 || col >= board[0].length) return true;
+
+    // Land and out of bounds check
+    if (board[row][col].background.isLand) return true;
+    if (board[row][col].background.isOutOfBounds) return true;
+
+    // Ship hitbox check
+    if (board[row][col].ship) return true;
+
+    return false;
   }
 
   return false;
 }
 
-function isInvalidSquare(board: Tile[][], row: number, col: number): boolean {
-
-  // Out of bounds check
-  if (row < 0 || row >= board.length) return true;
-  if (col < 0 || col >= board[0].length) return true;
-
-  if (board[row][col].background.isLand) return true;
-  if (board[row][col].contains.missedShot) return true;
-  if (board[row][col].contains.successfulShot) return true;
-
-  // Ship hitbox check
-  if (board[row][col].ship) return true;
-
-  return false;
-}
-
-function getShipHitboxes(shipName: ShipName, shipOrientation: Orientation, row_origin: number, col_origin: number): { row: number, col: number }[] {
-  const shipLength = SHIP_DIMENSIONS[shipName].length;
+function getShipHitboxes(shipName: ShipName, shipOrientation: Orientation): { row: number, col: number }[] {
+  const length = SHIP_DIMENSIONS[shipName].length;
+  const width = SHIP_DIMENSIONS[shipName].width;
   const shipHitboxes: { row: number, col: number }[] = [];
 
-  if (shipOrientation === Orientation.HORIZONTAL) {
-    for (let col = 0; col < shipLength; col++) {
-      shipHitboxes.push({ row: row_origin, col: col_origin + col });
+  // The coordinates marked by row and col are the top left corner of the ship
+  for (let i = 0; i < length; i++) {
+    for (let j = 0; j < width; j++) {
 
-      // If it is an aircraft carrier, add the extra hitbox below
-      if (shipName === ShipName.AIRCRAFT_CARRIER) {
-        shipHitboxes.push({ row: row_origin + 1, col: col_origin + col });
+      // If the ship is horizontal, i represents the column and j represents the row
+      // This is because the length moves horizontally and the width moves vertically
+      // X X X X X
+      // X X X X X
+      if (shipOrientation === Orientation.HORIZONTAL) {
+        shipHitboxes.push({
+          row: props.row + j,
+          col: props.col + i,
+        });
       }
-    }
-  } else {
-    for (let row = 0; row < shipLength; row++) {
-      shipHitboxes.push({ row: row_origin + row, col: col_origin });
 
-      // If it is an aircraft carrier, add the extra hitbox to the right
-      if (shipName === ShipName.AIRCRAFT_CARRIER) {
-        shipHitboxes.push({ row: row_origin + row, col: col_origin + 1 });
+      // If the ship is vertical, i represents the row and j represents the column
+      // This is because the length moves vertically and the width moves horizontally
+      // X X
+      // X X
+      // X X
+      // X X
+      if (shipOrientation === Orientation.VERTICAL) {
+        shipHitboxes.push({
+          row: props.row + i,
+          col: props.col + j,
+        });
       }
     }
   }
 
   return shipHitboxes;
 }
+
+function placeShip(shipName: ShipName, shipOrientation: Orientation) {
+  const shipHitboxes = getShipHitboxes(shipName, shipOrientation);
+  const board = store.state.player.board;
+
+  for (const hitbox of shipHitboxes) {
+    const row = hitbox.row;
+    const col = hitbox.col;
+
+    const tile: Tile = {
+      ...board[row][col],
+      ship: {
+        name: shipName,
+      },
+    };
+
+    // If this is the first tile, set the ship orientation
+    // This is because the ship orientation defines were we start drawing the ship sprite
+    if (row === props.row && col === props.col && tile.ship) {
+      tile.ship.orientation = shipOrientation;
+    }
+
+    store.commit(Mutation.SET_PLAYER_TILE, {
+      row: row,
+      col: col,
+      tile: tile,
+    });
+  }
+}
 </script>
 
 <style scoped>
-.cell {
+.water {
   width: 100%;
   height: 100%;
   border: 1px solid #2c3e50;
   position: relative;
-}
-
-.water {
   background-color: #34495e;
 }
 
 .land {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #2c3e50;
+  position: relative;
   background-color: #2ecc71;
+}
+
+.out-of-bounds {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #2c3e50;
+  position: relative;
+  background-color: #ffffff;
 }
 
 .water.darken {
@@ -167,5 +210,9 @@ function getShipHitboxes(shipName: ShipName, shipOrientation: Orientation, row_o
 
 .land.darken {
   background-color: #27ae60;
+}
+
+.out-of-bounds.darken {
+  background-color: #ffffff;
 }
 </style>

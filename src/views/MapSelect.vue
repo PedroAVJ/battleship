@@ -18,9 +18,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '@/store';
+import { useStore } from '../store';
 import { useRouter } from 'vue-router';
-import { MapName, Mutation, Action } from '@/store/enums';
+import { MapName, Mutation } from '../store/enums';
+import { MAPS } from '../store/constants';
+import { Tile } from '../store/interfaces';
 
 
 const router = useRouter();
@@ -36,7 +38,14 @@ function setMap(mapName: MapName) {
   store.commit(Mutation.SET_GUI_FRIGATE_COUNT, 1);
   store.commit(Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT, 1);
 
-  store.commit(Action.INITIALIZE_BOARDS_BASED_ON_MAP_NAME, mapName);
+  const map = MAPS[mapName];
+
+  // Deep copy the map, as MAPS uses the same object reference for each tile
+  const computerBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
+  const playerBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
+
+  store.commit(Mutation.SET_PLAYER_BOARD, playerBoard);
+  store.commit(Mutation.SET_COMPUTER_BOARD, computerBoard);
 
   router.push({ name: 'PlaceShips' });
 }

@@ -1,25 +1,34 @@
 <template>
-  <div :class="['cell', tile.background.isWater ? 'water' : 'land']" @click="click">
-    <Sprite :tile="tile" :isPlayerBoard="false" />
+  <div :class="background" @click="Attack">
+    <Sprite :tile="tile" :isPlayerSquare="false" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ShipName, Tile, Orientation, SHIP_DIMENSIONS, MutationType } from '@/types/store.interface';
-import { useStore } from '@/store';
+import { ShipName, Orientation, Mutation } from '../store/enums';
+import { Tile } from '../store/interfaces';
+import { SHIP_DIMENSIONS } from '../store/constants';
+import { useStore } from '../store';
 import Sprite from './Sprite.vue';
+import { computed } from 'vue';
 
 
-interface CellProps {
+interface SquareProps {
   tile: Tile;
   row: number;
   col: number;
 }
 
-const props = defineProps<CellProps>();
+const props = defineProps<SquareProps>();
 const store = useStore();
 
-function click() {
+const background = computed(() => {
+  if (props.tile.background.isWater) return 'water';
+  if (props.tile.background.isLand) return 'land';
+  if (props.tile.background.isOutOfBounds) return 'out-of-bounds';
+});
+
+function Attack() {
 
   // If there is no id, then a game isn't in progress
   if (!store.state.game.id) return;
@@ -278,26 +287,27 @@ function getShipHitboxes(shipName: ShipName, shipOrientation: Orientation, row_o
 </script>
 
 <style scoped>
-.cell {
+.water {
   width: 100%;
   height: 100%;
   border: 1px solid #2c3e50;
   position: relative;
-}
-
-.water {
   background-color: #34495e;
 }
 
 .land {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #2c3e50;
+  position: relative;
   background-color: #2ecc71;
 }
 
-.water.darken {
-  background-color: #2c3e50;
-}
-
-.land.darken {
-  background-color: #27ae60;
+.out-of-bounds {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #2c3e50;
+  position: relative;
+  background-color: #ffffff;
 }
 </style>

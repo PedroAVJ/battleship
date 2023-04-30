@@ -1,9 +1,8 @@
 import { InjectionKey } from 'vue';
 import { createStore, Store, useStore as baseUseStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
-import { RootState, Tile } from '@/store/interfaces';
-import { Mutation, Action, MapName } from '@/store/enums';
-import { MAPS } from '@/store/constants';
+import { RootState, Tile } from '../store/interfaces';
+import { Mutation, MapName } from '../store/enums';
 
 
 // This key allows TypeScript to infer the types of the store object
@@ -194,18 +193,6 @@ const mutations = {
 const store = createStore<RootState>({
     state,
     mutations,
-    actions: {
-        [Action.INITIALIZE_BOARDS_BASED_ON_MAP_NAME]({ commit }, mapName: MapName) {
-            const map = MAPS[mapName];
-
-            // Deep copy the map, as MAPS uses the same object reference for each tile
-            const computerBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
-            const playerBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
-
-            commit(Mutation.SET_PLAYER_BOARD, playerBoard);
-            commit(Mutation.SET_COMPUTER_BOARD, computerBoard);
-        },
-    },
 
     /**
      * This plugin will automatically save the state to localStorage,

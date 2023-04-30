@@ -19,14 +19,6 @@ export enum Orientation {
 }
 
 /**
- * A more maintainable way to keep track of actions.
- * Prevents typos and allows for easy refactoring.
- */
-export enum Action {
-    INITIALIZE_BOARDS_BASED_ON_MAP_NAME = 'initializeBoardsBasedOnMapName',
-}
-
-/**
  * A more maintainable way to keep track of mutations.
  * Prevents typos and allows for easy refactoring.
  */
