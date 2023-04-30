@@ -1,14 +1,14 @@
 <template>
-<div class="container">
-  <h1 class="title">
-    BattleShip++
-  </h1>
-  <div class="menu">
-    <router-link class="menu-item" :to="{ name: 'MapSelect' }">
-      Play Against an AI
-    </router-link>
+  <div class="container">
+    <h1 class="title">
+      BattleShip++
+    </h1>
+    <div class="menu">
+      <router-link class="menu-item" :to="{ name: 'MapSelect' }">
+        Play Against an AI
+      </router-link>
+    </div>
   </div>
-</div>
 </template>
 
 <style scoped>

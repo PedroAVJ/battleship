@@ -1,26 +1,26 @@
 <template>
-<div class="map-selection-container">
-  <h2 class="map-selection-title">
-    Select Map
-  </h2>
-  <div class="map-buttons">
-    <button class="map-button" @click="setMap(MapName.MAP1)">
-      Small Map
-    </button>
-    <button class="map-button" @click="setMap(MapName.MAP2)">
-      Medium Map
-    </button>
-    <button class="map-button" @click="setMap(MapName.MAP3)">
-      Large Map
-    </button>
+  <div class="map-selection-container">
+    <h2 class="map-selection-title">
+      Select Map
+    </h2>
+    <div class="map-buttons">
+      <button class="map-button" @click="setMap(MapName.MAP1)">
+        Small Map
+      </button>
+      <button class="map-button" @click="setMap(MapName.MAP2)">
+        Medium Map
+      </button>
+      <button class="map-button" @click="setMap(MapName.MAP3)">
+        Large Map
+      </button>
+    </div>
   </div>
-</div>
 </template>
 
 <script lang="ts" setup>
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
-import { MapName, Mutation } from '@/store/enums';
+import { MapName, Mutation, Action } from '@/store/enums';
 
 
 const router = useRouter();
@@ -28,6 +28,16 @@ const store = useStore();
 
 function setMap(mapName: MapName) {
   store.commit(Mutation.SET_GAME_MAP_NAME, mapName);
+
+  store.commit(Mutation.SET_GUI_SUBMARINE_COUNT, 1);
+  store.commit(Mutation.SET_GUI_SUPPLY_BOAT_COUNT, 1);
+  store.commit(Mutation.SET_GUI_DESTROYER_COUNT, 1);
+  store.commit(Mutation.SET_GUI_BATTLESHIP_COUNT, 1);
+  store.commit(Mutation.SET_GUI_FRIGATE_COUNT, 1);
+  store.commit(Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT, 1);
+
+  store.commit(Action.INITIALIZE_BOARDS_BASED_ON_MAP_NAME, mapName);
+
   router.push({ name: 'PlaceShips' });
 }
 </script>
