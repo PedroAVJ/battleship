@@ -18,9 +18,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/MapSelect.vue')
   },
   {
-    path: '/select-ship',
-    name: 'ShipSelect',
-    component: () => import('@/views/ShipSelect.vue')
+    path: '/place-ships',
+    name: 'PlaceShips',
+    component: () => import('@/views/PlaceShips.vue')
   },
 ]
 

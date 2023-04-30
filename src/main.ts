@@ -5,5 +5,5 @@ import store from './store'
 import { key } from './store';
 
 
-// We pass key to the store so that TypeScript can annotate the store with the correct types
+// .use(store, key) The key is used to provide type information for the store's state.
 createApp(App).use(store, key).use(router).mount('#app')
