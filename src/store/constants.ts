@@ -2,6 +2,18 @@ import { ShipName, MapName } from '../store/enums'
 import { Tile } from '../store/interfaces'
 
 
+/**
+ * Represents the number of ships of each type that are available to place on the board.
+ */
+export const SHIP_COUNTS = {
+    [ShipName.AIRCRAFT_CARRIER]: 1,
+    [ShipName.FRIGATE]: 1,
+    [ShipName.BATTLESHIP]: 1,
+    [ShipName.DESTROYER]: 1,
+    [ShipName.SUPPLY_BOAT]: 1,
+    [ShipName.SUBMARINE]: 1,
+} as const;
+
 export const SHIP_DIMENSIONS = {
 
     [ShipName.SUBMARINE]: {
@@ -75,11 +87,11 @@ const X: Tile = {
 
 /**
  * This is where maps are sketched and designed.
- * M represents land, _ represents water.
+ * M represents land, _ represents water, and X represents out of bounds.
  *
  * This format achieves an optimal height-to-width ratio on the screen.
- * - Using '.' for water and '#' for land in nested lists was too wide.
- * - Using strings like '..#..#..#.' for each row was too tall.
+ * - Using '.' for water, '#' for land and 'X' for out of bounds in nested lists was too wide.
+ * - Using strings like 'X..#..#..#.X' for each row was too tall.
  *
  * This map data is only used once in the application, so there is no risk of
  * just passing it directly as a board as it is not a big deal to have to convert
@@ -88,38 +100,38 @@ const X: Tile = {
 export const MAPS = {
     [MapName.MAP1]: [
         [_, _, _, _, _, _, _, _, _, _],
-        [_, M, M, M, M, M, M, M, M, _],
-        [_, M, _, _, _, _, _, _, M, _],
-        [_, M, _, M, M, M, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, _, _, _, _, _, M, _],
-        [_, M, M, M, M, M, M, M, M, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
     ],
     [MapName.MAP2]: [
         [_, _, _, _, _, _, _, _, _, _],
-        [_, M, M, M, M, M, M, M, M, _],
-        [_, M, _, _, _, _, _, _, M, _],
-        [_, M, _, M, M, M, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, _, _, _, _, _, M, _],
-        [_, M, M, M, M, M, M, M, M, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
     ],
     [MapName.MAP3]: [
         [_, _, _, _, _, _, _, _, _, _],
-        [_, M, M, M, M, M, M, M, M, _],
-        [_, M, _, _, _, _, _, _, M, _],
-        [_, M, _, M, M, M, M, _, M, _],
-        [_, M, _, _, _, _, _, _, M, _],
-        [_, M, _, _, _, _, _, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, M, _, _, M, _, M, _],
-        [_, M, _, _, _, _, _, _, M, _],
-        [_, M, M, M, M, M, M, M, M, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
+        [_, _, _, _, _, _, _, _, _, _],
     ],
 } as const;

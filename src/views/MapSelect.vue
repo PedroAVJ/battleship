@@ -20,8 +20,8 @@
 <script lang="ts" setup>
 import { useStore } from '../store';
 import { useRouter } from 'vue-router';
-import { MapName, Mutation } from '../store/enums';
-import { MAPS } from '../store/constants';
+import { MapName, Mutation, ShipName } from '../store/enums';
+import { MAPS, SHIP_COUNTS } from '../store/constants';
 import { Tile } from '../store/interfaces';
 
 
@@ -31,12 +31,12 @@ const store = useStore();
 function setMap(mapName: MapName) {
   store.commit(Mutation.SET_GAME_MAP_NAME, mapName);
 
-  store.commit(Mutation.SET_GUI_SUBMARINE_COUNT, 1);
-  store.commit(Mutation.SET_GUI_SUPPLY_BOAT_COUNT, 1);
-  store.commit(Mutation.SET_GUI_DESTROYER_COUNT, 1);
-  store.commit(Mutation.SET_GUI_BATTLESHIP_COUNT, 1);
-  store.commit(Mutation.SET_GUI_FRIGATE_COUNT, 1);
-  store.commit(Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT, 1);
+  store.commit(Mutation.SET_GUI_SUBMARINE_COUNT, SHIP_COUNTS[ShipName.SUBMARINE]);
+  store.commit(Mutation.SET_GUI_SUPPLY_BOAT_COUNT, SHIP_COUNTS[ShipName.SUPPLY_BOAT]);
+  store.commit(Mutation.SET_GUI_DESTROYER_COUNT, SHIP_COUNTS[ShipName.DESTROYER]);
+  store.commit(Mutation.SET_GUI_BATTLESHIP_COUNT, SHIP_COUNTS[ShipName.BATTLESHIP]);
+  store.commit(Mutation.SET_GUI_FRIGATE_COUNT, SHIP_COUNTS[ShipName.FRIGATE]);
+  store.commit(Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT, SHIP_COUNTS[ShipName.AIRCRAFT_CARRIER]);
 
   const map = MAPS[mapName];
 

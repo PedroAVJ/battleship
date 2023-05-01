@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import { ShipName, Orientation, Mutation } from '../store/enums';
 import { Tile } from '../store/interfaces';
-import { SHIP_DIMENSIONS } from '../store/constants';
+import { isInvalidShipPlacement, placeShip } from '../utils/shipUtils';
 import { useStore } from '../store';
 import Sprite from './Sprite.vue';
 import { computed } from 'vue';
@@ -36,18 +36,18 @@ const background = computed(() => {
 });
 
 function dragEnter(e: DragEvent) {
-  const target = e.target as HTMLElement;
-  target.classList.add('darken');
+  if (!(e.target instanceof HTMLElement)) return;
+  e.target.classList.add('darken');
 }
 
 function dragLeave(e: DragEvent) {
-  const target = e.target as HTMLElement;
-  target.classList.remove('darken');
+  if (!(e.target instanceof HTMLElement)) return;
+  e.target.classList.remove('darken');
 }
 
 function drop(e: DragEvent) {
-  const target = e.target as HTMLElement;
-  target.classList.remove('darken');
+  if (!(e.target instanceof HTMLElement)) return;
+  e.target.classList.remove('darken');
   
   const shipName = e.dataTransfer?.getData('shipName');
   const shipOrientation = e.dataTransfer?.getData('orientation');
@@ -55,10 +55,10 @@ function drop(e: DragEvent) {
   if (!shipName || !shipOrientation) return;
   if (!isOrientation(shipOrientation)) return;
   if (!isShipName(shipName)) return;
-  if (isInvalidMove(shipName, shipOrientation)) return;
+  if (isInvalidShipPlacement(shipName, shipOrientation, props.row, props.col, store.state.player.board)) return;
 
-  // If it passes all the checks, place the ship
-  placeShip(shipName, shipOrientation);
+  // Here 'player' refers to what board the ship is being placed on
+  placeShip(shipName, shipOrientation, props.row, props.col, 'player');
 
   // Reduce the count of the ship in the GUI
   if (shipName === ShipName.SUBMARINE) {
@@ -84,98 +84,6 @@ function isOrientation(input: string): input is Orientation {
 // Type guards only work on functions, otherwise TS won't infer the type
 function isShipName(input: string): input is ShipName {
   return Object.values(ShipName).includes(input as ShipName);
-}
-
-function isInvalidMove(shipName: ShipName, shipOrientation: Orientation): boolean {
-  const shipHitboxes = getShipHitboxes(shipName, shipOrientation);
-  const board = store.state.player.board;
-
-  for (const hitbox of shipHitboxes) {
-    const row = hitbox.row;
-    const col = hitbox.col;
-
-    // Row and column beyond the board check
-    if (row < 0 || row >= board.length) return true;
-    if (col < 0 || col >= board[0].length) return true;
-
-    // Land and out of bounds check
-    if (board[row][col].background.isLand) return true;
-    if (board[row][col].background.isOutOfBounds) return true;
-
-    // Ship hitbox check
-    if (board[row][col].ship) return true;
-
-    return false;
-  }
-
-  return false;
-}
-
-function getShipHitboxes(shipName: ShipName, shipOrientation: Orientation): { row: number, col: number }[] {
-  const length = SHIP_DIMENSIONS[shipName].length;
-  const width = SHIP_DIMENSIONS[shipName].width;
-  const shipHitboxes: { row: number, col: number }[] = [];
-
-  // The coordinates marked by row and col are the top left corner of the ship
-  for (let i = 0; i < length; i++) {
-    for (let j = 0; j < width; j++) {
-
-      // If the ship is horizontal, i represents the column and j represents the row
-      // This is because the length moves horizontally and the width moves vertically
-      // X X X X X
-      // X X X X X
-      if (shipOrientation === Orientation.HORIZONTAL) {
-        shipHitboxes.push({
-          row: props.row + j,
-          col: props.col + i,
-        });
-      }
-
-      // If the ship is vertical, i represents the row and j represents the column
-      // This is because the length moves vertically and the width moves horizontally
-      // X X
-      // X X
-      // X X
-      // X X
-      if (shipOrientation === Orientation.VERTICAL) {
-        shipHitboxes.push({
-          row: props.row + i,
-          col: props.col + j,
-        });
-      }
-    }
-  }
-
-  return shipHitboxes;
-}
-
-function placeShip(shipName: ShipName, shipOrientation: Orientation) {
-  const shipHitboxes = getShipHitboxes(shipName, shipOrientation);
-  const board = store.state.player.board;
-
-  for (const hitbox of shipHitboxes) {
-    const row = hitbox.row;
-    const col = hitbox.col;
-
-    const tile: Tile = {
-      ...board[row][col],
-      ship: {
-        name: shipName,
-      },
-    };
-
-    // If this is the first tile, set the ship orientation
-    // This is because the ship orientation defines were we start drawing the ship sprite
-    if (row === props.row && col === props.col && tile.ship) {
-      tile.ship.orientation = shipOrientation;
-    }
-
-    store.commit(Mutation.SET_PLAYER_TILE, {
-      row: row,
-      col: col,
-      tile: tile,
-    });
-  }
 }
 </script>
 

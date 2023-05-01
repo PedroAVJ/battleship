@@ -41,16 +41,19 @@ const state: RootState = {
         // GUI changes during ability usage
         isUsingSubmarineAbility: false,
         isUsingAircraftCarrierAbility: false,
-        isUsingBattleShipAbility: false,
+        isUsingBattleshipAbility: false,
 
         // GUI changes after ability usage
         hasUsedSubmarineAbility: false,
         hasUsedAircraftCarrierAbility: false,
-        hasUsedBattleShipAbility: false,
+        hasUsedBattleshipAbility: false,
 
         // If their health is 0, their ability is consumed
         aircraftCarrierHealth: 0,
         battleshipHealth: 0,
+
+        // When the ability is used, this is the number of shots that can be fired
+        aircraftCarrierShots: 0,
 
         hasCurrentTurn: false,
         hasWonTheGame: false,
@@ -62,16 +65,19 @@ const state: RootState = {
         // GUI changes during ability usage
         isUsingSubmarineAbility: false,
         isUsingAircraftCarrierAbility: false,
-        isUsingBattleShipAbility: false,
+        isUsingBattleshipAbility: false,
 
         // GUI changes after ability usage
         hasUsedSubmarineAbility: false,
         hasUsedAircraftCarrierAbility: false,
-        hasUsedBattleShipAbility: false,
+        hasUsedBattleshipAbility: false,
 
         // If their health is 0, their ability is consumed
         aircraftCarrierHealth: 0,
         battleshipHealth: 0,
+
+        // When the ability is used, this is the number of shots that can be fired
+        aircraftCarrierShots: 0,
 
         hasCurrentTurn: false,
         hasWonTheGame: false,
@@ -114,7 +120,7 @@ const mutations = {
         state.player.isUsingAircraftCarrierAbility = isUsingAircraftCarrierAbility;
     },
     [Mutation.SET_PLAYER_IS_USING_BATTLESHIP_ABILITY](state: RootState, isUsingBattleShipAbility: boolean) {
-        state.player.isUsingBattleShipAbility = isUsingBattleShipAbility;
+        state.player.isUsingBattleshipAbility = isUsingBattleShipAbility;
     },
 
     [Mutation.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY](state: RootState, hasUsedSubmarineAbility: boolean) {
@@ -124,7 +130,7 @@ const mutations = {
         state.player.hasUsedAircraftCarrierAbility = hasUsedAircraftCarrierAbility;
     },
     [Mutation.SET_PLAYER_HAS_USED_BATTLESHIP_ABILITY](state: RootState, hasUsedBattleShipAbility: boolean) {
-        state.player.hasUsedBattleShipAbility = hasUsedBattleShipAbility;
+        state.player.hasUsedBattleshipAbility = hasUsedBattleShipAbility;
     },
 
     [Mutation.SET_PLAYER_AIRCRAFT_CARRIER_HEALTH](state: RootState, health: number) {
@@ -132,6 +138,10 @@ const mutations = {
     },
     [Mutation.SET_PLAYER_BATTLESHIP_HEALTH](state: RootState, health: number) {
         state.player.battleshipHealth = health;
+    },
+
+    [Mutation.SET_PLAYER_AIRCRAFT_CARRIER_SHOTS](state: RootState, shots: number) {
+        state.player.aircraftCarrierShots = shots;
     },
 
     [Mutation.SET_PLAYER_HAS_CURRENT_TURN](state: RootState, hasCurrentTurn: boolean) {
@@ -155,7 +165,7 @@ const mutations = {
         state.computer.isUsingAircraftCarrierAbility = isUsingAircraftCarrierAbility;
     },
     [Mutation.SET_COMPUTER_IS_USING_BATTLESHIP_ABILITY](state: RootState, isUsingBattleShipAbility: boolean) {
-        state.computer.isUsingBattleShipAbility = isUsingBattleShipAbility;
+        state.computer.isUsingBattleshipAbility = isUsingBattleShipAbility;
     },
 
     [Mutation.SET_COMPUTER_HAS_USED_SUBMARINE_ABILITY](state: RootState, hasUsedSubmarineAbility: boolean) {
@@ -165,7 +175,7 @@ const mutations = {
         state.computer.hasUsedAircraftCarrierAbility = hasUsedAircraftCarrierAbility;
     },
     [Mutation.SET_COMPUTER_HAS_USED_BATTLESHIP_ABILITY](state: RootState, hasUsedBattleShipAbility: boolean) {
-        state.computer.hasUsedBattleShipAbility = hasUsedBattleShipAbility;
+        state.computer.hasUsedBattleshipAbility = hasUsedBattleShipAbility;
     },
 
     [Mutation.SET_COMPUTER_AIRCRAFT_CARRIER_HEALTH](state: RootState, health: number) {
@@ -173,6 +183,10 @@ const mutations = {
     },
     [Mutation.SET_COMPUTER_BATTLESHIP_HEALTH](state: RootState, health: number) {
         state.computer.battleshipHealth = health;
+    },
+
+    [Mutation.SET_COMPUTER_AIRCRAFT_CARRIER_SHOTS](state: RootState, shots: number) {
+        state.computer.aircraftCarrierShots = shots;
     },
 
     [Mutation.SET_COMPUTER_HAS_CURRENT_TURN](state: RootState, hasCurrentTurn: boolean) {

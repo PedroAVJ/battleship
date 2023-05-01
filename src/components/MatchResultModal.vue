@@ -47,6 +47,8 @@ function newGame() {
   store.commit(Mutation.SET_PLAYER_AIRCRAFT_CARRIER_HEALTH, 10)
   store.commit(Mutation.SET_PLAYER_BATTLESHIP_HEALTH, 4)
 
+  store.commit(Mutation.SET_PLAYER_AIRCRAFT_CARRIER_SHOTS, 0)
+
   store.commit(Mutation.SET_PLAYER_HAS_CURRENT_TURN, false)
   store.commit(Mutation.SET_PLAYER_HAS_WON_THE_GAME, false)
 
@@ -62,6 +64,8 @@ function newGame() {
 
   store.commit(Mutation.SET_COMPUTER_AIRCRAFT_CARRIER_HEALTH, 10)
   store.commit(Mutation.SET_COMPUTER_BATTLESHIP_HEALTH, 4)
+
+  store.commit(Mutation.SET_COMPUTER_AIRCRAFT_CARRIER_SHOTS, 0)
 
   store.commit(Mutation.SET_COMPUTER_HAS_CURRENT_TURN, false)
   store.commit(Mutation.SET_COMPUTER_HAS_WON_THE_GAME, false)

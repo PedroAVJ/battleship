@@ -44,6 +44,8 @@ export enum Mutation {
     SET_PLAYER_AIRCRAFT_CARRIER_HEALTH = 'setPlayerAircraftCarrierHealth',
     SET_PLAYER_BATTLESHIP_HEALTH = 'setPlayerBattleShipHealth',
 
+    SET_PLAYER_AIRCRAFT_CARRIER_SHOTS = 'setPlayerAircraftCarrierShots',
+
     SET_PLAYER_HAS_CURRENT_TURN = 'setPlayerHasCurrentTurn',
     SET_PLAYER_HAS_WON_THE_GAME = 'setPlayerHasWonTheGame',
 
@@ -60,6 +62,8 @@ export enum Mutation {
 
     SET_COMPUTER_AIRCRAFT_CARRIER_HEALTH = 'setComputerAircraftCarrierHealth',
     SET_COMPUTER_BATTLESHIP_HEALTH = 'setComputerBattleShipHealth',
+
+    SET_COMPUTER_AIRCRAFT_CARRIER_SHOTS = 'setComputerAircraftCarrierShots',
 
     SET_COMPUTER_HAS_CURRENT_TURN = 'setComputerHasCurrentTurn',
     SET_COMPUTER_HAS_WON_THE_GAME = 'setComputerHasWonTheGame',

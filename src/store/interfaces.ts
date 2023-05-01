@@ -29,16 +29,19 @@ export interface User {
     // GUI changes during ability usage
     isUsingSubmarineAbility: boolean;
     isUsingAircraftCarrierAbility: boolean;
-    isUsingBattleShipAbility: boolean;
+    isUsingBattleshipAbility: boolean;
 
     // GUI changes after ability usage
     hasUsedSubmarineAbility: boolean;
     hasUsedAircraftCarrierAbility: boolean;
-    hasUsedBattleShipAbility: boolean;
+    hasUsedBattleshipAbility: boolean;
 
     // If their health is 0, their ability is consumed
     aircraftCarrierHealth: number;
     battleshipHealth: number;
+
+    // When the ability is used, this is the number of shots that can be fired
+    aircraftCarrierShots: number;
 
     hasCurrentTurn: boolean;
     hasWonTheGame: boolean;

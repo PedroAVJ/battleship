@@ -10,7 +10,7 @@
       && !isPlayerSquare"
   />
 
-  <div v-if="tile.ship !== undefined">
+  <div v-if="tile.ship !== undefined && isPlayerSquare">
     <Submarine
       v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
       :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
