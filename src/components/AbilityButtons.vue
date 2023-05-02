@@ -2,7 +2,7 @@
   <!-- Player button for using the submarine ability -->
   <button
     :disabled="isSubmarineAbilityButtonDisabled"
-    @click="store.commit(Mutation.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, true)"
+    @click="store.commit(Mutation.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, true)"
   >
     {{ submarineAbilityButtonText }}
   </button>
@@ -10,7 +10,7 @@
   <!-- Player button for using the aircraft carrier ability -->
   <button
     :disabled="isAircraftCarrierAbilityButtonDisabled"
-    @click="store.commit(Mutation.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true)"
+    @click="store.commit(Mutation.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, true)"
   >
     {{ aircraftCarrierAbilityButtonText }}
   </button>
@@ -18,7 +18,7 @@
   <!-- Player button for using the battleship ability -->
   <button
     :disabled="isBattleshipAbilityButtonDisabled"
-    @click="store.commit(Mutation.SET_PLAYER_HAS_USED_BATTLESHIP_ABILITY, true)"
+    @click="store.commit(Mutation.SET_PLAYER_IS_USING_BATTLESHIP_ABILITY, true)"
   >
     {{ battleshipAbilityButtonText }}
   </button>

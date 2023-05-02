@@ -1,6 +1,6 @@
 <template>
   <Hit v-if="tile.contains.successfulShot" class="hit" />
-  <Miss v-if="tile.contains.missedShot" />
+  <Miss v-if="tile.contains.missedShot" class="miss" />
 
   <!-- Only show uncovered ship if it's the enemy board and the tile hasn't been shot at yet -->
   <Uncovered 
@@ -8,6 +8,7 @@
       tile.contains.uncoveredShip
       && !tile.contains.successfulShot
       && !isPlayerSquare"
+    class="uncovered"
   />
 
   <div v-if="tile.ship !== undefined && isPlayerSquare">
@@ -71,6 +72,26 @@ const props = defineProps<SpriteProps>();
   height: 100%;
   overflow: visible;
   z-index: 2;
+}
+
+.miss {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  z-index: 1;
+}
+
+.uncovered {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  z-index: 1;
 }
 
 .submarine {

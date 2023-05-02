@@ -47,9 +47,7 @@ function Attack() {
         // If the square contains a ship, uncover it
         const tile = computer_board[row][col];
         if (tile.ship !== undefined) {
-          const new_tile = {
-            ...tile,
-          }
+          const new_tile = JSON.parse(JSON.stringify(tile));
           new_tile.contains.uncoveredShip = true;
           store.commit(Mutation.SET_COMPUTER_TILE, {
             row: row,
@@ -66,9 +64,7 @@ function Attack() {
           if (tile.contains.successfulShot) continue;
           if (tile.contains.uncoveredShip) continue;
 
-          const new_tile = {
-            ...tile,
-          }
+          const new_tile = JSON.parse(JSON.stringify(tile));
           new_tile.contains.missedShot = true;
           store.commit(Mutation.SET_COMPUTER_TILE, {
             row: row,
@@ -84,9 +80,7 @@ function Attack() {
     for (let row = 0; row < player_board.length; row++) {
       for (let col = 0; col < player_board[row].length; col++) {
         if (player_board[row][col].ship?.name === ShipName.SUBMARINE) {
-          const new_tile = {
-            ...player_board[row][col],
-          }
+          const new_tile = JSON.parse(JSON.stringify(player_board[row][col]));
           new_tile.contains.uncoveredShip = true;
           store.commit(Mutation.SET_PLAYER_TILE, {
             row: row,
@@ -113,16 +107,10 @@ function Attack() {
         // Make sure the square is valid
         if (isInvalidSquare(row, col, computer_board)) continue;
 
-        // If it already contains a missed shot, or a successful shot, skip it
-        const tile = computer_board[row][col];
-        if (tile.contains.missedShot) continue;
-        if (tile.contains.successfulShot) continue;
-
         // If the square contains a ship, hit it
+        const tile = computer_board[row][col];
         if (tile.ship !== undefined) {
-          const new_tile = {
-            ...tile,
-          }
+          const new_tile = JSON.parse(JSON.stringify(tile));
           new_tile.contains.successfulShot = true;
           store.commit(Mutation.SET_COMPUTER_TILE, {
             row: row,
@@ -147,6 +135,17 @@ function Attack() {
 
         }
 
+        // Otherwise, mark it as a missed shot
+        else {
+          const new_tile = JSON.parse(JSON.stringify(tile));
+          new_tile.contains.missedShot = true;
+          store.commit(Mutation.SET_COMPUTER_TILE, {
+            row: row,
+            col: col,
+            tile: new_tile
+          });
+        }
+
       }
     }
 
@@ -154,9 +153,7 @@ function Attack() {
     for (let row = 0; row < player_board.length; row++) {
       for (let col = 0; col < player_board[row].length; col++) {
         if (player_board[row][col].ship?.name === ShipName.BATTLESHIP) {
-          const new_tile = {
-            ...player_board[row][col],
-          }
+          const new_tile = JSON.parse(JSON.stringify(player_board[row][col]));
           new_tile.contains.uncoveredShip = true;
           store.commit(Mutation.SET_PLAYER_TILE, {
             row: row,
@@ -177,9 +174,7 @@ function Attack() {
     const tile = computer_board[props.row][props.col];
 
     // Hit the square
-    const new_tile = {
-      ...tile,
-    }
+    const new_tile = JSON.parse(JSON.stringify(tile));
     if (new_tile.ship !== undefined) {
       new_tile.contains.successfulShot = true;
 
@@ -238,9 +233,7 @@ function Attack() {
     for (let row = 0; row < player_board.length; row++) {
       for (let col = 0; col < player_board[row].length; col++) {
         if (player_board[row][col].ship?.name === ShipName.AIRCRAFT_CARRIER) {
-          const new_tile = {
-            ...player_board[row][col],
-          }
+          const new_tile = JSON.parse(JSON.stringify(player_board[row][col]));
           new_tile.contains.uncoveredShip = true;
           store.commit(Mutation.SET_PLAYER_TILE, {
             row: row,
@@ -261,9 +254,7 @@ function Attack() {
     const tile = computer_board[props.row][props.col];
 
     // Hit the square
-    const new_tile = {
-      ...tile,
-    }
+    const new_tile = JSON.parse(JSON.stringify(tile));
     if (new_tile.ship !== undefined) {
       new_tile.contains.successfulShot = true;
 
@@ -348,9 +339,7 @@ function Attack() {
         // If the square contains a ship, uncover it
         const tile = player_board[row][col];
         if (tile.ship !== undefined) {
-          const new_tile = {
-            ...tile,
-          }
+          const new_tile = JSON.parse(JSON.stringify(tile));
           new_tile.contains.uncoveredShip = true;
           store.commit(Mutation.SET_PLAYER_TILE, {
             row: row,
@@ -367,9 +356,7 @@ function Attack() {
           if (tile.contains.successfulShot) continue;
           if (tile.contains.uncoveredShip) continue;
 
-          const new_tile = {
-            ...tile,
-          }
+          const new_tile = JSON.parse(JSON.stringify(tile));
           new_tile.contains.missedShot = true;
           store.commit(Mutation.SET_PLAYER_TILE, {
             row: row,
@@ -385,9 +372,7 @@ function Attack() {
     for (let row = 0; row < computer_board.length; row++) {
       for (let col = 0; col < computer_board[row].length; col++) {
         if (computer_board[row][col].ship?.name === ShipName.SUBMARINE) {
-          const new_tile = {
-            ...computer_board[row][col],
-          }
+          const new_tile = JSON.parse(JSON.stringify(computer_board[row][col]));
           new_tile.contains.uncoveredShip = true;
           store.commit(Mutation.SET_COMPUTER_TILE, {
             row: row,
@@ -422,9 +407,7 @@ function Attack() {
 
         // If the square contains a ship, hit it
         if (tile.ship !== undefined) {
-          const new_tile = {
-            ...tile,
-          }
+          const new_tile = JSON.parse(JSON.stringify(tile));
           new_tile.contains.successfulShot = true;
           store.commit(Mutation.SET_PLAYER_TILE, {
             row: row,
@@ -448,9 +431,7 @@ function Attack() {
           }
 
         } else {
-          const new_tile = {
-            ...tile,
-          }
+          const new_tile = JSON.parse(JSON.stringify(tile));
           new_tile.contains.missedShot = true;
           store.commit(Mutation.SET_PLAYER_TILE, {
             row: row,
@@ -466,9 +447,7 @@ function Attack() {
     for (let row = 0; row < computer_board.length; row++) {
       for (let col = 0; col < computer_board[row].length; col++) {
         if (computer_board[row][col].ship?.name === ShipName.BATTLESHIP) {
-          const new_tile = {
-            ...computer_board[row][col],
-          }
+          const new_tile = JSON.parse(JSON.stringify(computer_board[row][col]));
           new_tile.contains.uncoveredShip = true;
           store.commit(Mutation.SET_COMPUTER_TILE, {
             row: row,
@@ -496,9 +475,7 @@ function Attack() {
       if (tile.contains.missedShot) continue;
       if (tile.contains.successfulShot) continue;
 
-      const new_tile = {
-        ...tile,
-      }
+      const new_tile = JSON.parse(JSON.stringify(tile));
       // If the square contains a ship, hit it
       if (tile.ship !== undefined) {
         new_tile.contains.successfulShot = true;
@@ -562,9 +539,7 @@ function Attack() {
     for (let row = 0; row < computer_board.length; row++) {
       for (let col = 0; col < computer_board[row].length; col++) {
         if (computer_board[row][col].ship?.name === ShipName.AIRCRAFT_CARRIER) {
-          const new_tile = {
-            ...computer_board[row][col],
-          }
+          const new_tile = JSON.parse(JSON.stringify(computer_board[row][col]));
           new_tile.contains.uncoveredShip = true;
           store.commit(Mutation.SET_COMPUTER_TILE, {
             row: row,
@@ -586,9 +561,7 @@ function Attack() {
     const tile = player_board[move.row][move.col];
 
     // Hit the square
-    const new_tile = {
-      ...tile,
-    }
+    const new_tile = JSON.parse(JSON.stringify(tile));
     if (new_tile.ship !== undefined) {
       new_tile.contains.successfulShot = true;
 
