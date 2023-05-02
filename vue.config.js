@@ -9,7 +9,7 @@ module.exports = defineConfig({
 
   // Needed for github pages to work
   publicPath: process.env.NODE_ENV === 'production'
-    ? '/ybatlleship/'
+    ? '/batlleship/'
     : '/'
 
 })
