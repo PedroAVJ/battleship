@@ -38,11 +38,50 @@ const background = computed(() => {
 function dragEnter(e: DragEvent) {
   if (!(e.target instanceof HTMLElement)) return;
   e.target.classList.add('darken');
+
+  // Get the ship name and orientation from the global state
+  const shipName = store.state.shipNamePreview;
+  const shipOrientation = store.state.shipOrientationPreview;
+
+  // If the data is invalid, return
+  if (!shipName || !shipOrientation) return;
+  if (!isOrientation(shipOrientation)) return;
+  if (!isShipName(shipName)) return;
+
+  // If the ship placement is invalid, return
+  if (isInvalidShipPlacement(shipName, shipOrientation, props.row, props.col, store.state.player.board)) return;
+
+  // Set the ship preview
+  const new_tile = JSON.parse(JSON.stringify(props.tile)) as Tile;
+  new_tile.ship_preview = {
+    name: shipName,
+    orientation: shipOrientation,
+  };
+  store.commit(Mutation.SET_PLAYER_TILE, { row: props.row, col: props.col, tile: new_tile });
+
 }
 
 function dragLeave(e: DragEvent) {
   if (!(e.target instanceof HTMLElement)) return;
   e.target.classList.remove('darken');
+
+  // Get the ship name and orientation from the global state
+  const shipName = store.state.shipNamePreview;
+  const shipOrientation = store.state.shipOrientationPreview;
+
+  // If the data is invalid, return
+  if (!shipName || !shipOrientation) return;
+  if (!isOrientation(shipOrientation)) return;
+  if (!isShipName(shipName)) return;
+
+  // If the ship placement is invalid, return
+  if (isInvalidShipPlacement(shipName, shipOrientation, props.row, props.col, store.state.player.board)) return;
+
+  // Remove the ship preview
+  const new_tile = JSON.parse(JSON.stringify(props.tile)) as Tile;
+  new_tile.ship_preview = undefined;
+  store.commit(Mutation.SET_PLAYER_TILE, { row: props.row, col: props.col, tile: new_tile });
+
 }
 
 function drop(e: DragEvent) {

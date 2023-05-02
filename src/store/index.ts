@@ -2,7 +2,7 @@ import { InjectionKey } from 'vue';
 import { createStore, Store, useStore as baseUseStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import { RootState, Tile } from '@/store/interfaces';
-import { Mutation, MapName } from '@/store/enums';
+import { Mutation, MapName, ShipName, Orientation } from '@/store/enums';
 
 
 // This key allows TypeScript to infer the types of the store object
@@ -34,7 +34,12 @@ const state: RootState = {
         battleshipCount: 0,
         frigateCount: 0,
         aircraftCarrierCount: 0,
+
     },
+
+    /** Keeps track of what ship should be rendered on the board while hoovering over the board */
+    shipNamePreview: undefined,
+    shipOrientationPreview: undefined,
 
     player: {
 
@@ -111,6 +116,13 @@ const mutations = {
     },
     [Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT](state: RootState, count: number) {
         state.gui.aircraftCarrierCount = count;
+    },
+
+    [Mutation.SET_SHIP_NAME_PREVIEW](state: RootState, shipNamePreview: ShipName) {
+        state.shipNamePreview = shipNamePreview;
+    },
+    [Mutation.SET_SHIP_ORIENTATION_PREVIEW](state: RootState, shipOrientationPreview: Orientation) {
+        state.shipOrientationPreview = shipOrientationPreview;
     },
 
     [Mutation.SET_PLAYER_IS_USING_SUBMARINE_ABILITY](state: RootState, isUsingSubmarineAbility: boolean) {

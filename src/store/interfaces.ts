@@ -8,15 +8,21 @@ export interface RootState {
         mapName?: MapName;
     }
 
-    /** Keeps track of the ships left to place in case the page is refreshed */
     gui: {
+
+        // Keeps track of the ships left to place in case the page is refreshed
         submarineCount: number;
         supplyBoatCount: number;
         destroyerCount: number;
         battleshipCount: number;
         frigateCount: number;
         aircraftCarrierCount: number;
+
     };
+
+    // Keeps track of what ship should be rendered on the board while hoovering over the board
+    shipNamePreview?: ShipName;
+    shipOrientationPreview?: Orientation;
 
     // User stores info about abilities, health, board, etc.
     player: User;
@@ -72,5 +78,13 @@ export interface Tile {
          * If the orientation is present, we start drawing the SVG from this tile.
          */
         orientation?: Orientation;
-    }
+    };
+
+    /**
+     * This is used to preview the ship before it is placed.
+     */
+    ship_preview?: {
+        name: ShipName;
+        orientation: Orientation;
+    };
 }

@@ -28,7 +28,11 @@ const background = computed(() => {
   if (props.tile.background.isOutOfBounds) return 'out-of-bounds';
 });
 
-function Attack() {
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function Attack() {
   if (store.state.computer.hasCurrentTurn) return;
   const computer_board = store.state.computer.board
   const player_board = store.state.player.board
@@ -316,6 +320,9 @@ function Attack() {
   store.commit(Mutation.SET_PLAYER_HAS_CURRENT_TURN, false);
   store.commit(Mutation.SET_COMPUTER_HAS_CURRENT_TURN, true);
 
+  // Wait for 1 second (1000 milliseconds)
+  await sleep(1000);
+
   // For now, always try to use the abilities if it hasn't already
   if (!store.state.computer.hasUsedAircraftCarrierAbility) {
     store.commit(Mutation.SET_COMPUTER_IS_USING_AIRCRAFT_CARRIER_ABILITY, true);
@@ -324,6 +331,9 @@ function Attack() {
   } else if (!store.state.computer.hasUsedSubmarineAbility) {
     store.commit(Mutation.SET_COMPUTER_IS_USING_SUBMARINE_ABILITY, true);
   }
+
+  // Wait for 1 second (1000 milliseconds)
+  await sleep(1000);
 
   // Computer submarine ability
   if (store.state.computer.isUsingSubmarineAbility) {
@@ -593,6 +603,9 @@ function Attack() {
     });
   }
 
+  // Wait for 1 second (1000 milliseconds)
+  await sleep(1000);
+
   // Check if either the battleship or the aircraft carrier were sunk
   if (store.state.player.aircraftCarrierHealth === 0) {
     store.commit(Mutation.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
@@ -648,5 +661,10 @@ function Attack() {
   border: 1px solid #2c3e50;
   position: relative;
   background-color: #ffffff;
+}
+
+/** When the water style gets hovered over, change the background color */
+.water:hover {
+  background-color: #2c3e50;
 }
 </style>

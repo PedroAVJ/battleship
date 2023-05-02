@@ -11,6 +11,7 @@
     class="uncovered"
   />
 
+  <!-- Only show ship if it's the player board and the tile hasn't been shot at yet -->
   <div v-if="tile.ship !== undefined && isPlayerSquare">
     <Submarine
       v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
@@ -37,11 +38,41 @@
       :class="['aircraft-carrier', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
     />
   </div>
+
+  <!-- This display a ship preview when the player is placing a ship -->
+  <div v-if="tile.ship_preview !== undefined && isPlayerSquare">
+    <Submarine
+      v-if="tile.ship_preview.name === ShipName.SUBMARINE && tile.ship_preview.orientation"
+      :class="['submarine', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview', 'svg-container']"
+    />
+    <SupplyBoat
+      v-if="tile.ship_preview.name === ShipName.SUPPLY_BOAT && tile.ship_preview.orientation"
+      :class="['supply-boat', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+    />
+    <Destroyer
+      v-if="tile.ship_preview.name === ShipName.DESTROYER && tile.ship_preview.orientation"
+      :class="['destroyer', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+    />
+    <Battleship
+      v-if="tile.ship_preview.name === ShipName.BATTLESHIP && tile.ship_preview.orientation"
+      :class="['battleship', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+    />
+    <Frigate
+      v-if="tile.ship_preview.name === ShipName.FRIGATE && tile.ship_preview.orientation"
+      :class="['frigate', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+    />
+    <AircraftCarrier
+      v-if="tile.ship_preview.name === ShipName.AIRCRAFT_CARRIER && tile.ship_preview.orientation"
+      :class="['aircraft-carrier', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+    />
+  </div>
+
 </template>
 
 <script setup lang="ts">
 import { ShipName, Orientation } from '@/store/enums'
 import { Tile } from '@/store/interfaces'
+import { useStore } from '@/store';
 
 // SVG's
 import Miss from '@/components/SVGs/Miss.vue'
@@ -61,6 +92,8 @@ interface SpriteProps {
 }
 
 const props = defineProps<SpriteProps>();
+
+const store = useStore();
 </script>
 
 <style scoped>
@@ -188,5 +221,10 @@ const props = defineProps<SpriteProps>();
 
 .aircraft-carrier.rotated {
   transform: rotate(90deg) scaleX(4.5) scaleY(5) translate(6%, 50%);
+}
+
+/* Class for ship preview sprites, so that they are slightly transparent */
+.ship-preview {
+  opacity: 0.5;
 }
 </style>

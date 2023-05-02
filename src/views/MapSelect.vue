@@ -4,15 +4,53 @@
       Select Map
     </h2>
     <div class="map-buttons">
-      <button class="map-button" @click="setMap(MapName.MAP1)">
-        Small Map
-      </button>
-      <button class="map-button" @click="setMap(MapName.MAP2)">
-        Medium Map
-      </button>
-      <button class="map-button" @click="setMap(MapName.MAP3)">
-        Large Map
-      </button>
+      <div class="boards">
+        <div class="board-wrapper">
+          <button class="map-button" @click="setMap(MapName.MAP1)">
+            Small Map
+          </button>
+          <div class="board">
+            <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP1])) as Tile[][]" :key="rowIndex" class="board-row">
+              <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+
+                <!-- We use player squares here because they dont have an on click event -->
+                <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="board-wrapper">
+          <button class="map-button" @click="setMap(MapName.MAP2)">
+            Medium Map
+          </button>
+          <div class="board">
+            <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP2]))" :key="rowIndex" class="board-row">
+              <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+
+                <!-- We use player squares here because they dont have an on click event -->
+                <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="board-wrapper">
+          <button class="map-button" @click="setMap(MapName.MAP3)">
+            Large Map
+          </button>
+          <div class="board">
+            <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP3]))" :key="rowIndex" class="board-row">
+              <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+
+                <!-- We use player squares here because they dont have an on click event -->
+                <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -23,6 +61,7 @@ import { useRouter } from 'vue-router';
 import { MapName, Mutation, ShipName } from '@/store/enums';
 import { MAPS, SHIP_COUNTS } from '@/store/constants';
 import { Tile } from '@/store/interfaces';
+import PlayerSquare from '@/components/PlayerSquare.vue';
 
 
 const router = useRouter();
@@ -85,5 +124,38 @@ function setMap(mapName: MapName) {
 
 .map-button:hover {
   background-color: #2a9657;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  height: 500px;
+  background-color: #2c3e50;
+}
+
+.board-row {
+  display: flex;
+  flex: 1;
+}
+
+.board-cell {
+  flex: 1;
+  position: relative;
+  border: 1px solid #2c3e50;
+  box-sizing: border-box;
+}
+
+.board-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+}
+
+.boards {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
 }
 </style>

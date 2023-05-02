@@ -48,7 +48,48 @@
       <h3 v-else>
         Enemy's Turn
       </h3>
-      <AbilityButtons />
+
+      <!-- Display what ability is selected -->
+      <div v-if="store.state.player.hasCurrentTurn">
+        <h3>
+          Current Attack Type: {{ selectedPlayerAbility }}
+        </h3>
+      </div>
+      <div v-else-if="store.state.computer.hasCurrentTurn">
+        <h3>
+          Current Attack Type: {{ selectedComputerAbility }}
+        </h3>
+      </div>
+
+      <h3>
+        Click to use an ability
+      </h3>
+      <AbilityButtons v-if="store.state.player.hasCurrentTurn" />
+      <div class="ability-button-container" v-else-if="store.state.computer.hasCurrentTurn">
+        <!-- Player button for using the submarine ability -->
+        <button
+          :disabled="isSubmarineAbilityButtonDisabled"
+          :class="['ability-button', store.state.computer.isUsingSubmarineAbility ? 'highlighted' : '']"
+        >
+          <Submarine class="ability-icon" />
+        </button>
+
+        <!-- Player button for using the aircraft carrier ability -->
+        <button
+          :disabled="isAircraftCarrierAbilityButtonDisabled"
+          :class="['ability-button', store.state.computer.isUsingAircraftCarrierAbility ? 'highlighted' : '']"
+        >
+          <AircraftCarrier class="ability-icon" />
+        </button>
+
+        <!-- Player button for using the battleship ability -->
+        <button
+          :disabled="isBattleshipAbilityButtonDisabled"
+          :class="['ability-button', store.state.computer.isUsingBattleshipAbility ? 'highlighted' : '']"
+        >
+          <Battleship class="ability-icon" />
+        </button>
+      </div>
     </div>
 
   </div>
@@ -61,9 +102,59 @@ import EnemySquare from '@/components/EnemySquare.vue';
 import AbilityButtons from '@/components/AbilityButtons.vue';
 import MatchResultModal from '@/components/MatchResultModal.vue';
 import { useStore } from '@/store'
+import { computed } from 'vue';
+
+// SVGs
+import Submarine from '@/components/SVGs/Ships/Submarine.vue';
+import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue';
+import Battleship from '@/components/SVGs/Ships/Battleship.vue';
 
 
 const store = useStore()
+
+const selectedPlayerAbility = computed(() => {
+  if (store.state.player.isUsingAircraftCarrierAbility) return 'Aircraft Carrier Attack';
+  if (store.state.player.isUsingBattleshipAbility) return 'Battleship Attack';
+  if (store.state.player.isUsingSubmarineAbility) return 'Submarine Attack';
+  return 'Normal Attack';
+});
+
+const selectedComputerAbility = computed(() => {
+  if (store.state.computer.isUsingAircraftCarrierAbility) return 'Aircraft Carrier Attack';
+  if (store.state.computer.isUsingBattleshipAbility) return 'Battleship Attack';
+  if (store.state.computer.isUsingSubmarineAbility) return 'Submarine Attack';
+  return 'Normal Attack';
+});
+
+const isSubmarineAbilityButtonDisabled = computed(() => {
+  return (
+    store.state.player.hasCurrentTurn
+    || store.state.computer.hasUsedSubmarineAbility
+    || store.state.computer.isUsingSubmarineAbility
+    || store.state.computer.isUsingAircraftCarrierAbility
+    || store.state.computer.isUsingBattleshipAbility
+  )
+})
+
+const isAircraftCarrierAbilityButtonDisabled = computed(() => {
+  return (
+    store.state.player.hasCurrentTurn
+    || store.state.computer.hasUsedAircraftCarrierAbility
+    || store.state.computer.isUsingSubmarineAbility
+    || store.state.computer.isUsingAircraftCarrierAbility
+    || store.state.computer.isUsingBattleshipAbility
+  )
+})
+
+const isBattleshipAbilityButtonDisabled = computed(() => {
+  return (
+    store.state.player.hasCurrentTurn
+    || store.state.computer.hasUsedBattleshipAbility
+    || store.state.computer.isUsingSubmarineAbility
+    || store.state.computer.isUsingAircraftCarrierAbility
+    || store.state.computer.isUsingBattleshipAbility
+  )
+})
 </script>
 
 <style scoped>
@@ -123,5 +214,41 @@ h2 {
   position: relative;
   border: 1px solid #2c3e50;
   box-sizing: border-box;
+}
+
+.ability-button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ability-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 5px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.ability-button:hover:not(:disabled) {
+  background-color: #dddddd;
+}
+
+.ability-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.ability-icon {
+  width: 50px;
+  height: 50px;
+}
+
+/** Class for when the button is highlighted, border color should change to a light green */
+.ability-button.highlighted {
+  border-color: #00ff00;
 }
 </style>

@@ -33,6 +33,9 @@ export enum Mutation {
     SET_GUI_FRIGATE_COUNT = 'setGUIFrigateCount',
     SET_GUI_AIRCRAFT_CARRIER_COUNT = 'setGUIAircraftCarrierCount',
 
+    SET_SHIP_NAME_PREVIEW = 'setGUIShipNamePreview',
+    SET_SHIP_ORIENTATION_PREVIEW = 'setGUIShipOrientationPreview',
+
     SET_PLAYER_IS_USING_SUBMARINE_ABILITY = 'setPlayerIsUsingSubmarineAbility',
     SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY = 'setPlayerIsUsingAircraftCarrierAbility',
     SET_PLAYER_IS_USING_BATTLESHIP_ABILITY = 'setPlayerIsUsingBattleShipAbility',

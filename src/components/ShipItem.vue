@@ -24,7 +24,8 @@
 </template>
 
 <script lang="ts" setup>
-import { Orientation, ShipName } from '@/store/enums';
+import store from '@/store';
+import { Orientation, ShipName, Mutation } from '@/store/enums';
 import { ref } from 'vue';
 
 
@@ -39,8 +40,15 @@ const props = defineProps<ShipItemProps>();
 const orientation = ref<Orientation>(Orientation.HORIZONTAL);
 
 function dragStart(e: DragEvent) {
+  if (!(e.target instanceof HTMLElement)) return;
+
+  // Set the data transfer
   e.dataTransfer?.setData('shipName', props.name);
   e.dataTransfer?.setData('orientation', orientation.value);
+
+  // Becuase drag enter and drag leave don't have access to the data transfer, we need to change the global state
+  store.commit(Mutation.SET_SHIP_NAME_PREVIEW, props.name);
+  store.commit(Mutation.SET_SHIP_ORIENTATION_PREVIEW, orientation.value);
 }
 
 function toggleOrientation() {
