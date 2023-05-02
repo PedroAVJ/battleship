@@ -12,11 +12,11 @@
 </template>
 
 <script setup lang="ts">
-import { ShipName, Orientation, Mutation } from '../store/enums';
-import { Tile } from '../store/interfaces';
-import { isInvalidShipPlacement, placeShip } from '../utils/shipUtils';
-import { useStore } from '../store';
-import Sprite from './Sprite.vue';
+import { ShipName, Orientation, Mutation } from '@/store/enums';
+import { Tile } from '@/store/interfaces';
+import { isInvalidShipPlacement, placeShip } from '@/utils/shipUtils';
+import { useStore } from '@/store';
+import Sprite from '@/components/Sprite.vue';
 import { computed } from 'vue';
 
 
@@ -58,7 +58,7 @@ function drop(e: DragEvent) {
   if (isInvalidShipPlacement(shipName, shipOrientation, props.row, props.col, store.state.player.board)) return;
 
   // Here 'player' refers to what board the ship is being placed on
-  placeShip(shipName, shipOrientation, props.row, props.col, 'player');
+  placeShip(store, shipName, shipOrientation, props.row, props.col, 'player');
 
   // Reduce the count of the ship in the GUI
   if (shipName === ShipName.SUBMARINE) {

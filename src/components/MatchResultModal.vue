@@ -15,9 +15,9 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '../store'
+import { useStore } from '@/store'
 import { useRouter } from 'vue-router';
-import { Mutation } from '../store/enums';
+import { Mutation } from '@/store/enums';
 
 
 const store = useStore();

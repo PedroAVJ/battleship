@@ -1,8 +1,8 @@
 import { InjectionKey } from 'vue';
 import { createStore, Store, useStore as baseUseStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
-import { RootState, Tile } from '../store/interfaces';
-import { Mutation, MapName } from '../store/enums';
+import { RootState, Tile } from '@/store/interfaces';
+import { Mutation, MapName } from '@/store/enums';
 
 
 // This key allows TypeScript to infer the types of the store object

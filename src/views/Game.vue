@@ -56,11 +56,11 @@
 </template>
 
 <script lang="ts" setup>
-import PlayerSquare from '../components/PlayerSquare.vue';
-import EnemySquare from '../components/EnemySquare.vue';
-import AbilityButtons from '../components/AbilityButtons.vue';
-import MatchResultModal from '../components/MatchResultModal.vue';
-import { useStore } from '../store'
+import PlayerSquare from '@/components/PlayerSquare.vue';
+import EnemySquare from '@/components/EnemySquare.vue';
+import AbilityButtons from '@/components/AbilityButtons.vue';
+import MatchResultModal from '@/components/MatchResultModal.vue';
+import { useStore } from '@/store'
 
 
 const store = useStore()

@@ -24,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Orientation, ShipName } from '../store/enums';
+import { Orientation, ShipName } from '@/store/enums';
 import { ref } from 'vue';
 
 

@@ -1,10 +1,8 @@
-import { Orientation, ShipName, Mutation } from "../store/enums";
-import { SHIP_DIMENSIONS } from "../store/constants";
-import { Tile } from "@/store/interfaces";
-import { useStore } from "../store";
+import { Orientation, ShipName, Mutation } from "@/store/enums";
+import { SHIP_DIMENSIONS } from "@/store/constants";
+import { Tile, RootState } from "@/store/interfaces";
+import { Store } from "vuex";
 
-
-const store = useStore();
 
 /**
  * Returns the hitboxes of a ship given its name, orientation, and top left corner coordinates.
@@ -79,7 +77,6 @@ export function isInvalidShipPlacement(shipName: ShipName, shipOrientation: Orie
     // Ship hitbox check
     if (board[hitbox.row][hitbox.col].ship) return true;
 
-    return false;
   }
 
   return false;
@@ -89,7 +86,7 @@ export function isInvalidShipPlacement(shipName: ShipName, shipOrientation: Orie
  * Handles the placement of hitboxes on the board, the orientation of the ship,
  * and the mutation of the store.
  */
-export function placeShip(shipName: ShipName, shipOrientation: Orientation, row: number, col: number, user: 'player' | 'computer'): void {
+export function placeShip(store: Store<RootState>, shipName: ShipName, shipOrientation: Orientation, row: number, col: number, user: 'player' | 'computer'): void {
   const shipHitboxes = getShipHitboxes(shipName, shipOrientation, row, col);
   const board = store.state.player.board;
 
@@ -120,5 +117,20 @@ export function placeShip(shipName: ShipName, shipOrientation: Orientation, row:
         tile: tile,
       });
     }
+  }
+}
+
+/**
+ * Returns a random row and column that is a valid square on the board.
+ */
+export function makeRandomValidMove(board: Tile[][]): { row: number, col: number } {
+  while (true) {
+    const row = Math.floor(Math.random() * board.length);
+    const col = Math.floor(Math.random() * board[row].length);
+
+    // If the square is invalid, try again
+    if (isInvalidSquare(row, col, board)) continue;
+    return { row, col };
+
   }
 }

@@ -18,11 +18,11 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '../store';
+import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
-import { MapName, Mutation, ShipName } from '../store/enums';
-import { MAPS, SHIP_COUNTS } from '../store/constants';
-import { Tile } from '../store/interfaces';
+import { MapName, Mutation, ShipName } from '@/store/enums';
+import { MAPS, SHIP_COUNTS } from '@/store/constants';
+import { Tile } from '@/store/interfaces';
 
 
 const router = useRouter();

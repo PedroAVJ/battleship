@@ -39,19 +39,19 @@
 </template>
 
 <script setup lang="ts">
-import { ShipName, Orientation } from '../store/enums'
-import { Tile } from '../store/interfaces'
+import { ShipName, Orientation } from '@/store/enums'
+import { Tile } from '@/store/interfaces'
 
 // SVG's
-import Miss from '../components/SVG\'s/Miss.vue'
-import Hit from '../components/SVG\'s/Hit.vue'
-import Uncovered from '../components/SVG\'s/Uncovered.vue'
-import Submarine from '../components/SVG\'s/Ships/Submarine.vue'
-import SupplyBoat from '../components/SVG\'s/Ships/SupplyBoat.vue'
-import Destroyer from '../components/SVG\'s/Ships/Destroyer.vue'
-import Battleship from '../components/SVG\'s/Ships/Battleship.vue'
-import Frigate from '../components/SVG\'s/Ships/Frigate.vue'
-import AircraftCarrier from '../components/SVG\'s/Ships/AircraftCarrier.vue'
+import Miss from '@/components/SVGs/Miss.vue'
+import Hit from '@/components/SVGs/Hit.vue'
+import Uncovered from '@/components/SVGs/Uncovered.vue'
+import Submarine from '@/components/SVGs/Ships/Submarine.vue'
+import SupplyBoat from '@/components/SVGs/Ships/SupplyBoat.vue'
+import Destroyer from '@/components/SVGs/Ships/Destroyer.vue'
+import Battleship from '@/components/SVGs/Ships/Battleship.vue'
+import Frigate from '@/components/SVGs/Ships/Frigate.vue'
+import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
 
 
 interface SpriteProps {

@@ -25,8 +25,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '../store'
-import { Mutation } from '../store/enums';
+import { useStore } from '@/store'
+import { Mutation } from '@/store/enums';
 import { computed } from 'vue';
 
 
@@ -38,7 +38,7 @@ const isSubmarineAbilityButtonDisabled = computed(() => {
     || store.state.player.hasUsedSubmarineAbility
     || store.state.player.isUsingSubmarineAbility
     || store.state.player.isUsingAircraftCarrierAbility
-    || store.state.player.isUsingBattleShipAbility
+    || store.state.player.isUsingBattleshipAbility
   )
 })
 
@@ -48,17 +48,17 @@ const isAircraftCarrierAbilityButtonDisabled = computed(() => {
     || store.state.player.hasUsedAircraftCarrierAbility
     || store.state.player.isUsingSubmarineAbility
     || store.state.player.isUsingAircraftCarrierAbility
-    || store.state.player.isUsingBattleShipAbility
+    || store.state.player.isUsingBattleshipAbility
   )
 })
 
 const isBattleshipAbilityButtonDisabled = computed(() => {
   return (
     store.state.computer.hasCurrentTurn
-    || store.state.player.hasUsedBattleShipAbility
+    || store.state.player.hasUsedBattleshipAbility
     || store.state.player.isUsingSubmarineAbility
     || store.state.player.isUsingAircraftCarrierAbility
-    || store.state.player.isUsingBattleShipAbility
+    || store.state.player.isUsingBattleshipAbility
   )
 })
 
@@ -75,7 +75,7 @@ const aircraftCarrierAbilityButtonText = computed(() => {
 })
 
 const battleshipAbilityButtonText = computed(() => {
-  return store.state.player.isUsingBattleShipAbility
+  return store.state.player.isUsingBattleshipAbility
     ? 'Using Battleship Ability'
     : 'Use Battleship Ability'
 })

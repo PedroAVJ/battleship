@@ -1,5 +1,5 @@
-import { ShipName, MapName } from '../store/enums'
-import { Tile } from '../store/interfaces'
+import { ShipName, MapName } from '@/store/enums'
+import { Tile } from '@/store/interfaces'
 
 
 /**

@@ -55,21 +55,21 @@
 </template>
 
 <script lang="ts" setup>
-import ShipItem from '../components/ShipItem.vue'
-import PlayerSquare from '../components/PlayerSquare.vue';
-import { useStore } from '../store'
-import { Mutation, ShipName, Orientation } from '../store/enums';
-import { SHIP_COUNTS } from '../store/constants';
+import ShipItem from '@/components/ShipItem.vue'
+import PlayerSquare from '@/components/PlayerSquare.vue';
+import { useStore } from '@/store'
+import { Mutation, ShipName, Orientation } from '@/store/enums';
+import { SHIP_COUNTS } from '@/store/constants';
 import { useRouter } from 'vue-router';
-import { isInvalidShipPlacement, placeShip } from '../utils/shipUtils';
+import { isInvalidShipPlacement, placeShip } from '@/utils/shipUtils';
 
 // SVG's
-import Submarine from '../components/SVGs/Ships/Submarine.vue'
-import SupplyBoat from '../components/SVGs/Ships/SupplyBoat.vue'
-import Destroyer from '../components/SVGs/Ships/Destroyer.vue'
-import Battleship from '../components/SVGs/Ships/Battleship.vue'
-import Frigate from '../components/SVGs/Ships/Frigate.vue'
-import AircraftCarrier from '../components/SVGs/Ships/AircraftCarrier.vue'
+import Submarine from '@/components/SVGs/Ships/Submarine.vue'
+import SupplyBoat from '@/components/SVGs/Ships/SupplyBoat.vue'
+import Destroyer from '@/components/SVGs/Ships/Destroyer.vue'
+import Battleship from '@/components/SVGs/Ships/Battleship.vue'
+import Frigate from '@/components/SVGs/Ships/Frigate.vue'
+import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
 
 
 const store = useStore()
@@ -135,7 +135,8 @@ function randomlyPlaceComputerShips() {
         if (isInvalidShipPlacement(shipName, orientation, row, col, board)) continue;
 
         // Here 'computer' refers to what board the ship is being placed on
-        placeShip(shipName, orientation, row, col, 'computer');
+        placeShip(store, shipName, orientation, row, col, 'computer');
+        break;
       }
 
     }
