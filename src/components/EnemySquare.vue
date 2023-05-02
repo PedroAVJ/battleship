@@ -293,7 +293,6 @@ function Attack() {
       col: props.col,
       tile: new_tile
     });
-  console.log(computer_board, player_board);
 
   }
 
@@ -497,11 +496,11 @@ function Attack() {
       if (tile.contains.missedShot) continue;
       if (tile.contains.successfulShot) continue;
 
+      const new_tile = {
+        ...tile,
+      }
       // If the square contains a ship, hit it
       if (tile.ship !== undefined) {
-        const new_tile = {
-          ...tile,
-        }
         new_tile.contains.successfulShot = true;
         store.commit(Mutation.SET_PLAYER_TILE, {
           row: move.row,
@@ -528,9 +527,6 @@ function Attack() {
 
       // Otherwise, mark it as a missed shot
       else {
-        const new_tile = {
-          ...tile,
-        }
         new_tile.contains.missedShot = true;
         store.commit(Mutation.SET_PLAYER_TILE, {
           row: move.row,
@@ -586,7 +582,8 @@ function Attack() {
 
   // Computer normal move
   else {
-    const tile = player_board[props.row][props.col];
+    const move = makeRandomValidMove(player_board);
+    const tile = player_board[move.row][move.col];
 
     // Hit the square
     const new_tile = {
@@ -617,8 +614,8 @@ function Attack() {
 
     // Reflect the state of the square
     store.commit(Mutation.SET_PLAYER_TILE, {
-      row: props.row,
-      col: props.col,
+      row: move.row,
+      col: move.col,
       tile: new_tile
     });
   }
@@ -651,6 +648,7 @@ function Attack() {
   // Since the computer's move is over, change the turn
   store.commit(Mutation.SET_COMPUTER_HAS_CURRENT_TURN, false);
   store.commit(Mutation.SET_PLAYER_HAS_CURRENT_TURN, true);
+
 }
 </script>
 
