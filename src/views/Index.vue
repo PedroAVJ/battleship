@@ -24,6 +24,7 @@
   font-size: 2rem;
   font-weight: bold;
   margin-bottom: 1rem;
+  color: #e0e0e0;
 }
 
 .menu {
@@ -33,9 +34,9 @@
 }
 
 .menu-item {
-  background-color: #42b983;
+  background-color: #ff9800;
   border-radius: 4px;
-  color: white;
+  color: #e0e0e0;
   display: inline-block;
   font-weight: 600;
   padding: 0.75rem 1.5rem;
@@ -45,6 +46,6 @@
 }
 
 .menu-item:hover {
-  background-color: #2a9657;
+  background-color: #f57c00;
 }
 </style>

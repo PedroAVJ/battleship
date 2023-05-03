@@ -657,7 +657,7 @@ async function Attack() {
   height: 100%;
   border: 1px solid #2c3e50;
   position: relative;
-  background-color: #34495e;
+  background-color: #4a6a85;
 }
 
 .land {
@@ -672,7 +672,7 @@ async function Attack() {
   width: 100%;
   height: 100%;
   position: relative;
-  background-color: #ffffff;
+  background-color: #3c6e8f;
 }
 
 /** When the water style gets hovered over, change the background color */

@@ -72,7 +72,6 @@
 <script setup lang="ts">
 import { ShipName, Orientation } from '@/store/enums'
 import { Tile } from '@/store/interfaces'
-import { useStore } from '@/store';
 
 // SVG's
 import Miss from '@/components/SVGs/Miss.vue'
@@ -92,8 +91,6 @@ interface SpriteProps {
 }
 
 const props = defineProps<SpriteProps>();
-
-const store = useStore();
 </script>
 
 <style scoped>
@@ -195,7 +192,7 @@ const store = useStore();
   overflow: visible;
   z-index: 1;
   pointer-events: none;
-  transform: scaleX(4.5) scaleY(5) translate(-2.5%, 30%);
+  transform: scaleX(2) scaleY(2.5);
 }
 
 /* Transformations for rotated ships */
@@ -220,7 +217,7 @@ const store = useStore();
 }
 
 .aircraft-carrier.rotated {
-  transform: rotate(90deg) scaleX(4.5) scaleY(5) translate(6%, 50%);
+  transform: rotate(90deg) scaleX(2) scaleY(2.5) translate(18%, 50%);
 }
 
 /* Class for ship preview sprites, so that they are slightly transparent */

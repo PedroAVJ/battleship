@@ -1,6 +1,6 @@
 <template>
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1" viewBox="0 0 512.003 512.003" xml:space="preserve">
-        <g xmlns="http://www.w3.org/2000/svg">
+	<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 600 245" enable-background="new 0 0 600 245" xml:space="preserve">
+			<g xmlns="http://www.w3.org/2000/svg">
 			<rect x="267.3" y="100.9" fill="#D1D2D1" width="4.8" height="21.9"/>
 			<rect x="297.1" y="98.8" fill="#D1D2D1" width="4.8" height="23.9"/>
 			<rect x="283.5" y="72.9" fill="#D1D2D1" width="4.8" height="49.9"/>

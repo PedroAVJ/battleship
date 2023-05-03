@@ -1,6 +1,7 @@
 # TODO
 
-- [ ] Add the tile type that is the board border
-- [ ] Make the border tiles have a border
-- [ ] Search for better ship sprites
-- [ ] Make the ship sprites not have much transparent space
+- [ ] Add and change the maps
+
+- [ ] Make an AI for the computer moves
+- [ ] Refactor whole codebase
+- [ ] Add unit tests and end-to-end tests

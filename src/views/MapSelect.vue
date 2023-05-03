@@ -3,54 +3,85 @@
     <h2 class="map-selection-title">
       Select Map
     </h2>
-    <div class="map-buttons">
+    <div id="carouselExample" class="carousel slide">
+      <div class="carousel-indicators">
+    <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
       <div class="boards">
-        <div class="board-wrapper">
-          <button class="map-button" @click="setMap(MapName.MAP1)">
-            Small Map
-          </button>
-          <div class="board">
-            <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP1])) as Tile[][]" :key="rowIndex" class="board-row">
-              <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-
-                <!-- We use player squares here because they dont have an on click event -->
-                <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-
+        <div class="carousel-item active">
+          <div class="carousel-item-content">
+          
+            <div class="board-wrapper">
+            <button class="map-button" @click="setMap(MapName.MAP1)">
+              Small Map
+            </button>
+            <div class="board">
+              <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP1])) as Tile[][]" :key="rowIndex"
+                class="board-row">
+                <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+  
+                  <!-- We use player squares here because they dont have an on click event -->
+                  <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+  
+                </div>
               </div>
             </div>
+        </div>
+        </div>
+        </div>
+        <div class="carousel-item">
+          <div class="carousel-item-content">
+          
+            <div class="board-wrapper">
+            <button class="map-button" @click="setMap(MapName.MAP2)">
+              Medium Map
+            </button>
+            <div class="board">
+              <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP2]))" :key="rowIndex"
+                class="board-row">
+                <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+  
+                  <!-- We use player squares here because they dont have an on click event -->
+                  <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+  
+                </div>
+              </div>
+        </div>
           </div>
         </div>
-        <div class="board-wrapper">
-          <button class="map-button" @click="setMap(MapName.MAP2)">
-            Medium Map
-          </button>
-          <div class="board">
-            <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP2]))" :key="rowIndex" class="board-row">
-              <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-
-                <!-- We use player squares here because they dont have an on click event -->
-                <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-
-              </div>
-            </div>
-          </div>
         </div>
-        <div class="board-wrapper">
-          <button class="map-button" @click="setMap(MapName.MAP3)">
-            Large Map
-          </button>
-          <div class="board">
-            <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP3]))" :key="rowIndex" class="board-row">
-              <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-
-                <!-- We use player squares here because they dont have an on click event -->
-                <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-
+        <div class="carousel-item">
+          <div class="carousel-item-content">
+          
+            <div class="board-wrapper">
+            <button class="map-button" @click="setMap(MapName.MAP3)">
+              Large Map
+            </button>
+            <div class="board">
+              <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP3]))" :key="rowIndex"
+                class="board-row">
+                <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+  
+                  <!-- We use player squares here because they dont have an on click event -->
+                  <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+  
+                </div>
               </div>
             </div>
-          </div>
+        </div>
+        </div>
         </div>
       </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
     </div>
   </div>
 </template>
@@ -103,18 +134,20 @@ function setMap(mapName: MapName) {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 1rem;
-}
-
-.map-buttons {
-  display: flex;
-  gap: 1rem;
+  color: #e0e0e0;
 }
 
 .map-button {
-  background-color: #42b983;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.map-button {
+  background-color: #ff9800;
   border: none;
   border-radius: 4px;
-  color: white;
+  color: #e0e0e0;
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
@@ -123,7 +156,7 @@ function setMap(mapName: MapName) {
 }
 
 .map-button:hover {
-  background-color: #2a9657;
+  background-color: #f57c00;
 }
 
 .board {
@@ -131,7 +164,6 @@ function setMap(mapName: MapName) {
   flex-direction: column;
   width: 500px;
   height: 500px;
-  background-color: #2c3e50;
 }
 
 .board-row {
@@ -150,11 +182,24 @@ function setMap(mapName: MapName) {
   flex-direction: column;
   align-items: center;
   margin: 10px;
+  background-color: #3c6e8f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.boards {
+.carousel-item {
+  width: 100%; /* Set the width to 100% to fit the container */
+}
+
+.carousel-item-content {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
+  justify-content: center;
+  align-items: center;
 }
 </style>

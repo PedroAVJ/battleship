@@ -83,8 +83,7 @@ const isBattleshipAbilityButtonDisabled = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #ffffff;
-  border: 2px solid #000000;
+  background-color: #ff9800;
   border-radius: 5px;
   padding: 10px;
   cursor: pointer;
@@ -92,11 +91,12 @@ const isBattleshipAbilityButtonDisabled = computed(() => {
 }
 
 .ability-button:hover:not(:disabled) {
-  background-color: #dddddd;
+  background-color: #f57c00;
 }
 
 .ability-button:disabled {
-  background-color: #cccccc;
+  /** Way darker orange */
+  background-color: #b26a00;
   cursor: not-allowed;
 }
 
