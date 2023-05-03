@@ -142,7 +142,6 @@ function setMap(mapName: MapName) {
 .board-cell {
   flex: 1;
   position: relative;
-  border: 1px solid #2c3e50;
   box-sizing: border-box;
 }
 

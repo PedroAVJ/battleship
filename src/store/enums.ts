@@ -25,6 +25,7 @@ export enum Orientation {
 export enum Mutation {
     SET_GAME_IS_IN_PROGRESS = 'setGameIsInProgress',
     SET_GAME_MAP_NAME = 'setGameMapName',
+    SET_GAME_IS_MOVE_IN_PROGRESS = 'setGameIsMoveInProgress',
 
     SET_GUI_SUBMARINE_COUNT = 'setGUISubmarineCount',
     SET_GUI_SUPPLY_BOAT_COUNT = 'setGUISupplyBoatCount',

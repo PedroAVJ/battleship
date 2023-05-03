@@ -24,6 +24,7 @@ const state: RootState = {
     game: {
         isInProgress: false,
         mapName: undefined,
+        isMoveInProgress: false,
     },
 
     /** Keeps track of the ships left to place in case the page is refreshed */
@@ -97,6 +98,9 @@ const mutations = {
     },
     [Mutation.SET_GAME_MAP_NAME](state: RootState, mapName: MapName) {
         state.game.mapName = mapName;
+    },
+    [Mutation.SET_GAME_IS_MOVE_IN_PROGRESS](state: RootState, isMoveInProgress: boolean) {
+        state.game.isMoveInProgress = isMoveInProgress;
     },
 
     [Mutation.SET_GUI_SUBMARINE_COUNT](state: RootState, count: number) {

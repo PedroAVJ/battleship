@@ -1,5 +1,5 @@
 <template>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 830">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 830" class="fade-in">
 <defs>
 <filter id="filter7822-1">
 <feGaussianBlur stdDeviation="4.02484"/>
@@ -26,3 +26,18 @@
 </g>
         </svg>
 </template>
+
+<style scoped>
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-out;
+}
+</style>

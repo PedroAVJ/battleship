@@ -6,6 +6,7 @@ export interface RootState {
     game: {
         isInProgress: boolean;
         mapName?: MapName;
+        isMoveInProgress: boolean;
     }
 
     gui: {

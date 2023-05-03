@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Make the out of bounds cell not have a solid border
-- [ ] Make the ship sprites not have much transparent space
+- [ ] Add the tile type that is the board border
+- [ ] Make the border tiles have a border
 - [ ] Search for better ship sprites
-- [ ] Remove land tile darkening
+- [ ] Make the ship sprites not have much transparent space

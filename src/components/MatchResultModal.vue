@@ -29,6 +29,7 @@ const router = useRouter();
 function newGame() {
   store.commit(Mutation.SET_GAME_IS_IN_PROGRESS, false);
   store.commit(Mutation.SET_GAME_MAP_NAME, undefined);
+  store.commit(Mutation.SET_GAME_IS_MOVE_IN_PROGRESS, false);
 
   store.commit(Mutation.SET_GUI_SUBMARINE_COUNT, 0);
   store.commit(Mutation.SET_GUI_SUPPLY_BOAT_COUNT, 0);

@@ -146,20 +146,11 @@ function isShipName(input: string): input is ShipName {
 .out-of-bounds {
   width: 100%;
   height: 100%;
-  border: 1px solid #2c3e50;
   position: relative;
   background-color: #ffffff;
 }
 
 .water.darken {
   background-color: #2c3e50;
-}
-
-.land.darken {
-  background-color: #27ae60;
-}
-
-.out-of-bounds.darken {
-  background-color: #ffffff;
 }
 </style>

@@ -34,9 +34,13 @@ function sleep(ms: number) {
 
 async function Attack() {
   if (store.state.computer.hasCurrentTurn) return;
+  if (store.state.game.isMoveInProgress) return;
   const computer_board = store.state.computer.board
   const player_board = store.state.player.board
   if (isInvalidSquare(props.row, props.col, computer_board)) return;
+
+  // Prevent player from spamming squares
+  store.commit(Mutation.SET_GAME_IS_MOVE_IN_PROGRESS, true);
 
   // Player submarine ability
   if (store.state.player.isUsingSubmarineAbility) {
@@ -94,10 +98,6 @@ async function Attack() {
         }
       }
     }
-
-    // Reflect the state of the abilities used
-    store.commit(Mutation.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, true);
-    store.commit(Mutation.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, false);
   
   }
 
@@ -168,9 +168,6 @@ async function Attack() {
       }
     }
 
-    // Reflect the state of the abilities used
-    store.commit(Mutation.SET_PLAYER_HAS_USED_BATTLESHIP_ABILITY, true);
-    store.commit(Mutation.SET_PLAYER_IS_USING_BATTLESHIP_ABILITY, false);
   }
 
   // Player aircraft carrier ability
@@ -231,7 +228,10 @@ async function Attack() {
     }
 
     // If it isn't the last shot, return
-    if (store.state.player.aircraftCarrierShots > 0) return;
+    if (store.state.player.aircraftCarrierShots > 0) {
+      store.commit(Mutation.SET_GAME_IS_MOVE_IN_PROGRESS, false);
+      return;
+    }
 
     // Uncover the aircraft carrier
     for (let row = 0; row < player_board.length; row++) {
@@ -248,9 +248,6 @@ async function Attack() {
       }
     }
 
-    // If it is the last shot, change the state of the abilities
-    store.commit(Mutation.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
-    store.commit(Mutation.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false);
   }
 
   // Player normal move
@@ -291,6 +288,21 @@ async function Attack() {
 
   }
 
+  // Wait for 1 second (1000 milliseconds)
+  await sleep(1000);
+
+  // Make sure the abilities are consumed after being used
+  if (store.state.player.isUsingAircraftCarrierAbility) {
+    store.commit(Mutation.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
+    store.commit(Mutation.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false);
+  } else if (store.state.player.isUsingBattleshipAbility) {
+    store.commit(Mutation.SET_PLAYER_HAS_USED_BATTLESHIP_ABILITY, true);
+    store.commit(Mutation.SET_PLAYER_IS_USING_BATTLESHIP_ABILITY, false);
+  } else if (store.state.player.isUsingSubmarineAbility) {
+    store.commit(Mutation.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, true);
+    store.commit(Mutation.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, false);
+  }
+
   // Check if either the battleship or the aircraft carrier were sunk
   if (store.state.computer.aircraftCarrierHealth === 0) {
     store.commit(Mutation.SET_COMPUTER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
@@ -319,9 +331,6 @@ async function Attack() {
   // Since the players move is over, change the turn
   store.commit(Mutation.SET_PLAYER_HAS_CURRENT_TURN, false);
   store.commit(Mutation.SET_COMPUTER_HAS_CURRENT_TURN, true);
-
-  // Wait for 1 second (1000 milliseconds)
-  await sleep(1000);
 
   // For now, always try to use the abilities if it hasn't already
   if (!store.state.computer.hasUsedAircraftCarrierAbility) {
@@ -392,10 +401,6 @@ async function Attack() {
         }
       }
     }
-
-    // Reflect the state of the abilities used
-    store.commit(Mutation.SET_COMPUTER_HAS_USED_SUBMARINE_ABILITY, true);
-    store.commit(Mutation.SET_COMPUTER_IS_USING_SUBMARINE_ABILITY, false);
   
   }
 
@@ -468,9 +473,6 @@ async function Attack() {
       }
     }
 
-    // Reflect the state of the abilities used
-    store.commit(Mutation.SET_COMPUTER_HAS_USED_BATTLESHIP_ABILITY, true);
-    store.commit(Mutation.SET_COMPUTER_IS_USING_BATTLESHIP_ABILITY, false);
   }
 
   // Computer aircraft carrier ability
@@ -560,9 +562,6 @@ async function Attack() {
       }
     }
 
-    // If it is the last shot, change the state of the abilities
-    store.commit(Mutation.SET_COMPUTER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
-    store.commit(Mutation.SET_COMPUTER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false);
   }
 
   // Computer normal move
@@ -606,6 +605,18 @@ async function Attack() {
   // Wait for 1 second (1000 milliseconds)
   await sleep(1000);
 
+  // Make sure the abilities are consumed after being used
+  if (store.state.computer.isUsingAircraftCarrierAbility) {
+    store.commit(Mutation.SET_COMPUTER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
+    store.commit(Mutation.SET_COMPUTER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false);
+  } else if (store.state.computer.isUsingBattleshipAbility) {
+    store.commit(Mutation.SET_COMPUTER_HAS_USED_BATTLESHIP_ABILITY, true);
+    store.commit(Mutation.SET_COMPUTER_IS_USING_BATTLESHIP_ABILITY, false);
+  } else if (store.state.computer.isUsingSubmarineAbility) {
+    store.commit(Mutation.SET_COMPUTER_HAS_USED_SUBMARINE_ABILITY, true);
+    store.commit(Mutation.SET_COMPUTER_IS_USING_SUBMARINE_ABILITY, false);
+  }
+
   // Check if either the battleship or the aircraft carrier were sunk
   if (store.state.player.aircraftCarrierHealth === 0) {
     store.commit(Mutation.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, true);
@@ -635,6 +646,8 @@ async function Attack() {
   store.commit(Mutation.SET_COMPUTER_HAS_CURRENT_TURN, false);
   store.commit(Mutation.SET_PLAYER_HAS_CURRENT_TURN, true);
 
+  // Allow the squares to be clicked again
+  store.commit(Mutation.SET_GAME_IS_MOVE_IN_PROGRESS, false);
 }
 </script>
 
@@ -658,7 +671,6 @@ async function Attack() {
 .out-of-bounds {
   width: 100%;
   height: 100%;
-  border: 1px solid #2c3e50;
   position: relative;
   background-color: #ffffff;
 }
