@@ -31,8 +31,8 @@
 
 <script lang="ts" setup>
 import store from '@/store';
-import { Orientation, ShipName, Mutation } from '@/store/enums';
-import { SHIP_DIMENSIONS } from '@/store/constants';
+import { Orientation, ShipName, Mutation } from '@/types/enums.js';
+import { SHIP_DIMENSIONS } from '@/utils/constants.js';
 import { ref } from 'vue';
 
 

@@ -1,22 +1,18 @@
 <template>
   <!-- Modal -->
-<div ref="myModal" class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div ref="modal" class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="staticBackdropLabel" v-if="store.state.computer.hasWonTheGame"
-        >Game Over!</h1>
-        <h1 class="modal-title fs-5" id="staticBackdropLabel" v-else-if="store.state.player.hasWonTheGame"
-        >Congratulations!</h1>
+        <h1 class="modal-title fs-5" id="staticBackdropLabel">
+          {{ title }}
+        </h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <h2 v-if="store.state.player.hasWonTheGame">
-        You Win!
-      </h2>
-      <h2 v-else-if="store.state.computer.hasWonTheGame">
-        You Lose!
-      </h2>
+        <h2>
+          {{ body }}
+        </h2>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -30,20 +26,37 @@
 <script lang="ts" setup>
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router';
-import { Mutation } from '@/store/enums';
-import { onMounted, ref, Ref } from 'vue';
+import Mutation from '@/types/Mutation';
+import { ref, Ref, watch } from 'vue';
 import { Modal } from 'bootstrap';
 
 
 const store = useStore();
 const router = useRouter();
 
-const myModal: Ref<HTMLElement | null> = ref(null);
+const modal: Ref<HTMLElement | null> = ref(null);
+const title = ref('');
+const body = ref('');
 
-onMounted(() => {
-  if (myModal.value) {
-    const modalInstance = new Modal(myModal.value);
-    modalInstance.show();
+watch(() => store.state.player.hasLost(), (hasLost) => {
+  if (hasLost) {
+    title.value = 'Game Over!';
+    body.value = 'You Lose!';
+    if (modal.value) {
+      const modalInstance = new Modal(modal.value);
+      modalInstance.show();
+    }
+  }
+});
+
+watch(() => store.state.computer.hasLost(), (hasLost) => {
+  if (hasLost) {
+    title.value = 'Congratulations!';
+    body.value = 'You Win!';
+    if (modal.value) {
+      const modalInstance = new Modal(modal.value);
+      modalInstance.show();
+    }
   }
 });
 

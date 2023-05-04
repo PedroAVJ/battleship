@@ -70,8 +70,8 @@
 </template>
 
 <script setup lang="ts">
-import { ShipName, Orientation } from '@/store/enums'
-import { Tile } from '@/store/interfaces'
+import { ShipName, Orientation } from '@/types/enums.js'
+import { Tile } from '@/types/interfaces.js'
 
 // SVG's
 import Miss from '@/components/SVGs/Miss.vue'

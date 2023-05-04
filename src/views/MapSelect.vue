@@ -13,88 +13,16 @@
       </div>
       <div class="boards">
         <div class="carousel-item active">
-          <div class="carousel-item-content">
-
-            <div class="board-wrapper">
-              <button class="map-button" @click="setMap(MapName.CLASSIC)">
-                {{ MapName.CLASSIC }}
-              </button>
-              <div class="board">
-                <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.CLASSIC])) as Tile[][]"
-                  :key="rowIndex" class="board-row">
-                  <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-
-                    <!-- We use player squares here because they dont have an on click event -->
-                    <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CarouselItemContent :mapName="MapName.CLASSIC" />
         </div>
         <div class="carousel-item">
-          <div class="carousel-item-content">
-
-            <div class="board-wrapper">
-              <button class="map-button" @click="setMap(MapName.THE_GREAT_DIVIDE)">
-                {{ MapName.THE_GREAT_DIVIDE }}
-              </button>
-              <div class="board">
-                <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.THE_GREAT_DIVIDE]))" :key="rowIndex"
-                  class="board-row">
-                  <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-
-                    <!-- We use player squares here because they dont have an on click event -->
-                    <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CarouselItemContent :mapName="MapName.THE_GREAT_DIVIDE" />
         </div>
         <div class="carousel-item">
-          <div class="carousel-item-content">
-
-            <div class="board-wrapper">
-              <button class="map-button" @click="setMap(MapName.ARCHIPELAGO_ASSAULT)">
-                {{ MapName.ARCHIPELAGO_ASSAULT }}
-              </button>
-              <div class="board">
-                <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.ARCHIPELAGO_ASSAULT]))" :key="rowIndex"
-                  class="board-row">
-                  <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-
-                    <!-- We use player squares here because they dont have an on click event -->
-                    <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CarouselItemContent :mapName="MapName.ARCHIPELAGO_ASSAULT" />
         </div>
         <div class="carousel-item">
-          <div class="carousel-item-content">
-
-            <div class="board-wrapper">
-              <button class="map-button" @click="setMap(MapName.PACMAN)">
-                {{ MapName.PACMAN }}
-              </button>
-              <div class="board">
-                <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.PACMAN]))" :key="rowIndex"
-                  class="board-row">
-                  <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-
-                    <!-- We use player squares here because they dont have an on click event -->
-                    <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <CarouselItemContent :mapName="MapName.PACMAN" />
         </div>
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
@@ -110,38 +38,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useStore } from '@/store';
-import { useRouter } from 'vue-router';
-import { MapName, Mutation, ShipName } from '@/store/enums';
-import { MAPS, SHIP_COUNTS } from '@/store/constants';
-import { Tile } from '@/store/interfaces';
-import PlayerSquare from '@/components/PlayerSquare.vue';
-
-
-const router = useRouter();
-const store = useStore();
-
-function setMap(mapName: MapName) {
-  store.commit(Mutation.SET_GAME_MAP_NAME, mapName);
-
-  store.commit(Mutation.SET_GUI_SUBMARINE_COUNT, SHIP_COUNTS[ShipName.SUBMARINE]);
-  store.commit(Mutation.SET_GUI_SUPPLY_BOAT_COUNT, SHIP_COUNTS[ShipName.SUPPLY_BOAT]);
-  store.commit(Mutation.SET_GUI_DESTROYER_COUNT, SHIP_COUNTS[ShipName.DESTROYER]);
-  store.commit(Mutation.SET_GUI_BATTLESHIP_COUNT, SHIP_COUNTS[ShipName.BATTLESHIP]);
-  store.commit(Mutation.SET_GUI_FRIGATE_COUNT, SHIP_COUNTS[ShipName.FRIGATE]);
-  store.commit(Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT, SHIP_COUNTS[ShipName.AIRCRAFT_CARRIER]);
-
-  const map = MAPS[mapName];
-
-  // Deep copy the map, as MAPS uses the same object reference for each tile
-  const computerBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
-  const playerBoard = JSON.parse(JSON.stringify(map)) as Tile[][];
-
-  store.commit(Mutation.SET_PLAYER_BOARD, playerBoard);
-  store.commit(Mutation.SET_COMPUTER_BOARD, computerBoard);
-
-  router.push({ name: 'PlaceShips' });
-}
+import CarouselItemContent from '@/components/CarouselItemContent.vue';
+import MapName from '@/types/MapName';
 </script>
 
 <style scoped>

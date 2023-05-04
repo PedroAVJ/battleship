@@ -4,24 +4,13 @@
       Battleship Game
     </h1>
     <div class="boards">
-      <div class="board-wrapper">
-        <h2 class="text">
-          Player Board
-        </h2>
-        <div class="board">
-          <div v-for="(row, rowIndex) in store.state.player.board" :key="rowIndex" class="board-row">
-            <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-              <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <Board :board="store.state.player.board" user="player" />
     </div>
     <div class="gui">
       <!-- Display if all ships have been placed -->
-      <button v-if="Object.values(store.state.gui).reduce((sum, value) => sum + value, 0) === 0" @click="startGame" class="start-game">
-        Start Game
-      </button>
+      <div v-if="Object.values(store.state.gui).reduce((sum, value) => sum + value, 0) === 0">
+        <StartGame />
+      </div>
 
       <!-- Display if there are still ships to place -->
       <h2 class="text" v-if="Object.values(store.state.gui).reduce((sum, value) => sum + value, 0) !== 0">
@@ -53,13 +42,11 @@
 </template>
 
 <script lang="ts" setup>
+import StartGame from '@/components/StartGame.vue';
+import Board from '@/components/Board.vue';
 import ShipItem from '@/components/ShipItem.vue'
-import PlayerSquare from '@/components/PlayerSquare.vue';
 import { useStore } from '@/store'
-import { Mutation, ShipName, Orientation } from '@/store/enums';
-import { SHIP_COUNTS } from '@/store/constants';
-import { useRouter } from 'vue-router';
-import { isInvalidShipPlacement, placeShip } from '@/utils/shipUtils';
+import ShipName from '@/types/ShipName';
 
 // SVG's
 import Submarine from '@/components/SVGs/Ships/Submarine.vue'
@@ -71,77 +58,6 @@ import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
 
 
 const store = useStore()
-const router = useRouter()
-
-function startGame() {
-  store.commit(Mutation.SET_GAME_IS_IN_PROGRESS, true)
-
-  store.commit(Mutation.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, false)
-  store.commit(Mutation.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false)
-  store.commit(Mutation.SET_PLAYER_IS_USING_BATTLESHIP_ABILITY, false)
-
-  store.commit(Mutation.SET_PLAYER_HAS_USED_SUBMARINE_ABILITY, false)
-  store.commit(Mutation.SET_PLAYER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, false)
-  store.commit(Mutation.SET_PLAYER_HAS_USED_BATTLESHIP_ABILITY, false)
-
-  store.commit(Mutation.SET_PLAYER_AIRCRAFT_CARRIER_HEALTH, 10)
-  store.commit(Mutation.SET_PLAYER_BATTLESHIP_HEALTH, 4)
-
-  store.commit(Mutation.SET_PLAYER_AIRCRAFT_CARRIER_SHOTS, 3)
-
-  // The player makes the first move
-  store.commit(Mutation.SET_PLAYER_HAS_CURRENT_TURN, true)
-  store.commit(Mutation.SET_PLAYER_HAS_WON_THE_GAME, false)
-
-  store.commit(Mutation.SET_COMPUTER_IS_USING_SUBMARINE_ABILITY, false)
-  store.commit(Mutation.SET_COMPUTER_IS_USING_AIRCRAFT_CARRIER_ABILITY, false)
-  store.commit(Mutation.SET_COMPUTER_IS_USING_BATTLESHIP_ABILITY, false)
-
-  store.commit(Mutation.SET_COMPUTER_HAS_USED_SUBMARINE_ABILITY, false)
-  store.commit(Mutation.SET_COMPUTER_HAS_USED_AIRCRAFT_CARRIER_ABILITY, false)
-  store.commit(Mutation.SET_COMPUTER_HAS_USED_BATTLESHIP_ABILITY, false)
-
-  store.commit(Mutation.SET_COMPUTER_AIRCRAFT_CARRIER_HEALTH, 10)
-  store.commit(Mutation.SET_COMPUTER_BATTLESHIP_HEALTH, 4)
-
-  store.commit(Mutation.SET_COMPUTER_AIRCRAFT_CARRIER_SHOTS, 3)
-
-  // The computer makes the second move
-  store.commit(Mutation.SET_COMPUTER_HAS_CURRENT_TURN, false)
-  store.commit(Mutation.SET_COMPUTER_HAS_WON_THE_GAME, false)
-
-  randomlyPlaceComputerShips()
-
-  router.push({ name: 'Game' })
-}
-
-function randomlyPlaceComputerShips() {
-  const board = store.state.computer.board
-
-  // Since TS doesn't infer the type in a for loop, we need to uses Object.values
-  Object.values(ShipName).forEach((shipName) => {
-
-    // For each ship's count
-    for (let i = 0; i < SHIP_COUNTS[shipName]; i++) {
-
-      // Randomly choose a row, column, and orientation until we find a valid placement
-      while (true) {
-        const row = Math.floor(Math.random() * board.length)
-        const col = Math.floor(Math.random() * board[0].length)
-        const orientation = Math.random() < 0.5 ? Orientation.HORIZONTAL : Orientation.VERTICAL
-
-        if (isInvalidShipPlacement(shipName, orientation, row, col, board)) continue;
-
-        // Here 'computer' refers to what board the ship is being placed on
-        placeShip(store, shipName, orientation, row, col, 'computer');
-        break;
-      }
-
-    }
-
-  });
-
-}
 </script>
 
 <style scoped>

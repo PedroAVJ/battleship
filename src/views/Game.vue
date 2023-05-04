@@ -1,7 +1,7 @@
 <template>
 
   <!-- Modal displayed if player or computer wins -->
-  <MatchResultModal v-if="store.state.player.hasWonTheGame || store.state.computer.hasWonTheGame" />
+  <MatchResultModal />
 
   <!-- GUI -->
   <div class="containerrr">
@@ -111,7 +111,7 @@ import MatchResultModal from '@/components/MatchResultModal.vue';
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router';
 import { computed } from 'vue';
-import { Mutation } from '@/store/enums';
+import { Mutation } from '@/types/enums.js';
 
 // SVGs
 import Submarine from '@/components/SVGs/Ships/Submarine.vue';

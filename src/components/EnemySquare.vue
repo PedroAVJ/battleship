@@ -5,12 +5,12 @@
 </template>
 
 <script setup lang="ts">
-import { ShipName, Mutation } from '@/store/enums';
-import { Tile } from '@/store/interfaces';
+import { ShipName, Mutation } from '@/types/enums.js';
+import { Tile } from '@/types/interfaces.js';
 import { useStore } from '@/store';
 import Sprite from '@/components/Sprite.vue';
 import { computed } from 'vue';
-import { isInvalidSquare, makeRandomValidMove } from '@/utils/shipUtils';
+import { isInvalidSquare, makeRandomValidMove } from '@/utils/gameUtils.js';
 
 
 interface SquareProps {

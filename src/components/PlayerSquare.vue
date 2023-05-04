@@ -12,9 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import { ShipName, Orientation, Mutation } from '@/store/enums';
-import { Tile } from '@/store/interfaces';
-import { isInvalidShipPlacement, placeShip } from '@/utils/shipUtils';
+import { ShipName, Orientation, Mutation } from '@/types/enums.js';
+import { Tile } from '@/types/interfaces.js';
+import { isInvalidShipPlacement, placeShip } from '@/utils/gameUtils.js';
 import { useStore } from '@/store';
 import Sprite from '@/components/Sprite.vue';
 import { computed } from 'vue';

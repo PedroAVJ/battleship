@@ -37,7 +37,7 @@
 
 <script lang="ts" setup>
 import { useStore } from '@/store'
-import { Mutation } from '@/store/enums';
+import { Mutation } from '@/types/enums.js';
 import { computed } from 'vue';
 import { onMounted, ref, Ref } from 'vue';
 import { Tooltip } from 'bootstrap';
