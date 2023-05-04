@@ -11,6 +11,10 @@
     </div>
     <div class="bottom-wrapper">
       <div class="controls">
+        <!-- Size of the ship -->
+        <span class="text">
+          Size: {{ SHIP_DIMENSIONS[props.name].length }} x {{ SHIP_DIMENSIONS[props.name].width }}
+        </span>
         <button :class="['toggle-button', orientation]" @click="toggleOrientation">
 
           <!-- Title cases the orientation -->
@@ -18,7 +22,7 @@
 
         </button>
         <span class="text">
-          x{{ count }}
+          Count: x{{ count }}
         </span>
       </div>
     </div>
@@ -28,6 +32,7 @@
 <script lang="ts" setup>
 import store from '@/store';
 import { Orientation, ShipName, Mutation } from '@/store/enums';
+import { SHIP_DIMENSIONS } from '@/store/constants';
 import { ref } from 'vue';
 
 

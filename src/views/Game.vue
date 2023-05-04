@@ -68,7 +68,7 @@
         <!-- Display if it's the players turn and if any ability can be used -->
         <h3 v-if="store.state.player.hasCurrentTurn && (!store.state.player.hasUsedSubmarineAbility || !store.state.player.hasUsedAircraftCarrierAbility || !store.state.player.hasUsedBattleshipAbility)"
         class="text">
-          Click to use an ability
+          Click to use an ability.
         </h3>
         <AbilityButtons v-if="store.state.player.hasCurrentTurn && (!store.state.player.hasUsedSubmarineAbility || !store.state.player.hasUsedAircraftCarrierAbility || !store.state.player.hasUsedBattleshipAbility)" />
         <div class="ability-button-container" v-else-if="store.state.computer.hasCurrentTurn && (!store.state.computer.hasUsedSubmarineAbility || !store.state.computer.hasUsedAircraftCarrierAbility || !store.state.computer.hasUsedBattleshipAbility)">
