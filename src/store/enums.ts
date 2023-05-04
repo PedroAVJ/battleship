@@ -1,7 +1,8 @@
 export enum MapName {
-    MAP1 = "map1",
-    MAP2 = "map2",
-    MAP3 = "map3",
+    CLASSIC = "Classic",
+    THE_GREAT_DIVIDE = "The Great Divide",
+    ARCHIPELAGO_ASSAULT = "Archipelago Assault",
+    PACMAN = "Pacman",
 }
 
 export enum ShipName {

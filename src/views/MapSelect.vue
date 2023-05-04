@@ -5,73 +5,96 @@
     </h2>
     <div id="carouselExample" class="carousel slide">
       <div class="carousel-indicators">
-    <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-    <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1" aria-label="Slide 2"></button>
-    <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2" aria-label="Slide 3"></button>
-  </div>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active" aria-current="true"
+          aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="3" aria-label="Slide 4"></button>
+      </div>
       <div class="boards">
         <div class="carousel-item active">
           <div class="carousel-item-content">
-          
+
             <div class="board-wrapper">
-            <button class="map-button" @click="setMap(MapName.MAP1)">
-              Small Map
-            </button>
-            <div class="board">
-              <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP1])) as Tile[][]" :key="rowIndex"
-                class="board-row">
-                <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-  
-                  <!-- We use player squares here because they dont have an on click event -->
-                  <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-  
+              <button class="map-button" @click="setMap(MapName.CLASSIC)">
+                {{ MapName.CLASSIC }}
+              </button>
+              <div class="board">
+                <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.CLASSIC])) as Tile[][]"
+                  :key="rowIndex" class="board-row">
+                  <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+
+                    <!-- We use player squares here because they dont have an on click event -->
+                    <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+
+                  </div>
                 </div>
               </div>
             </div>
-        </div>
-        </div>
-        </div>
-        <div class="carousel-item">
-          <div class="carousel-item-content">
-          
-            <div class="board-wrapper">
-            <button class="map-button" @click="setMap(MapName.MAP2)">
-              Medium Map
-            </button>
-            <div class="board">
-              <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP2]))" :key="rowIndex"
-                class="board-row">
-                <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-  
-                  <!-- We use player squares here because they dont have an on click event -->
-                  <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-  
-                </div>
-              </div>
-        </div>
           </div>
         </div>
-        </div>
         <div class="carousel-item">
           <div class="carousel-item-content">
-          
+
             <div class="board-wrapper">
-            <button class="map-button" @click="setMap(MapName.MAP3)">
-              Large Map
-            </button>
-            <div class="board">
-              <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.MAP3]))" :key="rowIndex"
-                class="board-row">
-                <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
-  
-                  <!-- We use player squares here because they dont have an on click event -->
-                  <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
-  
+              <button class="map-button" @click="setMap(MapName.THE_GREAT_DIVIDE)">
+                {{ MapName.THE_GREAT_DIVIDE }}
+              </button>
+              <div class="board">
+                <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.THE_GREAT_DIVIDE]))" :key="rowIndex"
+                  class="board-row">
+                  <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+
+                    <!-- We use player squares here because they dont have an on click event -->
+                    <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
         </div>
+        <div class="carousel-item">
+          <div class="carousel-item-content">
+
+            <div class="board-wrapper">
+              <button class="map-button" @click="setMap(MapName.ARCHIPELAGO_ASSAULT)">
+                {{ MapName.ARCHIPELAGO_ASSAULT }}
+              </button>
+              <div class="board">
+                <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.ARCHIPELAGO_ASSAULT]))" :key="rowIndex"
+                  class="board-row">
+                  <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+
+                    <!-- We use player squares here because they dont have an on click event -->
+                    <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="carousel-item">
+          <div class="carousel-item-content">
+
+            <div class="board-wrapper">
+              <button class="map-button" @click="setMap(MapName.PACMAN)">
+                {{ MapName.PACMAN }}
+              </button>
+              <div class="board">
+                <div v-for="(row, rowIndex) in JSON.parse(JSON.stringify(MAPS[MapName.PACMAN]))" :key="rowIndex"
+                  class="board-row">
+                  <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
+
+                    <!-- We use player squares here because they dont have an on click event -->
+                    <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" />
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
@@ -194,7 +217,8 @@ function setMap(mapName: MapName) {
 }
 
 .carousel-item {
-  width: 100%; /* Set the width to 100% to fit the container */
+  width: 100%;
+  /* Set the width to 100% to fit the container */
 }
 
 .carousel-item-content {
