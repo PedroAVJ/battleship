@@ -1,37 +1,18 @@
 <template>
   <div class="ability-button-container">
-    <!-- Player button for using the submarine ability -->
-    <button
-    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Uncover a 3x3 area of the computer's board"
-    ref="submarine"
-      :disabled="isSubmarineAbilityButtonDisabled"
-      @click="store.setPlayerSubmarineIsUsingAbility(true)"
-      :class="['ability-button', store.player.submarine.isUsingAbility ? 'highlighted' : '']"
-    >
+    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Uncover a 3x3 area of the computer's board"
+      ref="submarine" :disabled="isSubmarineAbilityButtonDisabled" @click="useSubmarineAbility"
+      :class="submarineAbilityButtonClasses">
       <Submarine class="ability-icon" />
     </button>
-
-    <!-- Player button for using the aircraft carrier ability -->
-    <button
-      data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Gives you 2 extra turns"
-      ref="aircraftCarrier"
-      :disabled="isAircraftCarrierAbilityButtonDisabled"
-      @click="store.setPlayerAircraftCarrierIsUsingAbility(true)"
-      :class="['ability-button', store.player.aircraftCarrier.isUsingAbility
-       ? 'highlighted' : '']"
-    >
+    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Gives you 2 extra turns" ref="aircraftCarrier"
+      :disabled="isAircraftCarrierAbilityButtonDisabled" @click="useAircraftCarrierAbility"
+      :class="aircraftCarrierAbilityButtonClasses">
       <AircraftCarrier class="ability-icon" />
     </button>
-
-    <!-- Player button for using the battleship ability -->
-    <button
-      data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Hits a 3x3 area of the computer's board"
-      ref="battleship"
-      :disabled="isBattleshipAbilityButtonDisabled"
-      @click="store.setPlayerBattleshipIsUsingAbility(true)"
-      :class="['ability-button', store.player.battleship.isUsingAbility
-       ? 'highlighted' : '']"
-    >
+    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Hits a 3x3 area of the computer's board"
+      ref="battleship" :disabled="isBattleshipAbilityButtonDisabled" @click="useBattleshipAbility"
+      :class="battleshipAbilityButtonClasses">
       <Battleship class="ability-icon" />
     </button>
   </div>
@@ -39,6 +20,7 @@
 
 <script lang="ts" setup>
 import { useStore } from '@/store'
+import { useRouter } from 'vue-router';
 import { computed } from 'vue';
 import { onMounted, ref, Ref } from 'vue';
 import { Tooltip } from 'bootstrap';
@@ -50,6 +32,7 @@ import Battleship from '@/components/SVGs/Ships/Battleship.vue';
 
 
 const store = useStore()
+const router = useRouter()
 
 // Tooltip
 const submarine: Ref<HTMLElement | null> = ref(null)
@@ -67,35 +50,111 @@ onMounted(() => {
     const tooltipInstance = new Tooltip(battleship.value)
   }
 })
+
 const isSubmarineAbilityButtonDisabled = computed(() => {
-  return (
-    store.computer.hasCurrentTurn
-    || store.player.submarine.hasUsedAbility
-    || store.player.submarine.isUsingAbility
-    || store.player.aircraftCarrier.isUsingAbility
-    || store.player.battleship.isUsingAbility
-  )
+  if (store.player.hasCurrentTurn) {
+    return (
+      store.player.submarine.hasUsedAbility
+
+      || store.player.submarine.isUsingAbility
+      || store.player.aircraftCarrier.isUsingAbility
+      || store.player.battleship.isUsingAbility
+    )
+  } else {
+    return (
+      store.computer.submarine.hasUsedAbility
+
+      || store.computer.submarine.isUsingAbility
+      || store.computer.aircraftCarrier.isUsingAbility
+      || store.computer.battleship.isUsingAbility
+    )
+  }
 })
 
 const isAircraftCarrierAbilityButtonDisabled = computed(() => {
-  return (
-    store.computer.hasCurrentTurn
-    || store.player.aircraftCarrier.hasUsedAbility
-    || store.player.submarine.isUsingAbility
-    || store.player.aircraftCarrier.isUsingAbility
-    || store.player.battleship.isUsingAbility
-  )
+  if (store.player.hasCurrentTurn) {
+    return (
+      store.player.aircraftCarrier.hasUsedAbility
+
+      || store.player.submarine.isUsingAbility
+      || store.player.aircraftCarrier.isUsingAbility
+      || store.player.battleship.isUsingAbility
+    )
+  } else {
+    return (
+      store.computer.aircraftCarrier.hasUsedAbility
+
+      || store.computer.submarine.isUsingAbility
+      || store.computer.aircraftCarrier.isUsingAbility
+      || store.computer.battleship.isUsingAbility
+    )
+  }
 })
 
 const isBattleshipAbilityButtonDisabled = computed(() => {
-  return (
-    store.computer.hasCurrentTurn
-    || store.player.battleship.hasUsedAbility
-    || store.player.submarine.isUsingAbility
-    || store.player.aircraftCarrier.isUsingAbility
-    || store.player.battleship.isUsingAbility
-  )
+  if (store.player.hasCurrentTurn) {
+    return (
+      store.player.battleship.hasUsedAbility
+
+      || store.player.submarine.isUsingAbility
+      || store.player.aircraftCarrier.isUsingAbility
+      || store.player.battleship.isUsingAbility
+    )
+  } else {
+    return (
+      store.computer.battleship.hasUsedAbility
+
+      || store.computer.submarine.isUsingAbility
+      || store.computer.aircraftCarrier.isUsingAbility
+      || store.computer.battleship.isUsingAbility
+    )
+  }
 })
+
+const submarineAbilityButtonClasses = computed(() => {
+  return [
+    'ability-button',
+    store.player.submarine.isUsingAbility || store.computer.submarine.isUsingAbility ? 'highlighted' : ''
+  ]
+})
+
+const aircraftCarrierAbilityButtonClasses = computed(() => {
+  return [
+    'ability-button',
+    store.player.aircraftCarrier.isUsingAbility || store.computer.aircraftCarrier.isUsingAbility ? 'highlighted' : ''
+  ]
+})
+
+const battleshipAbilityButtonClasses = computed(() => {
+  return [
+    'ability-button',
+    store.player.battleship.isUsingAbility || store.computer.battleship.isUsingAbility ? 'highlighted' : ''
+  ]
+})
+
+function useSubmarineAbility() {
+  if (store.player.hasCurrentTurn) {
+    store.setPlayerSubmarineIsUsingAbility(true);
+  } else if (store.computer.hasCurrentTurn) {
+    store.setComputerSubmarineIsUsingAbility(true);
+  }
+}
+
+function useAircraftCarrierAbility() {
+  if (store.player.hasCurrentTurn) {
+    store.setPlayerAircraftCarrierIsUsingAbility(true);
+  } else if (store.computer.hasCurrentTurn) {
+    store.setComputerAircraftCarrierIsUsingAbility(true);
+  }
+}
+
+function useBattleshipAbility() {
+  if (store.player.hasCurrentTurn) {
+    store.setPlayerBattleshipIsUsingAbility(true);
+  } else if (store.computer.hasCurrentTurn) {
+    store.setComputerBattleshipIsUsingAbility(true);
+  }
+}
 </script>
 
 <style scoped>

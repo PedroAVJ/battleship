@@ -4,35 +4,38 @@
       Battleship Game
     </h1>
     <div class="boards">
-      <Board :board="store.player.board" user="player" />
+      <Board :tiles="store.player.board.tiles" user="player" />
     </div>
     <div class="gui">
       <!-- Display if all ships have been placed -->
-      <button @click="startGame" class="primary-button" v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) === 0">
-    Start Game
-  </button>
+      <button @click="startGame" class="primary-button"
+        v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) === 0">
+        Start Game
+      </button>
 
       <!-- Display if there are still ships to place -->
       <h2 class="text" v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) !== 0">
         Drag and drop ships to place them on the board
       </h2>
       <div class="ship-container" v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) !== 0">
-        <ShipItem :name="ShipName.AIRCRAFT_CARRIER" title="Aircraft Carrier" :gui-count="store.gui.aircraftCarrierCount" v-if="store.gui.aircraftCarrierCount > 0">
+        <ShipItem :name="ShipName.AIRCRAFT_CARRIER" :gui-count="store.gui.aircraftCarrierCount"
+          v-if="store.gui.aircraftCarrierCount > 0">
           <AircraftCarrier class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.SUBMARINE" title="Submarine" :gui-count="store.gui.submarineCount" v-if="store.gui.submarineCount > 0">
+        <ShipItem :name="ShipName.SUBMARINE" :gui-count="store.gui.submarineCount" v-if="store.gui.submarineCount > 0">
           <Submarine class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.DESTROYER" title="Destroyer" :gui-count="store.gui.destroyerCount" v-if="store.gui.destroyerCount > 0">
+        <ShipItem :name="ShipName.DESTROYER" :gui-count="store.gui.destroyerCount" v-if="store.gui.destroyerCount > 0">
           <Destroyer class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.BATTLESHIP" title="Battleship" :gui-count="store.gui.battleshipCount" v-if="store.gui.battleshipCount > 0">
+        <ShipItem :name="ShipName.BATTLESHIP" :gui-count="store.gui.battleshipCount" v-if="store.gui.battleshipCount > 0">
           <Battleship class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.FRIGATE" title="Frigate" :gui-count="store.gui.frigateCount" v-if="store.gui.frigateCount > 0">
+        <ShipItem :name="ShipName.FRIGATE" :gui-count="store.gui.frigateCount" v-if="store.gui.frigateCount > 0">
           <Frigate class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.SUPPLY_BOAT" title="Supply Boat" :gui-count="store.gui.supplyBoatCount" v-if="store.gui.supplyBoatCount > 0">
+        <ShipItem :name="ShipName.SUPPLY_BOAT" :gui-count="store.gui.supplyBoatCount"
+          v-if="store.gui.supplyBoatCount > 0">
           <SupplyBoat class="svg" />
         </ShipItem>
       </div>
@@ -62,7 +65,7 @@ const router = useRouter()
 
 function startGame() {
   store.startGame()
-  store.computer.randomlyPlaceShips()
+  store.computer.board.randomlyPlaceShips()
   router.push({ name: 'Game' })
 }
 </script>
@@ -168,5 +171,4 @@ h2 {
 
 .start-game:hover {
   background-color: #f57c00;
-}
-</style>
+}</style>

@@ -5,7 +5,8 @@
 - [ ] Format the whole codebase
 - [ ] Optimize the store to only use the mutations that are needed
 - [ ] Update the state on methods on the classes that need it
-- [ ] Think of how to incorporate the subrtracting health when using non submarine attacks
+- [ ] Annotate everything with JSDocs
+- [ ] Try to use MapNames as keys instead of hardcoding the property names
 
 
 

@@ -86,12 +86,10 @@ import Frigate from '@/components/SVGs/Ships/Frigate.vue'
 import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
 
 
-interface SpriteProps {
+const props = defineProps<{
   tile: Tile;
   isPlayerSquare: boolean;
-}
-
-const props = defineProps<SpriteProps>();
+}>();
 </script>
 
 <style scoped>

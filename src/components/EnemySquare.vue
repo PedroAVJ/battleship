@@ -34,169 +34,54 @@ function sleep(ms: number) {
 
 async function Attack() {
   if (store.computer.hasCurrentTurn) return;
+  if (store.computer.board.tiles[props.row][props.col].isInvalidSquare()) return;
+  if (store.player.hasLost() || store.computer.hasLost()) return;
+  
+  // Prevent player from spamming moves
   if (store.player.isMoveInProgress) return;
-  const computer_board = store.computer.board
-  const player_board = store.player.board
-  if (computer_board[props.row][props.col].isInvalidSquare()) return;
-
-  // Prevent player from spamming squares
   store.setPlayerIsMoveInProgress(true);
 
-  // Player submarine ability
   if (store.player.submarine.isUsingAbility) {
-
-    // Iterate over a 3x3 area around the square
-    store.computer.submarineAttack(props.row, props.col);
-
-    // Uncover the submarine
-    store.player.uncoverShip(ShipName.SUBMARINE);
-
+    store.computer.board.submarineAttack(props.row, props.col);
+    store.player.board.uncoverShip(ShipName.SUBMARINE);
+    store.setPlayerAircraftCarrierHasUsedAbility(true);
+    store.setPlayerAircraftCarrierIsUsingAbility(false);
   }
-
-  // Player battleship ability
   else if (store.player.battleship.isUsingAbility) {
-
-    // Iterate over a 3x3 square around the battleship
-    store.computer.battleshipAttack(props.row, props.col);
-
-    // Uncover the battleship
-    store.player.uncoverShip(ShipName.BATTLESHIP);
-
+    store.computer.board.battleshipAttack(props.row, props.col);
+    store.player.board.uncoverShip(ShipName.BATTLESHIP);
+    store.setPlayerBattleshipHasUsedAbility(true);
+    store.setPlayerBattleshipIsUsingAbility(false);
   }
-
-  // Player aircraft carrier ability
   else if (store.player.aircraftCarrier.isUsingAbility) {
-    const tile = computer_board[props.row][props.col];
-
-    // Hit the square
-    const new_tile = JSON.parse(JSON.stringify(tile));
-    if (new_tile.ship !== undefined) {
-      new_tile.contains.successfulShot = true;
-
-      // If the ship is an aircraft carrier, subtract 1 from its health
-      if (tile.ship?.name === ShipName.AIRCRAFT_CARRIER) {
-        store.setComputerAircraftCarrierHealth(store.computer.aircraftCarrier.health - 1);
-      }
-
-      // If the ship is a battleship, subtract 1 from its health
-      else if (tile.ship?.name === ShipName.BATTLESHIP) {
-        store.setComputerBattleshipHealth(store.computer.battleship.health - 1);
-      }
-
-      // If the ship is a submarine, sink it, as it only has 1 health
-      else if (tile.ship?.name === ShipName.SUBMARINE) {
-        store.setComputerBattleshipHasUsedAbility(true);
-      }
-
-    }
-    else {
-      new_tile.contains.missedShot = true;
-    }
-
-    // Reflect the state of the square
-    store.commit(Mutation.SET_COMPUTER_TILE, {
-      row: props.row,
-      col: props.col,
-      tile: new_tile
-    });
-
-    // Substract 1 from the aircraft carrier's shots
+    store.player.board.normalAttack(props.row, props.col);
     store.setPlayerAircraftCarrierShots(store.player.aircraftCarrier.shots - 1);
 
-    // Check if the player won
-    let player_won = true;
-    for (let row = 0; row < computer_board.length; row++) {
-      for (let col = 0; col < computer_board[row].length; col++) {
-        if (computer_board[row][col].ship !== undefined && !computer_board[row][col].contains.successfulShot) {
-          player_won = false;
-          break
-        }
-      }
-    }
-
-    // If so, change the state of the game
-    if (player_won) {
-      return;
-    }
-
-    // If it isn't the last shot, return
+    // If it isn't the last shot, allow the player to make another move, while still using the ability and not changing turns
     if (store.player.aircraftCarrier.shots > 0) {
       store.setPlayerIsMoveInProgress(false);
       return;
     }
 
-    // Uncover the aircraft carrier
-    store.player.uncoverShip(ShipName.AIRCRAFT_CARRIER);
-
-  }
-
-  // Player normal move
-  else {
-    const tile = computer_board[props.row][props.col];
-
-    // Hit the square
-    const new_tile = JSON.parse(JSON.stringify(tile));
-    if (new_tile.ship !== undefined) {
-      new_tile.contains.successfulShot = true;
-
-      // If the ship is an aircraft carrier, subtract 1 from its health
-      if (tile.ship?.name === ShipName.AIRCRAFT_CARRIER) {
-        store.setComputerAircraftCarrierHealth(store.computer.aircraftCarrier.health - 1);
-      }
-
-      // If the ship is a battleship, subtract 1 from its health
-      else if (tile.ship?.name === ShipName.BATTLESHIP) {
-        store.setComputerBattleshipHealth(store.computer.battleship.health - 1);
-      }
-
-      // If the ship is a submarine, sink it, as it only has 1 health
-      else if (tile.ship?.name === ShipName.SUBMARINE) {
-        store.setComputerSubmarineHasUsedAbility(true);
-      }
-
-    }
-    else {
-      new_tile.contains.missedShot = true;
-    }
-
-    // Reflect the state of the square
-    store.commit(Mutation.SET_COMPUTER_TILE, {
-      row: props.row,
-      col: props.col,
-      tile: new_tile
-    });
-
-  }
-
-  // This ensures that Vue's reactivity system updates the state of the board
-  store.setComputerBoard(store.computer.board);
-
-  // Wait for 1 second (1000 milliseconds)
-  await sleep(1000);
-
-  // Make sure the abilities are consumed after being used
-  if (store.player.aircraftCarrier.isUsingAbility) {
-    store.setPlayerAircraftCarrierHasUsedAbility(true);
-    store.setPlayerAircraftCarrierIsUsingAbility(false);
-  } else if (store.player.battleship.isUsingAbility) {
-    store.setPlayerBattleshipHasUsedAbility(true);
-    store.setPlayerBattleshipIsUsingAbility(false);
-  } else if (store.player.submarine.isUsingAbility) {
+    store.player.board.uncoverShip(ShipName.AIRCRAFT_CARRIER);
     store.setPlayerSubmarineHasUsedAbility(true);
     store.setPlayerSubmarineIsUsingAbility(false);
   }
-
-  // Check if either the battleship or the aircraft carrier were sunk
-  if (store.computer.aircraftCarrier.health === 0) {
-    store.setComputerAircraftCarrierHasUsedAbility(true);
-  } else if (store.computer.battleship.health === 0) {
-    store.setComputerBattleshipHasUsedAbility(true);
+  else {
+    store.computer.board.normalAttack(props.row, props.col);
   }
 
-  // If the player won the game, return
+  store.substractComputerShipsHealth();
+
+  // This ensures that Vue's reactivity system updates the state of the board
+  store.setComputerBoardTiles(store.computer.board.tiles);
+
+  // Waiting gives the player time to see the result of their move
+  await sleep(1000);
+
+  // If the player won the game, prevent computer move from happening in the background
   if (store.computer.hasLost()) return;
 
-  // Since the players move is over, change the turn
   store.setPlayerHasCurrentTurn(false);
   store.setComputerHasCurrentTurn(true);
 
@@ -209,175 +94,54 @@ async function Attack() {
     store.setComputerSubmarineIsUsingAbility(true);
   }
 
-  // Wait for 1 second (1000 milliseconds)
+  // Waiting gives the player time to see the computer choose a move
   await sleep(1000);
 
-  // Computer submarine ability
+  // For now, computer moves are random
+  const move = store.player.board.makeRandomValidMove();
   if (store.computer.submarine.isUsingAbility) {
-    const move = store.player.makeRandomValidMove();
-
-    // Iterate over a 3x3 area around the square
-    store.player.submarineAttack(move.row, move.col);
-
-    // Uncover the submarine
-    store.computer.uncoverShip(ShipName.SUBMARINE);
-
-  }
-
-  // Computer battleship ability
-  else if (store.computer.battleship.isUsingAbility) {
-    const move = store.player.makeRandomValidMove();
-
-    // Iterate over a 3x3 area around the square
-    store.player.battleshipAttack(move.row, move.col);
-
-    // Uncover the battleship
-    store.computer.uncoverShip(ShipName.BATTLESHIP);
-
-  }
-
-  // Computer aircraft carrier ability
-  else if (store.computer.aircraftCarrier.isUsingAbility) {
-
-    // For each of the computer aircraft carrier's shots
-    while (store.computer.aircraftCarrier.shots != 0) {
-      const move = store.player.makeRandomValidMove();
-
-      // If the square already contains a missed shot, or a successful shot, skip it
-      const tile = player_board[move.row][move.col];
-      if (tile.contains.missedShot) continue;
-      if (tile.contains.successfulShot) continue;
-
-      const new_tile = JSON.parse(JSON.stringify(tile));
-      // If the square contains a ship, hit it
-      if (tile.ship !== undefined) {
-        new_tile.contains.successfulShot = true;
-        store.commit(Mutation.SET_PLAYER_TILE, {
-          row: move.row,
-          col: move.col,
-          tile: new_tile
-        });
-
-        // If the ship is an aircraft carrier, subtract 1 from its health
-        if (tile.ship?.name === ShipName.AIRCRAFT_CARRIER) {
-          store.setPlayerAircraftCarrierHealth(store.player.aircraftCarrier.health - 1);
-        }
-
-        // If the ship is a battleship, subtract 1 from its health
-        else if (tile.ship?.name === ShipName.BATTLESHIP) {
-          store.setPlayerBattleshipHealth(store.player.battleship.health - 1);
-        }
-
-        // If the ship is a submarine, sink it, as it only has 1 health
-        else if (tile.ship?.name === ShipName.SUBMARINE) {
-          store.setPlayerSubmarineHasUsedAbility(true);
-        }
-
-      }
-
-      // Otherwise, mark it as a missed shot
-      else {
-        new_tile.contains.missedShot = true;
-        store.commit(Mutation.SET_PLAYER_TILE, {
-          row: move.row,
-          col: move.col,
-          tile: new_tile
-        });
-      }
-
-      // Decrement the number of shots
-      store.setComputerAircraftCarrierShots(store.computer.aircraftCarrier.shots - 1);
-
-      // Check if the computer won
-      let computer_won = true;
-      for (let row = 0; row < player_board.length; row++) {
-        for (let col = 0; col < player_board[row].length; col++) {
-          if (player_board[row][col].ship !== undefined && !player_board[row][col].contains.successfulShot) {
-            computer_won = false;
-            break
-          }
-        }
-      }
-
-      // If so, change the state of the game
-      if (computer_won) {
-        return;
-      }
-
-    }
-
-    // Uncover the aircraft carrier
-    store.computer.uncoverShip(ShipName.AIRCRAFT_CARRIER);
-
-  }
-
-  // Computer normal move
-  else {
-    const move = store.player.makeRandomValidMove();
-    const tile = player_board[move.row][move.col];
-
-    // Hit the square
-    const new_tile = JSON.parse(JSON.stringify(tile));
-    if (new_tile.ship !== undefined) {
-      new_tile.contains.successfulShot = true;
-
-      // If the ship is an aircraft carrier, subtract 1 from its health
-      if (tile.ship?.name === ShipName.AIRCRAFT_CARRIER) {
-        store.setPlayerAircraftCarrierHealth(store.player.aircraftCarrier.health - 1);
-      }
-
-      // If the ship is a battleship, subtract 1 from its health
-      else if (tile.ship?.name === ShipName.BATTLESHIP) {
-        store.setPlayerBattleshipHealth(store.player.battleship.health - 1);
-      }
-
-      // If the ship is a submarine, sink it, as it only has 1 health
-      else if (tile.ship?.name === ShipName.SUBMARINE) {
-        store.setPlayerSubmarineHasUsedAbility(true);
-      }
-
-    }
-    else {
-      new_tile.contains.missedShot = true;
-    }
-
-    // Reflect the state of the square
-    store.commit(Mutation.SET_PLAYER_TILE, {
-      row: move.row,
-      col: move.col,
-      tile: new_tile
-    });
-  }
-
-  // This ensures that Vue's reactive system updates the state of the board
-  store.setPlayerBoard(store.player.board);
-
-  // Wait for 1 second (1000 milliseconds)
-  await sleep(1000);
-
-  // Make sure the abilities are consumed after being used
-  if (store.computer.aircraftCarrier.isUsingAbility) {
-    store.setComputerAircraftCarrierHasUsedAbility(true);
-    store.setComputerAircraftCarrierIsUsingAbility(false);
-  } else if (store.computer.battleship.isUsingAbility) {
-    store.setComputerBattleshipHasUsedAbility(true);
-    store.setComputerBattleshipIsUsingAbility(false);
-  } else if (store.computer.submarine.isUsingAbility) {
+    store.player.board.submarineAttack(move.row, move.col);
+    store.computer.board.uncoverShip(ShipName.SUBMARINE);
     store.setComputerSubmarineHasUsedAbility(true);
     store.setComputerSubmarineIsUsingAbility(false);
   }
+  else if (store.computer.battleship.isUsingAbility) {
+    store.player.board.battleshipAttack(move.row, move.col);
+    store.computer.board.uncoverShip(ShipName.BATTLESHIP);
+    store.setComputerBattleshipHasUsedAbility(true);
+    store.setComputerBattleshipIsUsingAbility(false);
+  }
+  else if (store.computer.aircraftCarrier.isUsingAbility) {
+    while (store.computer.aircraftCarrier.shots != 0) {
+      const current_move = store.player.board.makeRandomValidMove();
+      store.player.board.normalAttack(current_move.row, current_move.col);
+      store.setComputerAircraftCarrierShots(store.computer.aircraftCarrier.shots - 1);
 
-  // Check if either the battleship or the aircraft carrier were sunk
-  if (store.player.aircraftCarrier.health === 0) {
-    store.setPlayerAircraftCarrierHasUsedAbility(true);
-  } else if (store.player.battleship.health === 0) {
-    store.setPlayerBattleshipHasUsedAbility(true);
+      // If the computer won, return as to prevent the next move from happening in the background
+      if (store.player.hasLost()) return;
+
+      // Waiting gives the player time to see the result of the computer's move
+      await sleep(1000);
+
+    }
+    store.computer.board.uncoverShip(ShipName.AIRCRAFT_CARRIER);
+    store.setComputerAircraftCarrierHasUsedAbility(true);
+    store.setComputerAircraftCarrierIsUsingAbility(false);
+  }
+  else {
+    store.player.board.normalAttack(move.row, move.col);
   }
 
-  // If the computer won the game, return
-  if (store.player.hasLost()) return;
+  store.substractPlayerShipsHealth();
 
-  // Since the computer's move is over, change the turn
+  // This ensures that Vue's reactive system updates the state of the board
+  store.setPlayerBoardTiles(store.player.board.tiles);
+
+  // Waiting gives the player time to see the result of the computer's move, except for the aircraft carrier ability, as it already waits
+  if (!store.computer.aircraftCarrier.isUsingAbility) {
+    await sleep(1000);
+  }
+
   store.setComputerHasCurrentTurn(false);
   store.setPlayerHasCurrentTurn(true);
 

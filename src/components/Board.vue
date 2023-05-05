@@ -1,7 +1,7 @@
 <template>
   <div class="board-wrapper">
     <div class="board">
-      <div v-for="(row, rowIndex) in props.board" :key="rowIndex" class="board-row">
+      <div v-for="(row, rowIndex) in props.tiles" :key="rowIndex" class="board-row">
         <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
           <PlayerSquare :tile="col" :row="rowIndex" :col="colIndex" v-if="props.user === 'player'" />
           <EnemySquare :tile="col" :row="rowIndex" :col="colIndex" v-if="props.user === 'computer'" />
@@ -17,12 +17,10 @@ import EnemySquare from './EnemySquare.vue';
 import Tile from '@/types/Tile';
 
 
-interface Props {
-  board: Tile[][];
+const props = defineProps<{
+  tiles: Tile[][];
   user: 'player' | 'computer';
-}
-
-const props = defineProps<Props>();
+}>();
 </script>
 
 <style scoped>

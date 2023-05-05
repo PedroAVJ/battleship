@@ -47,10 +47,10 @@ function dragEnter(e: DragEvent) {
   
   // If the ship placement is invalid, return
   const ship = new Ship(shipName, shipOrientation);
-  if (store.player.isInvalidShipPlacement(ship, props.row, props.col)) return;
+  if (store.player.board.isInvalidShipPlacement(ship, props.row, props.col)) return;
   
   // Set the ship preview and add the darken class
-  store.player.board[props.row][props.col].contains.previewSprite = true;
+  store.player.board.tiles[props.row][props.col].contains.previewSprite = true;
   e.target.classList.add('darken');
 
 }
@@ -67,10 +67,10 @@ function dragLeave(e: DragEvent) {
   
   // If the ship placement is invalid, return
   const ship = new Ship(shipName, shipOrientation);
-  if (store.player.isInvalidShipPlacement(ship, props.row, props.col)) return;
+  if (store.player.board.isInvalidShipPlacement(ship, props.row, props.col)) return;
   
   // Remove the ship preview and the darken class
-  store.player.board[props.row][props.col].contains.previewSprite = false;
+  store.player.board.tiles[props.row][props.col].contains.previewSprite = false;
   e.target.classList.remove('darken');
 
 }
@@ -87,9 +87,9 @@ function drop(e: DragEvent) {
   
   // If the ship placement is invalid, return
   const ship = new Ship(shipName, shipOrientation);
-  if (store.player.isInvalidShipPlacement(ship, props.row, props.col)) return;
+  if (store.player.board.isInvalidShipPlacement(ship, props.row, props.col)) return;
 
-  store.player.placeShip(ship, props.row, props.col);
+  store.player.board.placeShip(ship, props.row, props.col);
 
   // Reduce the count of the ship in the GUI
   if (shipName === ShipName.SUBMARINE) {

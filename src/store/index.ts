@@ -65,8 +65,8 @@ export const useStore = defineStore({
         setPlayerHasCurrentTurn(hasCurrentTurn: boolean) {
             this.player.hasCurrentTurn = hasCurrentTurn;
         },
-        setPlayerBoard(board: Tile[][]) {
-            this.player.board = board;
+        setPlayerBoardTiles(board: Tile[][]) {
+            this.player.board.tiles = board;
         },
 
         // Computer
@@ -103,8 +103,8 @@ export const useStore = defineStore({
         setComputerHasCurrentTurn(hasCurrentTurn: boolean) {
             this.computer.hasCurrentTurn = hasCurrentTurn;
         },
-        setComputerBoard(board: Tile[][]) {
-            this.computer.board = board;
+        setComputerBoardTiles(board: Tile[][]) {
+            this.computer.board.tiles = board;
         },
 
         // Currently dragged ship
@@ -158,6 +158,56 @@ export const useStore = defineStore({
             // The player makes the first move
             this.setPlayerHasCurrentTurn(true);
             this.setComputerHasCurrentTurn(false);
+        },
+
+        substractPlayerShipsHealth() {
+            this.setPlayerBattleshipHealth(4);
+            this.setPlayerAircraftCarrierHealth(10);
+
+            for (const row of this.player.board.tiles) {
+                for (const tile of row) {
+                    if (tile.ship && tile.contains.successfulShot) {
+                        if (tile.ship.name === ShipName.BATTLESHIP) {
+                            this.setPlayerBattleshipHealth(this.player.battleship.health - 1);
+                        } else if (tile.ship.name === ShipName.AIRCRAFT_CARRIER) {
+                            this.setPlayerAircraftCarrierHealth(this.player.aircraftCarrier.health - 1);
+                        } else if (tile.ship.name === ShipName.SUBMARINE) {
+                            this.setPlayerSubmarineHasUsedAbility(true);
+                        }
+                    }
+                }
+            }
+
+            if (this.player.battleship.health === 0) {
+                this.setPlayerBattleshipHasUsedAbility(true);
+            } else if (this.player.aircraftCarrier.health === 0) {
+                this.setPlayerAircraftCarrierHasUsedAbility(true);
+            }
+        },
+
+        substractComputerShipsHealth() {
+            this.setComputerBattleshipHealth(4);
+            this.setComputerAircraftCarrierHealth(10);
+
+            for (const row of this.computer.board.tiles) {
+                for (const tile of row) {
+                    if (tile.ship && tile.contains.successfulShot) {
+                        if (tile.ship.name === ShipName.BATTLESHIP) {
+                            this.setComputerBattleshipHealth(this.computer.battleship.health - 1);
+                        } else if (tile.ship.name === ShipName.AIRCRAFT_CARRIER) {
+                            this.setComputerAircraftCarrierHealth(this.computer.aircraftCarrier.health - 1);
+                        } else if (tile.ship.name === ShipName.SUBMARINE) {
+                            this.setComputerSubmarineHasUsedAbility(true);
+                        }
+                    }
+                }
+            }
+
+            if (this.computer.battleship.health === 0) {
+                this.setComputerBattleshipHasUsedAbility(true);
+            } else if (this.computer.aircraftCarrier.health === 0) {
+                this.setComputerAircraftCarrierHasUsedAbility(true);
+            }
         }
     },
     persist: true,

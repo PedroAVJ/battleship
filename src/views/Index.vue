@@ -12,14 +12,6 @@
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
-
 .title {
   font-size: 2rem;
   font-weight: bold;

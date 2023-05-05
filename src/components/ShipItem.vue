@@ -35,12 +35,10 @@ import Ship from '@/types/Ship';
 import { useStore } from '@/store';
 
 
-interface ShipItemProps {
+const props = defineProps<{
   name: ShipName,
   guiCount: number,
-}
-
-const props = defineProps<ShipItemProps>();
+}>();
 const store = useStore();
 
 const orientation = ref<Orientation>(Orientation.HORIZONTAL);

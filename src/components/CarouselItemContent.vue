@@ -3,7 +3,7 @@
     <button class="map-button" @click="setMap">
       {{ MAPS[props.mapName].name }}
     </button>
-    <Board :board="board" user="player" />
+    <Board :tiles="board" user="player" />
   </div>
 </template>
 
@@ -14,14 +14,11 @@ import { useRouter } from 'vue-router';
 import MAPS from '@/constants/Maps';
 import MapName from '@/types/MapName';
 import Tile from '@/types/Tile';
-import SHIPS from '@/constants/Ships';
 
 
-interface Props {
+const props = defineProps<{
   mapName: MapName;
-}
-
-const props: Props = defineProps<Props>();
+}>();
 
 const router = useRouter();
 const store = useStore();
@@ -35,8 +32,8 @@ function setMap() {
   const computerBoard = JSON.parse(JSON.stringify(board)) as Tile[][]
   const playerBoard = JSON.parse(JSON.stringify(board)) as Tile[][]
 
-  store.setPlayerBoard(playerBoard);
-  store.setComputerBoard(computerBoard);
+  store.setPlayerBoardTiles(playerBoard);
+  store.setComputerBoardTiles(computerBoard);
 
   router.push({ name: 'PlaceShips' });
 }
