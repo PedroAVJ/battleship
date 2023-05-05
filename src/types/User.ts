@@ -1,4 +1,6 @@
 import Board from './Board';
+import ShipName from './ShipName';
+import SHIPS from '@/constants/Ships';
 
 
 /**
@@ -9,18 +11,33 @@ import Board from './Board';
  */
 export default class User {
 
-    submarine: {
+    [ShipName.SUBMARINE]: {
+        guiCount: number;
         isUsingAbility: boolean;
         hasUsedAbility: boolean;
     }
 
-    battleship: {
+    [ShipName.SUPPLY_BOAT]: {
+        guiCount: number;
+    }
+
+    [ShipName.DESTROYER]: {
+        guiCount: number;
+    }
+
+    [ShipName.BATTLESHIP]: {
+        guiCount: number;
         isUsingAbility: boolean;
         hasUsedAbility: boolean;
         health: number;
     }
 
-    aircraftCarrier: {
+    [ShipName.FRIGATE]: {
+        guiCount: number;
+    }
+
+    [ShipName.AIRCRAFT_CARRIER]: {
+        guiCount: number;
         isUsingAbility: boolean;
         hasUsedAbility: boolean;
         health: number;
@@ -33,20 +50,32 @@ export default class User {
     board: Board;
 
     constructor() {
-        this.submarine = {
+        this[ShipName.SUBMARINE] = {
+            guiCount: SHIPS[ShipName.SUBMARINE].count,
             isUsingAbility: false,
             hasUsedAbility: false,
         };
-        this.battleship = {
-            isUsingAbility: false,
-            hasUsedAbility: false,
-            health: 0,
+        this[ShipName.SUPPLY_BOAT] = {
+            guiCount: SHIPS[ShipName.SUPPLY_BOAT].count,
         };
-        this.aircraftCarrier = {
+        this[ShipName.DESTROYER] = {
+            guiCount: SHIPS[ShipName.DESTROYER].count,
+        };
+        this[ShipName.BATTLESHIP] = {
+            guiCount: SHIPS[ShipName.BATTLESHIP].count,
             isUsingAbility: false,
             hasUsedAbility: false,
-            health: 0,
-            shots: 0,
+            health: 4,
+        };
+        this[ShipName.FRIGATE] = {
+            guiCount: SHIPS[ShipName.FRIGATE].count,
+        };
+        this[ShipName.AIRCRAFT_CARRIER] = {
+            guiCount: SHIPS[ShipName.AIRCRAFT_CARRIER].count,
+            isUsingAbility: false,
+            hasUsedAbility: false,
+            health: 10,
+            shots: 3,
         };
         this.isMoveInProgress = false;
         this.hasCurrentTurn = false;

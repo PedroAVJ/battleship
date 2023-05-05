@@ -12,52 +12,52 @@ export const useStore = defineStore({
     actions: {
 
         // GUI
-        setGuiSubmarineCount(submarineCount: number) {
-            this.gui.submarineCount = submarineCount;
+        setPlayerSubmarineGUICount(submarineGUICount: number) {
+            this.player[ShipName.SUBMARINE].guiCount = submarineCount;
         },
         setGuiSupplyBoatCount(supplyBoatCount: number) {
-            this.gui.supplyBoatCount = supplyBoatCount;
+            this.gui[ShipName.SUPPLY_BOAT].count = supplyBoatCount;
         },
         setGuiDestroyerCount(destroyerCount: number) {
-            this.gui.destroyerCount = destroyerCount;
+            this.gui[ShipName.DESTROYER].count = destroyerCount;
         },
         setGuiBattleshipCount(battleshipCount: number) {
-            this.gui.battleshipCount = battleshipCount;
+            this.gui[ShipName.BATTLESHIP].count = battleshipCount;
         },
         setGuiFrigateCount(frigateCount: number) {
-            this.gui.frigateCount = frigateCount;
+            this.gui[ShipName.FRIGATE].count = frigateCount;
         },
         setGuiAircraftCarrierCount(aircraftCarrierCount: number) {
-            this.gui.aircraftCarrierCount = aircraftCarrierCount;
+            this.gui[ShipName.AIRCRAFT_CARRIER].count = aircraftCarrierCount;
         },
 
         // Player
         setPlayerSubmarineIsUsingAbility(isUsingAbility: boolean) {
-            this.player.submarine.isUsingAbility = isUsingAbility;
+            this.player[ShipName.SUBMARINE].isUsingAbility = isUsingAbility;
         },
         setPlayerSubmarineHasUsedAbility(hasUsedAbility: boolean) {
-            this.player.submarine.hasUsedAbility = hasUsedAbility;
+            this.player[ShipName.SUBMARINE].hasUsedAbility = hasUsedAbility;
         },
         setPlayerBattleshipIsUsingAbility(isUsingAbility: boolean) {
-            this.player.battleship.isUsingAbility = isUsingAbility;
+            this.player[ShipName.BATTLESHIP].isUsingAbility = isUsingAbility;
         },
         setPlayerBattleshipHasUsedAbility(hasUsedAbility: boolean) {
-            this.player.battleship.hasUsedAbility = hasUsedAbility;
+            this.player[ShipName.BATTLESHIP].hasUsedAbility = hasUsedAbility;
         },
         setPlayerBattleshipHealth(health: number) {
-            this.player.battleship.health = health;
+            this.player[ShipName.BATTLESHIP].health = health;
         },
         setPlayerAircraftCarrierIsUsingAbility(isUsingAbility: boolean) {
-            this.player.aircraftCarrier.isUsingAbility = isUsingAbility;
+            this.player[ShipName.AIRCRAFT_CARRIER].isUsingAbility = isUsingAbility;
         },
         setPlayerAircraftCarrierHasUsedAbility(hasUsedAbility: boolean) {
-            this.player.aircraftCarrier.hasUsedAbility = hasUsedAbility;
+            this.player[ShipName.AIRCRAFT_CARRIER].hasUsedAbility = hasUsedAbility;
         },
         setPlayerAircraftCarrierHealth(health: number) {
-            this.player.aircraftCarrier.health = health;
+            this.player[ShipName.AIRCRAFT_CARRIER].health = health;
         },
         setPlayerAircraftCarrierShots(shots: number) {
-            this.player.aircraftCarrier.shots = shots;
+            this.player[ShipName.AIRCRAFT_CARRIER].shots = shots;
         },
         setPlayerIsMoveInProgress(isMoveInProgress: boolean) {
             this.player.isMoveInProgress = isMoveInProgress;
@@ -71,31 +71,31 @@ export const useStore = defineStore({
 
         // Computer
         setComputerSubmarineIsUsingAbility(isUsingAbility: boolean) {
-            this.computer.submarine.isUsingAbility = isUsingAbility;
+            this.computer[ShipName.SUBMARINE].isUsingAbility = isUsingAbility;
         },
         setComputerSubmarineHasUsedAbility(hasUsedAbility: boolean) {
-            this.computer.submarine.hasUsedAbility = hasUsedAbility;
+            this.computer[ShipName.SUBMARINE].hasUsedAbility = hasUsedAbility;
         },
         setComputerBattleshipIsUsingAbility(isUsingAbility: boolean) {
-            this.computer.battleship.isUsingAbility = isUsingAbility;
+            this.computer[ShipName.BATTLESHIP].isUsingAbility = isUsingAbility;
         },
         setComputerBattleshipHasUsedAbility(hasUsedAbility: boolean) {
-            this.computer.battleship.hasUsedAbility = hasUsedAbility;
+            this.computer[ShipName.BATTLESHIP].hasUsedAbility = hasUsedAbility;
         },
         setComputerBattleshipHealth(health: number) {
-            this.computer.battleship.health = health;
+            this.computer[ShipName.BATTLESHIP].health = health;
         },
         setComputerAircraftCarrierIsUsingAbility(isUsingAbility: boolean) {
-            this.computer.aircraftCarrier.isUsingAbility = isUsingAbility;
+            this.computer[ShipName.AIRCRAFT_CARRIER].isUsingAbility = isUsingAbility;
         },
         setComputerAircraftCarrierHasUsedAbility(hasUsedAbility: boolean) {
-            this.computer.aircraftCarrier.hasUsedAbility = hasUsedAbility;
+            this.computer[ShipName.AIRCRAFT_CARRIER].hasUsedAbility = hasUsedAbility;
         },
         setComputerAircraftCarrierHealth(health: number) {
-            this.computer.aircraftCarrier.health = health;
+            this.computer[ShipName.AIRCRAFT_CARRIER].health = health;
         },
         setComputerAircraftCarrierShots(shots: number) {
-            this.computer.aircraftCarrier.shots = shots;
+            this.computer[ShipName.AIRCRAFT_CARRIER].shots = shots;
         },
         setComputerIsMoveInProgress(isMoveInProgress: boolean) {
             this.computer.isMoveInProgress = isMoveInProgress;
@@ -168,9 +168,9 @@ export const useStore = defineStore({
                 for (const tile of row) {
                     if (tile.ship && tile.contains.successfulShot) {
                         if (tile.ship.name === ShipName.BATTLESHIP) {
-                            this.setPlayerBattleshipHealth(this.player.battleship.health - 1);
+                            this.setPlayerBattleshipHealth(this.player.[ShipName.BATTLESHIP].health - 1);
                         } else if (tile.ship.name === ShipName.AIRCRAFT_CARRIER) {
-                            this.setPlayerAircraftCarrierHealth(this.player.aircraftCarrier.health - 1);
+                            this.setPlayerAircraftCarrierHealth(this.player.[ShipName.AIRCRAFT_CARRIER].health - 1);
                         } else if (tile.ship.name === ShipName.SUBMARINE) {
                             this.setPlayerSubmarineHasUsedAbility(true);
                         }
@@ -178,9 +178,9 @@ export const useStore = defineStore({
                 }
             }
 
-            if (this.player.battleship.health === 0) {
+            if (this.player.[ShipName.BATTLESHIP].health === 0) {
                 this.setPlayerBattleshipHasUsedAbility(true);
-            } else if (this.player.aircraftCarrier.health === 0) {
+            } else if (this.player.[ShipName.AIRCRAFT_CARRIER].health === 0) {
                 this.setPlayerAircraftCarrierHasUsedAbility(true);
             }
         },
@@ -193,9 +193,9 @@ export const useStore = defineStore({
                 for (const tile of row) {
                     if (tile.ship && tile.contains.successfulShot) {
                         if (tile.ship.name === ShipName.BATTLESHIP) {
-                            this.setComputerBattleshipHealth(this.computer.battleship.health - 1);
+                            this.setComputerBattleshipHealth(this.computer.[ShipName.BATTLESHIP].health - 1);
                         } else if (tile.ship.name === ShipName.AIRCRAFT_CARRIER) {
-                            this.setComputerAircraftCarrierHealth(this.computer.aircraftCarrier.health - 1);
+                            this.setComputerAircraftCarrierHealth(this.computer.[ShipName.AIRCRAFT_CARRIER].health - 1);
                         } else if (tile.ship.name === ShipName.SUBMARINE) {
                             this.setComputerSubmarineHasUsedAbility(true);
                         }
@@ -203,9 +203,9 @@ export const useStore = defineStore({
                 }
             }
 
-            if (this.computer.battleship.health === 0) {
+            if (this.computer.[ShipName.BATTLESHIP].health === 0) {
                 this.setComputerBattleshipHasUsedAbility(true);
-            } else if (this.computer.aircraftCarrier.health === 0) {
+            } else if (this.computer.[ShipName.AIRCRAFT_CARRIER].health === 0) {
                 this.setComputerAircraftCarrierHasUsedAbility(true);
             }
         }
