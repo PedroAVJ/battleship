@@ -5,8 +5,8 @@
     data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Uncover a 3x3 area of the computer's board"
     ref="submarine"
       :disabled="isSubmarineAbilityButtonDisabled"
-      @click="store.commit(Mutation.SET_PLAYER_IS_USING_SUBMARINE_ABILITY, true)"
-      :class="['ability-button', store.state.player.isUsingSubmarineAbility ? 'highlighted' : '']"
+      @click="store.setPlayerSubmarineIsUsingAbility(true)"
+      :class="['ability-button', store.player.submarine.isUsingAbility ? 'highlighted' : '']"
     >
       <Submarine class="ability-icon" />
     </button>
@@ -16,8 +16,9 @@
       data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Gives you 2 extra turns"
       ref="aircraftCarrier"
       :disabled="isAircraftCarrierAbilityButtonDisabled"
-      @click="store.commit(Mutation.SET_PLAYER_IS_USING_AIRCRAFT_CARRIER_ABILITY, true)"
-      :class="['ability-button', store.state.player.isUsingAircraftCarrierAbility ? 'highlighted' : '']"
+      @click="store.setPlayerAircraftCarrierIsUsingAbility(true)"
+      :class="['ability-button', store.player.aircraftCarrier.isUsingAbility
+       ? 'highlighted' : '']"
     >
       <AircraftCarrier class="ability-icon" />
     </button>
@@ -27,8 +28,9 @@
       data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Hits a 3x3 area of the computer's board"
       ref="battleship"
       :disabled="isBattleshipAbilityButtonDisabled"
-      @click="store.commit(Mutation.SET_PLAYER_IS_USING_BATTLESHIP_ABILITY, true)"
-      :class="['ability-button', store.state.player.isUsingBattleshipAbility ? 'highlighted' : '']"
+      @click="store.setPlayerBattleshipIsUsingAbility(true)"
+      :class="['ability-button', store.player.battleship.isUsingAbility
+       ? 'highlighted' : '']"
     >
       <Battleship class="ability-icon" />
     </button>
@@ -37,7 +39,6 @@
 
 <script lang="ts" setup>
 import { useStore } from '@/store'
-import { Mutation } from '@/types/enums.js';
 import { computed } from 'vue';
 import { onMounted, ref, Ref } from 'vue';
 import { Tooltip } from 'bootstrap';
@@ -68,31 +69,31 @@ onMounted(() => {
 })
 const isSubmarineAbilityButtonDisabled = computed(() => {
   return (
-    store.state.computer.hasCurrentTurn
-    || store.state.player.hasUsedSubmarineAbility
-    || store.state.player.isUsingSubmarineAbility
-    || store.state.player.isUsingAircraftCarrierAbility
-    || store.state.player.isUsingBattleshipAbility
+    store.computer.hasCurrentTurn
+    || store.player.submarine.hasUsedAbility
+    || store.player.submarine.isUsingAbility
+    || store.player.aircraftCarrier.isUsingAbility
+    || store.player.battleship.isUsingAbility
   )
 })
 
 const isAircraftCarrierAbilityButtonDisabled = computed(() => {
   return (
-    store.state.computer.hasCurrentTurn
-    || store.state.player.hasUsedAircraftCarrierAbility
-    || store.state.player.isUsingSubmarineAbility
-    || store.state.player.isUsingAircraftCarrierAbility
-    || store.state.player.isUsingBattleshipAbility
+    store.computer.hasCurrentTurn
+    || store.player.aircraftCarrier.hasUsedAbility
+    || store.player.submarine.isUsingAbility
+    || store.player.aircraftCarrier.isUsingAbility
+    || store.player.battleship.isUsingAbility
   )
 })
 
 const isBattleshipAbilityButtonDisabled = computed(() => {
   return (
-    store.state.computer.hasCurrentTurn
-    || store.state.player.hasUsedBattleshipAbility
-    || store.state.player.isUsingSubmarineAbility
-    || store.state.player.isUsingAircraftCarrierAbility
-    || store.state.player.isUsingBattleshipAbility
+    store.computer.hasCurrentTurn
+    || store.player.battleship.hasUsedAbility
+    || store.player.submarine.isUsingAbility
+    || store.player.aircraftCarrier.isUsingAbility
+    || store.player.battleship.isUsingAbility
   )
 })
 </script>

@@ -4,7 +4,7 @@ import Ship from './Ship';
 
 /**
  * @property `gui` - Keeps track of the ships left to place in case the page is refreshed
- * @property `shipPreview` - Keeps track of what ship should be rendered while hoovering over the board. This is because drag enter and drag leave events don't have access to the dataTransfer object.
+ * @property `currentlyDraggedShip` - Keeps track of the ship currently being dragged, for displaying a preview and for dropping into the board
  * @method `allShipsPlaced` - Once all gui ships are placed, this method returns true
  */
 export default class RootState {
@@ -21,7 +21,7 @@ export default class RootState {
     player: User;
     computer: User;
 
-    shipPreview?: Ship;
+    currentlyDraggedShip?: Ship;
 
     constructor() {
         this.gui = {

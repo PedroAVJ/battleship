@@ -12,12 +12,12 @@
 </template>
 
 <script setup lang="ts">
-import { ShipName, Orientation, Mutation } from '@/types/enums.js';
-import { Tile } from '@/types/interfaces.js';
-import { isInvalidShipPlacement, placeShip } from '@/utils/gameUtils.js';
+import Tile from '@/types/Tile';
 import { useStore } from '@/store';
 import Sprite from '@/components/Sprite.vue';
 import { computed } from 'vue';
+import Ship from '@/types/Ship';
+import ShipName from '@/types/ShipName';
 
 
 interface SquareProps {
@@ -37,93 +37,76 @@ const background = computed(() => {
 
 function dragEnter(e: DragEvent) {
   if (!(e.target instanceof HTMLElement)) return;
-  e.target.classList.add('darken');
-
+  
   // Get the ship name and orientation from the global state
-  const shipName = store.state.shipNamePreview;
-  const shipOrientation = store.state.shipOrientationPreview;
+  const shipName = store.currentlyDraggedShip?.name;
+  const shipOrientation = store.currentlyDraggedShip?.orientation;
 
   // If the data is invalid, return
   if (!shipName || !shipOrientation) return;
-  if (!isOrientation(shipOrientation)) return;
-  if (!isShipName(shipName)) return;
-
+  
   // If the ship placement is invalid, return
-  if (isInvalidShipPlacement(shipName, shipOrientation, props.row, props.col, store.state.player.board)) return;
-
-  // Set the ship preview
-  const new_tile = JSON.parse(JSON.stringify(props.tile)) as Tile;
-  new_tile.ship_preview = {
-    name: shipName,
-    orientation: shipOrientation,
-  };
-  store.commit(Mutation.SET_PLAYER_TILE, { row: props.row, col: props.col, tile: new_tile });
+  const ship = new Ship(shipName, shipOrientation);
+  if (store.player.isInvalidShipPlacement(ship, props.row, props.col)) return;
+  
+  // Set the ship preview and add the darken class
+  store.player.board[props.row][props.col].contains.previewSprite = true;
+  e.target.classList.add('darken');
 
 }
 
 function dragLeave(e: DragEvent) {
   if (!(e.target instanceof HTMLElement)) return;
-  e.target.classList.remove('darken');
-
+  
   // Get the ship name and orientation from the global state
-  const shipName = store.state.shipNamePreview;
-  const shipOrientation = store.state.shipOrientationPreview;
-
+  const shipName = store.currentlyDraggedShip?.name;
+  const shipOrientation = store.currentlyDraggedShip?.orientation;
+  
   // If the data is invalid, return
   if (!shipName || !shipOrientation) return;
-  if (!isOrientation(shipOrientation)) return;
-  if (!isShipName(shipName)) return;
-
+  
   // If the ship placement is invalid, return
-  if (isInvalidShipPlacement(shipName, shipOrientation, props.row, props.col, store.state.player.board)) return;
-
-  // Remove the ship preview
-  const new_tile = JSON.parse(JSON.stringify(props.tile)) as Tile;
-  new_tile.ship_preview = undefined;
-  store.commit(Mutation.SET_PLAYER_TILE, { row: props.row, col: props.col, tile: new_tile });
+  const ship = new Ship(shipName, shipOrientation);
+  if (store.player.isInvalidShipPlacement(ship, props.row, props.col)) return;
+  
+  // Remove the ship preview and the darken class
+  store.player.board[props.row][props.col].contains.previewSprite = false;
+  e.target.classList.remove('darken');
 
 }
 
 function drop(e: DragEvent) {
   if (!(e.target instanceof HTMLElement)) return;
-  e.target.classList.remove('darken');
+
+  // Get the ship name and orientation from the global state
+  const shipName = store.currentlyDraggedShip?.name;
+  const shipOrientation = store.currentlyDraggedShip?.orientation;
   
-  const shipName = e.dataTransfer?.getData('shipName');
-  const shipOrientation = e.dataTransfer?.getData('orientation');
-
+  // If the data is invalid, return
   if (!shipName || !shipOrientation) return;
-  if (!isOrientation(shipOrientation)) return;
-  if (!isShipName(shipName)) return;
-  if (isInvalidShipPlacement(shipName, shipOrientation, props.row, props.col, store.state.player.board)) return;
+  
+  // If the ship placement is invalid, return
+  const ship = new Ship(shipName, shipOrientation);
+  if (store.player.isInvalidShipPlacement(ship, props.row, props.col)) return;
 
-  // Here 'player' refers to what board the ship is being placed on
-  placeShip(store, shipName, shipOrientation, props.row, props.col, 'player');
+  store.player.placeShip(ship, props.row, props.col);
 
   // Reduce the count of the ship in the GUI
   if (shipName === ShipName.SUBMARINE) {
-    store.commit(Mutation.SET_GUI_SUBMARINE_COUNT, store.state.gui.submarineCount - 1);
-  } else if (shipName === ShipName.AIRCRAFT_CARRIER) {
-    store.commit(Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT, store.state.gui.aircraftCarrierCount - 1);
-  } else if (shipName === ShipName.DESTROYER) {
-    store.commit(Mutation.SET_GUI_DESTROYER_COUNT, store.state.gui.destroyerCount - 1);
-  } else if (shipName === ShipName.FRIGATE) {
-    store.commit(Mutation.SET_GUI_FRIGATE_COUNT, store.state.gui.frigateCount - 1);
+    store.setGuiSubmarineCount(store.gui.submarineCount - 1)
   } else if (shipName === ShipName.SUPPLY_BOAT) {
-    store.commit(Mutation.SET_GUI_SUPPLY_BOAT_COUNT, store.state.gui.supplyBoatCount - 1);
+    store.setGuiSupplyBoatCount(store.gui.supplyBoatCount - 1)
+  } else if (shipName === ShipName.DESTROYER) {
+    store.setGuiDestroyerCount(store.gui.destroyerCount - 1)
   } else if (shipName === ShipName.BATTLESHIP) {
-    store.commit(Mutation.SET_GUI_BATTLESHIP_COUNT, store.state.gui.battleshipCount - 1);
+    store.setGuiBattleshipCount(store.gui.battleshipCount - 1)
+  } else if (shipName === ShipName.FRIGATE) {
+    store.setGuiFrigateCount(store.gui.frigateCount - 1)
+  } else if (shipName === ShipName.AIRCRAFT_CARRIER) {
+    store.setGuiAircraftCarrierCount(store.gui.aircraftCarrierCount - 1)
   }
+
 };
-
-// Type guards only work on functions, otherwise TS won't infer the type
-function isOrientation(input: string): input is Orientation {
-  return Object.values(Orientation).includes(input as Orientation);
-}
-
-// Type guards only work on functions, otherwise TS won't infer the type
-function isShipName(input: string): input is ShipName {
-  return Object.values(ShipName).includes(input as ShipName);
-}
 </script>
 
 <style scoped>

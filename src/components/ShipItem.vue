@@ -1,9 +1,9 @@
 <template>
   <div :id="name" class="ship-item">
     <h2 class="text">
-      {{ title }}
+      {{ name }}
     </h2>
-    <div class="svg-container" :draggable="count > 0" @dragstart="dragStart">
+    <div class="svg-container" draggable="true" @dragstart="dragStart">
 
       <!-- This is where the SVG is inserted from the parent component -->
       <slot></slot>
@@ -13,16 +13,13 @@
       <div class="controls">
         <!-- Size of the ship -->
         <span class="text">
-          Size: {{ SHIP_DIMENSIONS[props.name].length }} x {{ SHIP_DIMENSIONS[props.name].width }}
+          Size: {{ SHIPS[props.name].length }} x {{ SHIPS[props.name].width }}
         </span>
         <button :class="['toggle-button', orientation]" @click="toggleOrientation">
-
-          <!-- Title cases the orientation -->
-          {{ orientation.charAt(0).toUpperCase() + orientation.slice(1).toLowerCase() }}
-
+          {{ orientation }}
         </button>
         <span class="text">
-          Count: x{{ count }}
+          Count: x{{ guiCount }}
         </span>
       </div>
     </div>
@@ -30,32 +27,29 @@
 </template>
 
 <script lang="ts" setup>
-import store from '@/store';
-import { Orientation, ShipName, Mutation } from '@/types/enums.js';
-import { SHIP_DIMENSIONS } from '@/utils/constants.js';
 import { ref } from 'vue';
+import ShipName from '@/types/ShipName';
+import Orientation from '@/types/Orientation';
+import SHIPS from '@/constants/Ships';
+import Ship from '@/types/Ship';
+import { useStore } from '@/store';
 
 
 interface ShipItemProps {
   name: ShipName,
-  title: string,
-  count: number
+  guiCount: number,
 }
 
 const props = defineProps<ShipItemProps>();
+const store = useStore();
 
 const orientation = ref<Orientation>(Orientation.HORIZONTAL);
 
 function dragStart(e: DragEvent) {
   if (!(e.target instanceof HTMLElement)) return;
 
-  // Set the data transfer
-  e.dataTransfer?.setData('shipName', props.name);
-  e.dataTransfer?.setData('orientation', orientation.value);
-
-  // Becuase drag enter and drag leave don't have access to the data transfer, we need to change the global state
-  store.commit(Mutation.SET_SHIP_NAME_PREVIEW, props.name);
-  store.commit(Mutation.SET_SHIP_ORIENTATION_PREVIEW, orientation.value);
+  const ship = new Ship(props.name, orientation.value);
+  store.setCurrentlyDraggedShip(ship);
 }
 
 function toggleOrientation() {

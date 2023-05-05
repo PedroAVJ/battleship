@@ -14,7 +14,6 @@ import { useRouter } from 'vue-router';
 import MAPS from '@/constants/Maps';
 import MapName from '@/types/MapName';
 import Tile from '@/types/Tile';
-import Mutation from '@/types/Mutation';
 import SHIPS from '@/constants/Ships';
 
 
@@ -30,19 +29,14 @@ const store = useStore();
 const board = JSON.parse(JSON.stringify(MAPS[props.mapName].map)) as Tile[][];
 
 function setMap() {
-  store.commit(Mutation.SET_GUI_SUBMARINE_COUNT, SHIPS['Submarine'].count);
-  store.commit(Mutation.SET_GUI_SUPPLY_BOAT_COUNT, SHIPS['Supply Boat'].count);
-  store.commit(Mutation.SET_GUI_DESTROYER_COUNT, SHIPS['Destroyer'].count);
-  store.commit(Mutation.SET_GUI_BATTLESHIP_COUNT, SHIPS['Battleship'].count);
-  store.commit(Mutation.SET_GUI_FRIGATE_COUNT, SHIPS['Frigate'].count);
-  store.commit(Mutation.SET_GUI_AIRCRAFT_CARRIER_COUNT, SHIPS['Aircraft Carrier'].count);
+  store.initializeGuiCounts();
 
   // Deep copy the map, as MAPS uses the same object reference for each tile
   const computerBoard = JSON.parse(JSON.stringify(board)) as Tile[][]
   const playerBoard = JSON.parse(JSON.stringify(board)) as Tile[][]
 
-  store.commit(Mutation.SET_PLAYER_BOARD, playerBoard);
-  store.commit(Mutation.SET_COMPUTER_BOARD, computerBoard);
+  store.setPlayerBoard(playerBoard);
+  store.setComputerBoard(computerBoard);
 
   router.push({ name: 'PlaceShips' });
 }

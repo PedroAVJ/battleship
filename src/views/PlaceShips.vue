@@ -4,35 +4,35 @@
       Battleship Game
     </h1>
     <div class="boards">
-      <Board :board="store.state.player.board" user="player" />
+      <Board :board="store.player.board" user="player" />
     </div>
     <div class="gui">
       <!-- Display if all ships have been placed -->
-      <div v-if="Object.values(store.state.gui).reduce((sum, value) => sum + value, 0) === 0">
-        <StartGame />
-      </div>
+      <button @click="startGame" class="primary-button" v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) === 0">
+    Start Game
+  </button>
 
       <!-- Display if there are still ships to place -->
-      <h2 class="text" v-if="Object.values(store.state.gui).reduce((sum, value) => sum + value, 0) !== 0">
+      <h2 class="text" v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) !== 0">
         Drag and drop ships to place them on the board
       </h2>
-      <div class="ship-container" v-if="Object.values(store.state.gui).reduce((sum, value) => sum + value, 0) !== 0">
-        <ShipItem :name="ShipName.AIRCRAFT_CARRIER" title="Aircraft Carrier" :count="store.state.gui.aircraftCarrierCount" v-if="store.state.gui.aircraftCarrierCount > 0">
+      <div class="ship-container" v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) !== 0">
+        <ShipItem :name="ShipName.AIRCRAFT_CARRIER" title="Aircraft Carrier" :gui-count="store.gui.aircraftCarrierCount" v-if="store.gui.aircraftCarrierCount > 0">
           <AircraftCarrier class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.SUBMARINE" title="Submarine" :count="store.state.gui.submarineCount" v-if="store.state.gui.submarineCount > 0">
+        <ShipItem :name="ShipName.SUBMARINE" title="Submarine" :gui-count="store.gui.submarineCount" v-if="store.gui.submarineCount > 0">
           <Submarine class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.DESTROYER" title="Destroyer" :count="store.state.gui.destroyerCount" v-if="store.state.gui.destroyerCount > 0">
+        <ShipItem :name="ShipName.DESTROYER" title="Destroyer" :gui-count="store.gui.destroyerCount" v-if="store.gui.destroyerCount > 0">
           <Destroyer class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.BATTLESHIP" title="Battleship" :count="store.state.gui.battleshipCount" v-if="store.state.gui.battleshipCount > 0">
+        <ShipItem :name="ShipName.BATTLESHIP" title="Battleship" :gui-count="store.gui.battleshipCount" v-if="store.gui.battleshipCount > 0">
           <Battleship class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.FRIGATE" title="Frigate" :count="store.state.gui.frigateCount" v-if="store.state.gui.frigateCount > 0">
+        <ShipItem :name="ShipName.FRIGATE" title="Frigate" :gui-count="store.gui.frigateCount" v-if="store.gui.frigateCount > 0">
           <Frigate class="svg" />
         </ShipItem>
-        <ShipItem :name="ShipName.SUPPLY_BOAT" title="Supply Boat" :count="store.state.gui.supplyBoatCount" v-if="store.state.gui.supplyBoatCount > 0">
+        <ShipItem :name="ShipName.SUPPLY_BOAT" title="Supply Boat" :gui-count="store.gui.supplyBoatCount" v-if="store.gui.supplyBoatCount > 0">
           <SupplyBoat class="svg" />
         </ShipItem>
       </div>
@@ -42,11 +42,11 @@
 </template>
 
 <script lang="ts" setup>
-import StartGame from '@/components/StartGame.vue';
 import Board from '@/components/Board.vue';
 import ShipItem from '@/components/ShipItem.vue'
-import { useStore } from '@/store'
 import ShipName from '@/types/ShipName';
+import { useStore } from '@/store';
+import { useRouter } from 'vue-router';
 
 // SVG's
 import Submarine from '@/components/SVGs/Ships/Submarine.vue'
@@ -58,6 +58,13 @@ import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
 
 
 const store = useStore()
+const router = useRouter()
+
+function startGame() {
+  store.startGame()
+  store.computer.randomlyPlaceShips()
+  router.push({ name: 'Game' })
+}
 </script>
 
 <style scoped>

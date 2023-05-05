@@ -6,7 +6,7 @@ import SHIPS from "@/constants/Ships";
  * @method `getShipHitboxes` - Returns the hitboxes of a ship given its top left corner coordinates. This is to keep it consistent with the way ships are placed on the board.
  */
 export default class Ship {
-    readonly name: string;
+    readonly name: keyof typeof SHIPS;
     readonly length: number;
     readonly width: number;
     readonly count: number;

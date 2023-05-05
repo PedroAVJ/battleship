@@ -2,6 +2,8 @@ import { defineStore } from 'pinia';
 import RootState from '@/types/RootState';
 import Ship from '@/types/Ship';
 import Tile from '@/types/Tile';
+import SHIPS from '@/constants/Ships';
+import ShipName from '@/types/ShipName';
 
 
 export const useStore = defineStore({
@@ -92,6 +94,9 @@ export const useStore = defineStore({
         setComputerAircraftCarrierHealth(health: number) {
             this.computer.aircraftCarrier.health = health;
         },
+        setComputerAircraftCarrierShots(shots: number) {
+            this.computer.aircraftCarrier.shots = shots;
+        },
         setComputerIsMoveInProgress(isMoveInProgress: boolean) {
             this.computer.isMoveInProgress = isMoveInProgress;
         },
@@ -102,11 +107,58 @@ export const useStore = defineStore({
             this.computer.board = board;
         },
 
-        // Ship Preview
-        setShipPreview(ship: Ship) {
-            this.shipPreview = ship;
+        // Currently dragged ship
+        setCurrentlyDraggedShip(ship: Ship) {
+            this.currentlyDraggedShip = ship;
         },
 
+        // Reset
+        resetState() {
+            this.$state = new RootState();
+        },
+
+        // Initialize GUI counts
+        initializeGuiCounts() {
+            this.gui.submarineCount = SHIPS[ShipName.SUBMARINE].count;
+            this.gui.supplyBoatCount = SHIPS[ShipName.SUPPLY_BOAT].count;
+            this.gui.destroyerCount = SHIPS[ShipName.DESTROYER].count;
+            this.gui.battleshipCount = SHIPS[ShipName.BATTLESHIP].count;
+            this.gui.frigateCount = SHIPS[ShipName.FRIGATE].count;
+            this.gui.aircraftCarrierCount = SHIPS[ShipName.AIRCRAFT_CARRIER].count;
+        },
+
+        // Start game
+        startGame() {
+
+            // Player abilities
+            this.setPlayerSubmarineIsUsingAbility(false);
+            this.setPlayerSubmarineHasUsedAbility(false);
+            this.setPlayerBattleshipIsUsingAbility(false);
+            this.setPlayerBattleshipHasUsedAbility(false);
+            this.setPlayerBattleshipHealth(4);
+            this.setPlayerAircraftCarrierIsUsingAbility(false);
+            this.setPlayerAircraftCarrierHasUsedAbility(false);
+            this.setPlayerAircraftCarrierHealth(10);
+            this.setPlayerAircraftCarrierShots(3);
+
+            // Computer abilities
+            this.setComputerSubmarineIsUsingAbility(false);
+            this.setComputerSubmarineHasUsedAbility(false);
+            this.setComputerBattleshipIsUsingAbility(false);
+            this.setComputerBattleshipHasUsedAbility(false);
+            this.setComputerBattleshipHealth(4);
+            this.setComputerAircraftCarrierIsUsingAbility(false);
+            this.setComputerAircraftCarrierHasUsedAbility(false);
+            this.setComputerAircraftCarrierHealth(10);
+            this.setComputerAircraftCarrierShots(3);
+
+            this.setPlayerIsMoveInProgress(false);
+            this.setComputerIsMoveInProgress(false);
+
+            // The player makes the first move
+            this.setPlayerHasCurrentTurn(true);
+            this.setComputerHasCurrentTurn(false);
+        }
     },
     persist: true,
 });

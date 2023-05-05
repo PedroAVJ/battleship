@@ -1,10 +1,11 @@
 # TODO
 
-- [ ] Install Pinia
-- [ ] Check if vuex-persistedstate can detect changes in the state without committing a mutation
 - [ ] Purge unused styles, style attributes, and html attributes
 - [ ] Rename styles to be more consistent
 - [ ] Format the whole codebase
+- [ ] Optimize the store to only use the mutations that are needed
+- [ ] Update the state on methods on the classes that need it
+- [ ] Think of how to incorporate the subrtracting health when using non submarine attacks
 
 
 

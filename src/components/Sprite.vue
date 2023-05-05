@@ -12,7 +12,7 @@
   />
 
   <!-- Only show ship if it's the player board and the tile hasn't been shot at yet -->
-  <div v-if="tile.ship !== undefined && isPlayerSquare">
+  <div v-if="tile.ship !== undefined && isPlayerSquare && !tile.contains.regularSprite">
     <Submarine
       v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
       :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
@@ -40,38 +40,39 @@
   </div>
 
   <!-- This display a ship preview when the player is placing a ship -->
-  <div v-if="tile.ship_preview !== undefined && isPlayerSquare">
+  <div v-if="tile.ship !== undefined && isPlayerSquare && tile.contains.previewSprite">
     <Submarine
-      v-if="tile.ship_preview.name === ShipName.SUBMARINE && tile.ship_preview.orientation"
-      :class="['submarine', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview', 'svg-container']"
+      v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
+      :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview', 'svg-container']"
     />
     <SupplyBoat
-      v-if="tile.ship_preview.name === ShipName.SUPPLY_BOAT && tile.ship_preview.orientation"
-      :class="['supply-boat', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+      v-if="tile.ship.name === ShipName.SUPPLY_BOAT && tile.ship.orientation"
+      :class="['supply-boat', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
     />
     <Destroyer
-      v-if="tile.ship_preview.name === ShipName.DESTROYER && tile.ship_preview.orientation"
-      :class="['destroyer', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+      v-if="tile.ship.name === ShipName.DESTROYER && tile.ship.orientation"
+      :class="['destroyer', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
     />
     <Battleship
-      v-if="tile.ship_preview.name === ShipName.BATTLESHIP && tile.ship_preview.orientation"
-      :class="['battleship', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+      v-if="tile.ship.name === ShipName.BATTLESHIP && tile.ship.orientation"
+      :class="['battleship', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
     />
     <Frigate
-      v-if="tile.ship_preview.name === ShipName.FRIGATE && tile.ship_preview.orientation"
-      :class="['frigate', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+      v-if="tile.ship.name === ShipName.FRIGATE && tile.ship.orientation"
+      :class="['frigate', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
     />
     <AircraftCarrier
-      v-if="tile.ship_preview.name === ShipName.AIRCRAFT_CARRIER && tile.ship_preview.orientation"
-      :class="['aircraft-carrier', tile.ship_preview.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
+      v-if="tile.ship.name === ShipName.AIRCRAFT_CARRIER && tile.ship.orientation"
+      :class="['aircraft-carrier', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
     />
   </div>
 
 </template>
 
 <script setup lang="ts">
-import { ShipName, Orientation } from '@/types/enums.js'
-import { Tile } from '@/types/interfaces.js'
+import ShipName from '@/types/ShipName'
+import Orientation from '@/types/Orientation'
+import Tile from '@/types/Tile'
 
 // SVG's
 import Miss from '@/components/SVGs/Miss.vue'
