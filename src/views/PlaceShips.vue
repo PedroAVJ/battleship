@@ -1,46 +1,41 @@
 <template>
-  <div class="containerrr">
+  <div class="view-wrapper">
     <h1 class="text">
       Battleship Game
     </h1>
-    <div class="boards">
-      <PlayerBoard :tiles="store.player.board.tiles" user="player" />
-    </div>
-    <div class="gui">
+    <PlayerBoard :tiles="store.player.board.tiles"  />
 
-      <!-- Display if all ships have been placed -->
-      <button @click="startGame" class="primary-button"
-        v-if="store.player.allShipsPlaced()">
-        Start Game
-      </button>
+    <!-- Display if all ships have been placed -->
+    <button @click="startGame" class="primary-button mt-5"
+      v-if="store.player.allShipsPlaced()">
+      Start Game
+    </button>
 
-      <!-- Display if there are still ships to place -->
-      <div v-else>
-        <h2 class="text">
-          Drag and drop ships to place them on the board
-        </h2>
-        <div class="ship-container">
-          <ShipItem :ship-name="ShipName.AIRCRAFT_CARRIER">
-            <AircraftCarrier class="svg" />
-          </ShipItem>
-          <ShipItem :ship-name="ShipName.SUBMARINE">
-            <Submarine class="svg" />
-          </ShipItem>
-          <ShipItem :ship-name="ShipName.DESTROYER">
-            <Destroyer class="svg" />
-          </ShipItem>
-          <ShipItem :ship-name="ShipName.BATTLESHIP">
-            <Battleship class="svg" />
-          </ShipItem>
-          <ShipItem :ship-name="ShipName.FRIGATE">
-            <Frigate class="svg" />
-          </ShipItem>
-          <ShipItem :ship-name="ShipName.SUPPLY_BOAT">
-            <SupplyBoat class="svg" />
-          </ShipItem>
-        </div>
+    <!-- Display if there are still ships to place -->
+    <div v-else class="gui">
+      <h2 class="text mt-5">
+        Drag and drop ships to place them on the board
+      </h2>
+      <div class="ship-container">
+        <ShipItem :ship-name="ShipName.AIRCRAFT_CARRIER">
+          <AircraftCarrier />
+        </ShipItem>
+        <ShipItem :ship-name="ShipName.SUBMARINE">
+          <Submarine />
+        </ShipItem>
+        <ShipItem :ship-name="ShipName.DESTROYER">
+          <Destroyer />
+        </ShipItem>
+        <ShipItem :ship-name="ShipName.BATTLESHIP">
+          <Battleship />
+        </ShipItem>
+        <ShipItem :ship-name="ShipName.FRIGATE">
+          <Frigate />
+        </ShipItem>
+        <ShipItem :ship-name="ShipName.SUPPLY_BOAT">
+          <SupplyBoat />
+        </ShipItem>
       </div>
-
     </div>
   </div>
 </template>
@@ -73,8 +68,8 @@ function startGame() {
   store.$reset()
 
   // Restore the board state
-  store.player.board.tiles = player_board_tiles
-  store.computer.board.tiles = computer_board_tiles
+  store.setPlayerBoardTiles(player_board_tiles)
+  store.setComputerBoardTiles(computer_board_tiles)
 
   store.computer.board.randomlyPlaceShips()
   router.push({ name: 'Game' })
@@ -82,105 +77,25 @@ function startGame() {
 </script>
 
 <style scoped>
-.containerrr {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-family: 'Arial', sans-serif;
-  margin: 20px;
-}
-
-h1 {
-  font-size: 2rem;
-  margin-bottom: 20px;
-}
-
-.boards {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 30px;
-}
-
-.board-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 10px;
-  background-color: #3c6e8f;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 15px;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-h2 {
-  font-size: 1.5rem;
-  margin-bottom: 10px;
-}
-
 .gui {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
+  text-align: center;
+  width: 500px;
 }
-
-.board {
+.view-wrapper {
   display: flex;
   flex-direction: column;
-  width: 500px;
-  height: 500px;
-}
-
-.board-row {
-  display: flex;
-  flex: 1;
-}
-
-.board-cell {
-  flex: 1;
-  position: relative;
-  box-sizing: border-box;
+  align-items: center;
+  margin: 20px;
 }
 
 .ship-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-row-gap: 10px;
+  grid-column-gap: 10px;
   justify-items: center;
-}
-
-.svg {
-  width: 100px;
-  height: 100px;
-  margin-bottom: 10px;
-}
-
-.text {
-  color: #e0e0e0;
-  display: inline-block;
-  padding: 5px 10px;
-  border-radius: 5px;
-}
-
-.start-game {
-  background-color: #ff9800;
-  border-radius: 4px;
-  color: #e0e0e0;
-  display: inline-block;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  text-align: center;
-  text-decoration: none;
-  transition: background-color 0.3s;
-  font-size: large;
-}
-
-.start-game:hover {
-  background-color: #f57c00;
 }
 </style>

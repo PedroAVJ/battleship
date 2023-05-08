@@ -78,8 +78,12 @@ function drop(e: DragEvent, row: number, col: number) {
   const board = store.player.board;
   if (board.isInvalidShipPlacement(shipName, shipOrientation, row, col)) return;
 
-  store.player.board.placeShip(shipName, shipOrientation, row, col);
+  board.placeShip(shipName, shipOrientation, row, col);
   store.setPlayerShipGUICount(shipName, store.player[shipName].guiCount - 1);
+
+  // Remove the darken class
+  e.target.classList.remove('darken');
+
 };
 </script>
 

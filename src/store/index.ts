@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import RootState from '@/types/RootState';
 import Orientation from '@/types/Orientation';
-import SHIPS from '@/constants/Ships';
+import SHIPS from '@/utils/Ships';
 import ShipName from '@/types/ShipName';
 import Tile from '@/types/Tile';
 import User from '@/types/User';
@@ -9,10 +9,7 @@ import Board from '@/types/Board';
 
 
 export const useStore = defineStore({
-
-    // This saves the store in the localStorage automatically
     persist: true,
-
     id: 'rootStore',
     state: (): RootState => ({
         player: new User(),
@@ -49,7 +46,7 @@ export const useStore = defineStore({
         setPlayerHasCurrentTurn(hasCurrentTurn: boolean) {
             this.player.hasCurrentTurn = hasCurrentTurn;
         },
-        setPlayerBoardTiles(tiles: Tile[][]) {
+        setPlayerBoardTiles(tiles: ReadonlyArray<ReadonlyArray<Readonly<Tile>>>) {
             let board = []
             for (let row of tiles) {
                 let boardRow = []
@@ -84,7 +81,7 @@ export const useStore = defineStore({
         setComputerHasCurrentTurn(hasCurrentTurn: boolean) {
             this.computer.hasCurrentTurn = hasCurrentTurn;
         },
-        setComputerBoardTiles(tiles: Tile[][]) {
+        setComputerBoardTiles(tiles: ReadonlyArray<ReadonlyArray<Readonly<Tile>>>) {
             let board = []
             for (let row of tiles) {
                 let boardRow = []

@@ -9,12 +9,12 @@
   />
 
   <div v-if="tile.shipSprite">
-    <Submarine v-if="tile.shipHitbox === ShipName.SUBMARINE" :class="submarineClass" />
-    <SupplyBoat v-if="tile.shipHitbox === ShipName.SUPPLY_BOAT" :class="supplyBoatClass" />
-    <Destroyer v-if="tile.shipHitbox === ShipName.DESTROYER" :class="destroyerClass" />
-    <Battleship v-if="tile.shipHitbox === ShipName.BATTLESHIP" :class="battleshipClass" />
-    <Frigate v-if="tile.shipHitbox === ShipName.FRIGATE" :class="frigateClass" />
-    <AircraftCarrier v-if="tile.shipHitbox === ShipName.AIRCRAFT_CARRIER" :class="aircraftCarrierClass" />
+    <Submarine v-if="tile.shipSprite.name === ShipName.SUBMARINE" :class="submarineClass" />
+    <SupplyBoat v-if="tile.shipSprite.name === ShipName.SUPPLY_BOAT" :class="supplyBoatClass" />
+    <Destroyer v-if="tile.shipSprite.name === ShipName.DESTROYER" :class="destroyerClass" />
+    <Battleship v-if="tile.shipSprite.name === ShipName.BATTLESHIP" :class="battleshipClass" />
+    <Frigate v-if="tile.shipSprite.name === ShipName.FRIGATE" :class="frigateClass" />
+    <AircraftCarrier v-if="tile.shipSprite.name === ShipName.AIRCRAFT_CARRIER" :class="aircraftCarrierClass" />
   </div>
 </template>
 

@@ -1,8 +1,7 @@
 <template>
 
   <!-- Modal displayed if player or computer wins -->
-  <div ref="modal" class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div ref="modal" class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -12,13 +11,13 @@
           <h1 class="modal-title fs-5" id="staticBackdropLabel" v-else-if="store.computer.board.isGameOver()">
             Congratulations!
           </h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <h2 v-if="store.player.board.isGameOver()">
+          <h2 v-if="store.player.board.isGameOver()" class="secondary-text">
             You Lose!
           </h2>
-          <h2 v-else-if="store.computer.board.isGameOver()">
+          <h2 v-else-if="store.computer.board.isGameOver()" class="secondary-text">
             You Win!
           </h2>
         </div>
@@ -31,10 +30,10 @@
   </div>
 
   <!-- Actual View -->
-  <div class="containerrr">
+  <div class="view-wrapper">
 
     <!-- Title -->
-    <h1 class="text">
+    <h1 class="primary-text">
       Battleship Game
     </h1>
 
@@ -43,11 +42,11 @@
       <h2 class="computer-text">
         Enemy Board
       </h2>
-      <EnemyBoard :tiles="store.computer.board.tiles" user="computer" />
+      <EnemyBoard :tiles="store.computer.board.tiles" />
       <h2 class="player-text">
         Player Board
       </h2>
-      <PlayerBoard :tiles="store.player.board.tiles" user="player" />
+      <PlayerBoard :tiles="store.player.board.tiles" />
     </div>
 
     <!-- GUI -->
@@ -121,17 +120,16 @@ watch(() => store.computer.board.isGameOver(), (hasLost) => {
 });
 
 function startNewGame() {
-  store.setDefaultState();
+  store.$reset();
   router.push({ name: 'Index' });
 }
 </script>
 
 <style scoped>
-.containerrr {
+.view-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-family: 'Arial', sans-serif;
   margin: 20px;
 }
 

@@ -58,8 +58,7 @@
 import MapName from '@/types/MapName';
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
-import MAPS from '@/constants/Maps';
-import Tile from '@/types/Tile';
+import MAPS from '@/utils/Maps';
 import MapBoard from '@/components/MapBoard.vue';
 
 const router = useRouter();
@@ -68,16 +67,12 @@ const store = useStore();
 function setMap(mapName: MapName) {
   const tiles = MAPS[mapName];
 
-  // Deep copy the map, as MAPS uses the same object reference for each tile
-  const computerBoardTiles = JSON.parse(JSON.stringify(tiles)) as Tile[][]
-  const playerBoardTiles = JSON.parse(JSON.stringify(tiles)) as Tile[][]
-
   // First reset the store
   store.$reset();
 
   // Then set the tiles
-  store.setPlayerBoardTiles(playerBoardTiles);
-  store.setComputerBoardTiles(computerBoardTiles);
+  store.setPlayerBoardTiles(tiles);
+  store.setComputerBoardTiles(tiles);
 
   router.push({ name: 'PlaceShips' });
 }

@@ -1,5 +1,5 @@
 <template>
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" height="800px" width="800px" version="1.1" id="Layer_1" viewBox="0 0 512.003 512.003" xml:space="preserve">
+    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000" height="100px" width="100px" version="1.1" id="Layer_1" viewBox="0 0 512.003 512.003" xml:space="preserve">
 <g>
 	<g>
 		<path d="M503.469,273.068H69.157c-0.589,0-1.169-0.119-1.707-0.358L9.748,247.553c-3.081-0.444-6.11,0.811-7.987,3.26    c-1.877,2.449-2.287,5.717-1.067,8.55l25.6,59.733c1.348,3.14,4.429,5.171,7.842,5.171h469.333c4.71,0,8.533-3.823,8.533-8.533    v-34.133C512.003,276.891,508.18,273.068,503.469,273.068z"/>
@@ -13,3 +13,9 @@
 </svg>
 
 </template>
+
+<style scoped>
+svg {
+    pointer-events: none;
+}
+</style>

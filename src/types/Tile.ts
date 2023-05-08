@@ -2,7 +2,7 @@ import ShipName from "./ShipName";
 import Orientation from "./Orientation";
 
 
-export default class Tile {
+export default interface Tile {
 
     background: {
         isWater: boolean;
@@ -24,25 +24,4 @@ export default class Tile {
 
     shipHitbox?: ShipName;
 
-    constructor(background: {
-        isWater: boolean;
-        isLand: boolean;
-        isOutOfBounds: boolean;
-    }, contains: {
-        missedShot: boolean;
-        successfulShot: boolean;
-        uncoveredShip: boolean;
-    }) {
-        this.background = background;
-        this.contains = contains;
-    }
-
-    isInvalidSquare(): boolean {
-        const isInvalidSquare =
-            this.background.isLand
-            || this.background.isOutOfBounds
-            || this.contains.missedShot
-            || this.contains.successfulShot;
-        return isInvalidSquare;
-    }
 }

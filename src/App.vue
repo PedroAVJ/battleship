@@ -37,6 +37,12 @@
   color: #e0e0e0;
 }
 
+.secondary-text {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  color: #e0e0e0;
+}
+
 .secondary-background {
   background-color: #3c6e8f;
   display: flex;

@@ -1,6 +1,6 @@
 # TODO
 
-- [ ] Refactor codebase
+- [ ] Go back to intefaces and a utils file
 
 
 
