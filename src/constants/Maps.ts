@@ -1,17 +1,28 @@
 import Tile from "@/types/Tile";
 import MapName from "@/types/MapName";
 
-
+const tileSchema = {
+    background: {
+        isWater: false,
+        isLand: false,
+        isOutOfBounds: false,
+    },
+    contains: {
+        missedShot: false,
+        successfulShot: false,
+        uncoveredShip: false,
+    },
+};
 // Water Tile (_): see const MAPS for context
-const _ = new Tile();
+const _ = new Tile(tileSchema.background, tileSchema.contains);
 _.background.isWater = true;
 
 // Land Tile (M): see const MAPS for context
-const M = new Tile();
+const M = new Tile(tileSchema.background, tileSchema.contains);
 M.background.isLand = true;
 
 // Out of bounds Tile (X): see const MAPS for context
-const X = new Tile();
+const X = new Tile(tileSchema.background, tileSchema.contains);
 X.background.isOutOfBounds = true;
 
 /**

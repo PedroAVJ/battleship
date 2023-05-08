@@ -1,6 +1,34 @@
 <template>
+
   <!-- Modal displayed if player or computer wins -->
-  <MatchResultModal />
+  <div ref="modal" class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel" v-if="store.player.board.isGameOver()">
+            Game Over!
+          </h1>
+          <h1 class="modal-title fs-5" id="staticBackdropLabel" v-else-if="store.computer.board.isGameOver()">
+            Congratulations!
+          </h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h2 v-if="store.player.board.isGameOver()">
+            You Lose!
+          </h2>
+          <h2 v-else-if="store.computer.board.isGameOver()">
+            You Win!
+          </h2>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" @click="startNewGame()">Start New Game</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Actual View -->
   <div class="containerrr">
@@ -15,16 +43,16 @@
       <h2 class="computer-text">
         Enemy Board
       </h2>
-      <Board :tiles="store.computer.board.tiles" user="computer" />
+      <EnemyBoard :tiles="store.computer.board.tiles" user="computer" />
       <h2 class="player-text">
         Player Board
       </h2>
-      <Board :tiles="store.player.board.tiles" user="player" />
+      <PlayerBoard :tiles="store.player.board.tiles" user="player" />
     </div>
 
     <!-- GUI -->
     <div class="gui">
-      <button class="btn btn-primary" @click="newGame" v-if="store.player.hasLost() || store.computer.hasLost()">
+      <button class="btn btn-primary" @click="startNewGame" v-if="store.player.board.isGameOver() || store.computer.board.isGameOver()">
         Start New Game
       </button>
       <div v-else>
@@ -51,27 +79,51 @@
 
 <script lang="ts" setup>
 import AbilityButtons from '@/components/AbilityButtons.vue';
-import Board from '@/components/Board.vue';
-import MatchResultModal from '@/components/MatchResultModal.vue';
+import ShipName from '@/types/ShipName';
 import { useStore } from '@/store'
 import { useRouter } from 'vue-router';
 import { computed } from 'vue';
+import { ref, Ref, watch } from 'vue';
+import { Modal } from 'bootstrap';
+import PlayerBoard from '@/components/PlayerBoard.vue';
+import EnemyBoard from '@/components/EnemyBoard.vue';
 
 
 const store = useStore()
 const router = useRouter()
-
-function newGame() {
-  store.resetState();
-  router.push({ name: 'Index' });
-}
+const modal: Ref<HTMLElement | null> = ref(null);
 
 const selectedAbility = computed(() => {
-  if (store.player.aircraftCarrier.isUsingAbility || store.computer.aircraftCarrier.isUsingAbility) return 'Aircraft Carrier Attack';
-  if (store.player.battleship.isUsingAbility || store.computer.battleship.isUsingAbility) return 'Battleship Attack';
-  if (store.player.submarine.isUsingAbility || store.computer.submarine.isUsingAbility) return 'Submarine Attack';
+  if (store.player[ShipName.AIRCRAFT_CARRIER].isUsingAbility || store.computer[ShipName.AIRCRAFT_CARRIER].isUsingAbility) return 'Aircraft Carrier Attack';
+  if (store.player[ShipName.SUBMARINE].isUsingAbility || store.computer[ShipName.SUBMARINE].isUsingAbility) return 'Submarine Attack';
+  if (store.player[ShipName.BATTLESHIP].isUsingAbility || store.computer[ShipName.BATTLESHIP].isUsingAbility) return 'Battleship Attack';
   return 'Normal Attack';
 });
+
+// This will show the modal if the computer has won
+watch(() => store.player.board.isGameOver(), (hasLost) => {
+  if (hasLost) {
+    if (modal.value) {
+      const modalInstance = new Modal(modal.value);
+      modalInstance.show();
+    }
+  }
+});
+
+// This will show the modal if the player has won
+watch(() => store.computer.board.isGameOver(), (hasLost) => {
+  if (hasLost) {
+    if (modal.value) {
+      const modalInstance = new Modal(modal.value);
+      modalInstance.show();
+    }
+  }
+});
+
+function startNewGame() {
+  store.setDefaultState();
+  router.push({ name: 'Index' });
+}
 </script>
 
 <style scoped>

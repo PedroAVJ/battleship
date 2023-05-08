@@ -3,12 +3,6 @@ import ShipName from './ShipName';
 import SHIPS from '@/constants/Ships';
 
 
-/**
- * @property `aircraftCarrier` - The shots property keeps track of how many shots the aircraft carrier has left to fire, as when it uses its ability it can fire multiple shots.
- * @property `isMoveInProgress` - Keeps track of whether the user is currently making a move, this flag gets set to true when the user clicks on a square.
- * @method `makeRandomValidMove` - If the game is over or there are no valid moves, an error is thrown.
- * @method `placeShip` - If the ship placement is invalid, an error is thrown.
- */
 export default class User {
 
     [ShipName.SUBMARINE]: {
@@ -44,7 +38,7 @@ export default class User {
         shots: number;
     }
 
-    isMoveInProgress: boolean;
+    isMakingMove: boolean;
     hasCurrentTurn: boolean;
 
     board: Board;
@@ -65,7 +59,7 @@ export default class User {
             guiCount: SHIPS[ShipName.BATTLESHIP].count,
             isUsingAbility: false,
             hasUsedAbility: false,
-            health: 4,
+            health: SHIPS[ShipName.BATTLESHIP].health,
         };
         this[ShipName.FRIGATE] = {
             guiCount: SHIPS[ShipName.FRIGATE].count,
@@ -74,16 +68,16 @@ export default class User {
             guiCount: SHIPS[ShipName.AIRCRAFT_CARRIER].count,
             isUsingAbility: false,
             hasUsedAbility: false,
-            health: 10,
-            shots: 3,
+            health: SHIPS[ShipName.AIRCRAFT_CARRIER].health,
+            shots: SHIPS[ShipName.AIRCRAFT_CARRIER].shots,
         };
-        this.isMoveInProgress = false;
+        this.isMakingMove = false;
         this.hasCurrentTurn = false;
-        this.board = new Board();
+        this.board = new Board([[]]);
     }
 
-    hasLost(): boolean {
-        return this.board.isGameOver();
+    allShipsPlaced(): boolean {
+        return Object.values(this).every((ship: any) => ship.guiCount === 0);
     }
 
 }

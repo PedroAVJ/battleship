@@ -1,7 +1,7 @@
 <template>
-  <div :id="name" class="ship-item">
+  <div :id="shipName" class="ship-item" v-if="store.player[shipName].guiCount > 0">
     <h2 class="text">
-      {{ name }}
+      {{ shipName }}
     </h2>
     <div class="svg-container" draggable="true" @dragstart="dragStart">
 
@@ -13,13 +13,13 @@
       <div class="controls">
         <!-- Size of the ship -->
         <span class="text">
-          Size: {{ SHIPS[props.name].length }} x {{ SHIPS[props.name].width }}
+          Size: {{ SHIPS[props.shipName].length }} x {{ SHIPS[props.shipName].width }}
         </span>
         <button :class="['toggle-button', orientation]" @click="toggleOrientation">
           {{ orientation }}
         </button>
         <span class="text">
-          Count: x{{ guiCount }}
+          Count: x{{ store.player[shipName].guiCount }}
         </span>
       </div>
     </div>
@@ -31,13 +31,11 @@ import { ref } from 'vue';
 import ShipName from '@/types/ShipName';
 import Orientation from '@/types/Orientation';
 import SHIPS from '@/constants/Ships';
-import Ship from '@/types/Ship';
 import { useStore } from '@/store';
 
 
 const props = defineProps<{
-  name: ShipName,
-  guiCount: number,
+  shipName: ShipName,
 }>();
 const store = useStore();
 
@@ -45,9 +43,7 @@ const orientation = ref<Orientation>(Orientation.HORIZONTAL);
 
 function dragStart(e: DragEvent) {
   if (!(e.target instanceof HTMLElement)) return;
-
-  const ship = new Ship(props.name, orientation.value);
-  store.setCurrentlyDraggedShip(ship);
+  store.setCurrentlyDraggedShip(props.shipName, orientation.value);
 }
 
 function toggleOrientation() {
@@ -117,11 +113,11 @@ h2 {
   border-radius: 5px;
 }
 
-.toggle-button.horizontal {
+.toggle-button.Horizontal {
   background-color: #007bff;
 }
 
-.toggle-button.vertical {
+.toggle-button.Vertical {
   background-color: #ff3b30;
 }
 

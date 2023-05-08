@@ -1,36 +1,53 @@
 <template>
   <div class="map-selection-container">
-    <h2 class="map-selection-title">
+    <h2 class="primary-text">
       Select Map
     </h2>
     <div id="carouselExample" class="carousel slide">
       <div class="carousel-indicators">
-        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active" aria-current="true"
-          aria-label="Slide 1"></button>
-        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1" aria-label="Slide 2"></button>
-        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2" aria-label="Slide 3"></button>
-        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="3" aria-label="Slide 4"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="2"></button>
+        <button type="button" data-bs-target="#carouselExample" data-bs-slide-to="3"></button>
       </div>
-      <div class="boards">
-        <div class="carousel-item active">
-          <CarouselItemContent :mapName="MapName.CLASSIC" />
+      <div class="carousel-item active">
+        <div class="carousel-item-content">
+          <button class="primary-button" @click="setMap(MapName.CLASSIC)">
+            {{ MapName.CLASSIC }}
+          </button>
+          <MapBoard :tiles="MAPS[MapName.CLASSIC]" user="player" />
         </div>
-        <div class="carousel-item">
-          <CarouselItemContent :mapName="MapName.THE_GREAT_DIVIDE" />
+      </div>
+      <div class="carousel-item">
+        <div class="carousel-item-content">
+          <button class="primary-button" @click="setMap(MapName.THE_GREAT_DIVIDE)">
+            {{ MapName.THE_GREAT_DIVIDE }}
+          </button>
+          <MapBoard :tiles="MAPS[MapName.THE_GREAT_DIVIDE]" user="player" />
         </div>
-        <div class="carousel-item">
-          <CarouselItemContent :mapName="MapName.ARCHIPELAGO_ASSAULT" />
+      </div>
+      <div class="carousel-item">
+        <div class="carousel-item-content">
+          <button class="primary-button" @click="setMap(MapName.ARCHIPELAGO_ASSAULT)">
+            {{ MapName.ARCHIPELAGO_ASSAULT }}
+          </button>
+          <MapBoard :tiles="MAPS[MapName.ARCHIPELAGO_ASSAULT]" user="player" />
         </div>
-        <div class="carousel-item">
-          <CarouselItemContent :mapName="MapName.PACMAN" />
+      </div>
+      <div class="carousel-item">
+        <div class="carousel-item-content">
+          <button class="primary-button" @click="setMap(MapName.PACMAN)">
+            {{ MapName.PACMAN }}
+          </button>
+          <MapBoard :tiles="MAPS[MapName.PACMAN]" user="player" />
         </div>
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="carousel-control-prev-icon"></span>
         <span class="visually-hidden">Previous</span>
       </button>
       <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="carousel-control-next-icon"></span>
         <span class="visually-hidden">Next</span>
       </button>
     </div>
@@ -38,28 +55,51 @@
 </template>
 
 <script lang="ts" setup>
-import CarouselItemContent from '@/components/CarouselItemContent.vue';
 import MapName from '@/types/MapName';
+import { useStore } from '@/store';
+import { useRouter } from 'vue-router';
+import MAPS from '@/constants/Maps';
+import Tile from '@/types/Tile';
+import MapBoard from '@/components/MapBoard.vue';
+
+const router = useRouter();
+const store = useStore();
+
+function setMap(mapName: MapName) {
+  const tiles = MAPS[mapName];
+
+  // Deep copy the map, as MAPS uses the same object reference for each tile
+  const computerBoardTiles = JSON.parse(JSON.stringify(tiles)) as Tile[][]
+  const playerBoardTiles = JSON.parse(JSON.stringify(tiles)) as Tile[][]
+
+  // First reset the store
+  store.$reset();
+
+  // Then set the tiles
+  store.setPlayerBoardTiles(playerBoardTiles);
+  store.setComputerBoardTiles(computerBoardTiles);
+
+  router.push({ name: 'PlaceShips' });
+}
 </script>
 
 <style scoped>
-.map-selection-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-}
+  .map-selection-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
 
-.map-selection-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1rem;
-  color: #e0e0e0;
-}
+  .carousel-item {
+    width: 100%;
+  }
 
-.carousel-item {
-  width: 100%;
-  /* Set the width to 100% to fit the container */
-}
+  .carousel-item-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
 </style>

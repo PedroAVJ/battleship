@@ -2,77 +2,27 @@
   <Hit v-if="tile.contains.successfulShot" class="hit" />
   <Miss v-if="tile.contains.missedShot" class="miss" />
 
-  <!-- Only show uncovered ship if it's the enemy board and the tile hasn't been shot at yet -->
+  <!-- Only show uncovered ship if the tile hasn't been shot at yet -->
   <Uncovered 
-    v-if="
-      tile.contains.uncoveredShip
-      && !tile.contains.successfulShot
-      && !isPlayerSquare"
+    v-if="tile.contains.uncoveredShip && !tile.contains.successfulShot"
     class="uncovered"
   />
 
-  <!-- Only show ship if it's the player board and the tile hasn't been shot at yet -->
-  <div v-if="tile.ship !== undefined && isPlayerSquare && !tile.contains.regularSprite">
-    <Submarine
-      v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
-      :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-    />
-    <SupplyBoat
-      v-if="tile.ship.name === ShipName.SUPPLY_BOAT && tile.ship.orientation"
-      :class="['supply-boat', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-    />
-    <Destroyer
-      v-if="tile.ship.name === ShipName.DESTROYER && tile.ship.orientation"
-      :class="['destroyer', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-    />
-    <Battleship
-      v-if="tile.ship.name === ShipName.BATTLESHIP && tile.ship.orientation"
-      :class="['battleship', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-    />
-    <Frigate
-      v-if="tile.ship.name === ShipName.FRIGATE && tile.ship.orientation"
-      :class="['frigate', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-    />
-    <AircraftCarrier
-      v-if="tile.ship.name === ShipName.AIRCRAFT_CARRIER && tile.ship.orientation"
-      :class="['aircraft-carrier', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '']"
-    />
+  <div v-if="tile.shipSprite">
+    <Submarine v-if="tile.shipHitbox === ShipName.SUBMARINE" :class="submarineClass" />
+    <SupplyBoat v-if="tile.shipHitbox === ShipName.SUPPLY_BOAT" :class="supplyBoatClass" />
+    <Destroyer v-if="tile.shipHitbox === ShipName.DESTROYER" :class="destroyerClass" />
+    <Battleship v-if="tile.shipHitbox === ShipName.BATTLESHIP" :class="battleshipClass" />
+    <Frigate v-if="tile.shipHitbox === ShipName.FRIGATE" :class="frigateClass" />
+    <AircraftCarrier v-if="tile.shipHitbox === ShipName.AIRCRAFT_CARRIER" :class="aircraftCarrierClass" />
   </div>
-
-  <!-- This display a ship preview when the player is placing a ship -->
-  <div v-if="tile.ship !== undefined && isPlayerSquare && tile.contains.previewSprite">
-    <Submarine
-      v-if="tile.ship.name === ShipName.SUBMARINE && tile.ship.orientation"
-      :class="['submarine', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview', 'svg-container']"
-    />
-    <SupplyBoat
-      v-if="tile.ship.name === ShipName.SUPPLY_BOAT && tile.ship.orientation"
-      :class="['supply-boat', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
-    />
-    <Destroyer
-      v-if="tile.ship.name === ShipName.DESTROYER && tile.ship.orientation"
-      :class="['destroyer', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
-    />
-    <Battleship
-      v-if="tile.ship.name === ShipName.BATTLESHIP && tile.ship.orientation"
-      :class="['battleship', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
-    />
-    <Frigate
-      v-if="tile.ship.name === ShipName.FRIGATE && tile.ship.orientation"
-      :class="['frigate', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
-    />
-    <AircraftCarrier
-      v-if="tile.ship.name === ShipName.AIRCRAFT_CARRIER && tile.ship.orientation"
-      :class="['aircraft-carrier', tile.ship.orientation === Orientation.VERTICAL ? 'rotated' : '', 'ship-preview']"
-    />
-  </div>
-
 </template>
 
 <script setup lang="ts">
 import ShipName from '@/types/ShipName'
 import Orientation from '@/types/Orientation'
 import Tile from '@/types/Tile'
+import { computed } from 'vue'
 
 // SVG's
 import Miss from '@/components/SVGs/Miss.vue'
@@ -88,8 +38,73 @@ import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
 
 const props = defineProps<{
   tile: Tile;
-  isPlayerSquare: boolean;
 }>();
+
+const submarineClass = computed(() => {
+  const classes = ['submarine'];
+  if (props.tile.shipSprite?.orientation === Orientation.VERTICAL) {
+    classes.push('rotated');
+  }
+  if (props.tile.shipSprite?.isPreview) {
+    classes.push('ship-preview');
+  }
+  return classes;
+});
+
+const supplyBoatClass = computed(() => {
+  const classes = ['supply-boat'];
+  if (props.tile.shipSprite?.orientation === Orientation.VERTICAL) {
+    classes.push('rotated');
+  }
+  if (props.tile.shipSprite?.isPreview) {
+    classes.push('ship-preview');
+  }
+  return classes;
+});
+
+const destroyerClass = computed(() => {
+  const classes = ['destroyer'];
+  if (props.tile.shipSprite?.orientation === Orientation.VERTICAL) {
+    classes.push('rotated');
+  }
+  if (props.tile.shipSprite?.isPreview) {
+    classes.push('ship-preview');
+  }
+  return classes;
+});
+
+const battleshipClass = computed(() => {
+  const classes = ['battleship'];
+  if (props.tile.shipSprite?.orientation === Orientation.VERTICAL) {
+    classes.push('rotated');
+  }
+  if (props.tile.shipSprite?.isPreview) {
+    classes.push('ship-preview');
+  }
+  return classes;
+});
+
+const frigateClass = computed(() => {
+  const classes = ['frigate'];
+  if (props.tile.shipSprite?.orientation === Orientation.VERTICAL) {
+    classes.push('rotated');
+  }
+  if (props.tile.shipSprite?.isPreview) {
+    classes.push('ship-preview');
+  }
+  return classes;
+});
+
+const aircraftCarrierClass = computed(() => {
+  const classes = ['aircraft-carrier'];
+  if (props.tile.shipSprite?.orientation === Orientation.VERTICAL) {
+    classes.push('rotated');
+  }
+  if (props.tile.shipSprite?.isPreview) {
+    classes.push('ship-preview');
+  }
+  return classes;
+});
 </script>
 
 <style scoped>

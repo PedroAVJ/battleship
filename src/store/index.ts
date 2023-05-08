@@ -1,214 +1,167 @@
 import { defineStore } from 'pinia';
 import RootState from '@/types/RootState';
-import Ship from '@/types/Ship';
-import Tile from '@/types/Tile';
+import Orientation from '@/types/Orientation';
 import SHIPS from '@/constants/Ships';
 import ShipName from '@/types/ShipName';
+import Tile from '@/types/Tile';
+import User from '@/types/User';
+import Board from '@/types/Board';
 
 
 export const useStore = defineStore({
+
+    // This saves the store in the localStorage automatically
+    persist: true,
+
     id: 'rootStore',
-    state: () => new RootState(),
+    state: (): RootState => ({
+        player: new User(),
+        computer: new User(),
+    }),
     actions: {
 
-        // GUI
-        setPlayerSubmarineGUICount(submarineGUICount: number) {
-            this.player[ShipName.SUBMARINE].guiCount = submarineCount;
-        },
-        setGuiSupplyBoatCount(supplyBoatCount: number) {
-            this.gui[ShipName.SUPPLY_BOAT].count = supplyBoatCount;
-        },
-        setGuiDestroyerCount(destroyerCount: number) {
-            this.gui[ShipName.DESTROYER].count = destroyerCount;
-        },
-        setGuiBattleshipCount(battleshipCount: number) {
-            this.gui[ShipName.BATTLESHIP].count = battleshipCount;
-        },
-        setGuiFrigateCount(frigateCount: number) {
-            this.gui[ShipName.FRIGATE].count = frigateCount;
-        },
-        setGuiAircraftCarrierCount(aircraftCarrierCount: number) {
-            this.gui[ShipName.AIRCRAFT_CARRIER].count = aircraftCarrierCount;
+        setCurrentlyDraggedShip(shipName: ShipName, shipOrientation: Orientation) {
+            this.currentlyDraggedShip = {
+                name: shipName,
+                orientation: shipOrientation,
+            }
         },
 
         // Player
-        setPlayerSubmarineIsUsingAbility(isUsingAbility: boolean) {
-            this.player[ShipName.SUBMARINE].isUsingAbility = isUsingAbility;
+        setPlayerShipGUICount(shipName: ShipName, guiCount: number) {
+            this.player[shipName].guiCount = guiCount;
         },
-        setPlayerSubmarineHasUsedAbility(hasUsedAbility: boolean) {
-            this.player[ShipName.SUBMARINE].hasUsedAbility = hasUsedAbility;
+        setPlayerShipIsUsingAbility(shipName: ShipName.SUBMARINE | ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, isUsingAbility: boolean) {
+            this.player[shipName].isUsingAbility = isUsingAbility;
         },
-        setPlayerBattleshipIsUsingAbility(isUsingAbility: boolean) {
-            this.player[ShipName.BATTLESHIP].isUsingAbility = isUsingAbility;
+        setPlayerShipHasUsedAbility(shipName: ShipName.SUBMARINE | ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, hasUsedAbility: boolean) {
+            this.player[shipName].hasUsedAbility = hasUsedAbility;
         },
-        setPlayerBattleshipHasUsedAbility(hasUsedAbility: boolean) {
-            this.player[ShipName.BATTLESHIP].hasUsedAbility = hasUsedAbility;
-        },
-        setPlayerBattleshipHealth(health: number) {
-            this.player[ShipName.BATTLESHIP].health = health;
-        },
-        setPlayerAircraftCarrierIsUsingAbility(isUsingAbility: boolean) {
-            this.player[ShipName.AIRCRAFT_CARRIER].isUsingAbility = isUsingAbility;
-        },
-        setPlayerAircraftCarrierHasUsedAbility(hasUsedAbility: boolean) {
-            this.player[ShipName.AIRCRAFT_CARRIER].hasUsedAbility = hasUsedAbility;
-        },
-        setPlayerAircraftCarrierHealth(health: number) {
-            this.player[ShipName.AIRCRAFT_CARRIER].health = health;
+        setPlayerShipHealth(shipName: ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, health: number) {
+            this.player[shipName].health = health;
         },
         setPlayerAircraftCarrierShots(shots: number) {
             this.player[ShipName.AIRCRAFT_CARRIER].shots = shots;
         },
-        setPlayerIsMoveInProgress(isMoveInProgress: boolean) {
-            this.player.isMoveInProgress = isMoveInProgress;
+        setPlayerIsMakingMove(isMakingMove: boolean) {
+            this.player.isMakingMove = isMakingMove;
         },
         setPlayerHasCurrentTurn(hasCurrentTurn: boolean) {
             this.player.hasCurrentTurn = hasCurrentTurn;
         },
-        setPlayerBoardTiles(board: Tile[][]) {
-            this.player.board.tiles = board;
+        setPlayerBoardTiles(tiles: Tile[][]) {
+            let board = []
+            for (let row of tiles) {
+                let boardRow = []
+                for (let tile of row) {
+                    let boardTile = new Tile(tile.background, tile.contains)
+                    boardRow.push(boardTile)
+                }
+                board.push(boardRow)
+            }
+            this.player.board = new Board(board);
         },
 
         // Computer
-        setComputerSubmarineIsUsingAbility(isUsingAbility: boolean) {
-            this.computer[ShipName.SUBMARINE].isUsingAbility = isUsingAbility;
+        setComputerShipGUICount(shipName: ShipName, guiCount: number) {
+            this.computer[shipName].guiCount = guiCount;
         },
-        setComputerSubmarineHasUsedAbility(hasUsedAbility: boolean) {
-            this.computer[ShipName.SUBMARINE].hasUsedAbility = hasUsedAbility;
+        setComputerShipIsUsingAbility(shipName: ShipName.SUBMARINE | ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, isUsingAbility: boolean) {
+            this.computer[shipName].isUsingAbility = isUsingAbility;
         },
-        setComputerBattleshipIsUsingAbility(isUsingAbility: boolean) {
-            this.computer[ShipName.BATTLESHIP].isUsingAbility = isUsingAbility;
+        setComputerShipHasUsedAbility(shipName: ShipName.SUBMARINE | ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, hasUsedAbility: boolean) {
+            this.computer[shipName].hasUsedAbility = hasUsedAbility;
         },
-        setComputerBattleshipHasUsedAbility(hasUsedAbility: boolean) {
-            this.computer[ShipName.BATTLESHIP].hasUsedAbility = hasUsedAbility;
-        },
-        setComputerBattleshipHealth(health: number) {
-            this.computer[ShipName.BATTLESHIP].health = health;
-        },
-        setComputerAircraftCarrierIsUsingAbility(isUsingAbility: boolean) {
-            this.computer[ShipName.AIRCRAFT_CARRIER].isUsingAbility = isUsingAbility;
-        },
-        setComputerAircraftCarrierHasUsedAbility(hasUsedAbility: boolean) {
-            this.computer[ShipName.AIRCRAFT_CARRIER].hasUsedAbility = hasUsedAbility;
-        },
-        setComputerAircraftCarrierHealth(health: number) {
-            this.computer[ShipName.AIRCRAFT_CARRIER].health = health;
+        setComputerShipHealth(shipName: ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, health: number) {
+            this.computer[shipName].health = health;
         },
         setComputerAircraftCarrierShots(shots: number) {
             this.computer[ShipName.AIRCRAFT_CARRIER].shots = shots;
         },
-        setComputerIsMoveInProgress(isMoveInProgress: boolean) {
-            this.computer.isMoveInProgress = isMoveInProgress;
+        setComputerIsMakingMove(isMakingMove: boolean) {
+            this.computer.isMakingMove = isMakingMove;
         },
         setComputerHasCurrentTurn(hasCurrentTurn: boolean) {
             this.computer.hasCurrentTurn = hasCurrentTurn;
         },
-        setComputerBoardTiles(board: Tile[][]) {
-            this.computer.board.tiles = board;
+        setComputerBoardTiles(tiles: Tile[][]) {
+            let board = []
+            for (let row of tiles) {
+                let boardRow = []
+                for (let tile of row) {
+                    let boardTile = new Tile(tile.background, tile.contains)
+                    boardRow.push(boardTile)
+                }
+                board.push(boardRow)
+            }
+            this.computer.board = new Board(board);
         },
 
-        // Currently dragged ship
-        setCurrentlyDraggedShip(ship: Ship) {
-            this.currentlyDraggedShip = ship;
-        },
+        recalculateShipsHealth() {
 
-        // Reset
-        resetState() {
-            this.$state = new RootState();
-        },
+            // Set all ships health to default, as we are going to recalculate it
+            this.setPlayerShipHealth(ShipName.BATTLESHIP, SHIPS[ShipName.BATTLESHIP].health);
+            this.setPlayerShipHealth(ShipName.AIRCRAFT_CARRIER, SHIPS[ShipName.AIRCRAFT_CARRIER].health);
+            this.setComputerShipHealth(ShipName.BATTLESHIP, SHIPS[ShipName.BATTLESHIP].health);
+            this.setComputerShipHealth(ShipName.AIRCRAFT_CARRIER, SHIPS[ShipName.AIRCRAFT_CARRIER].health);
 
-        // Initialize GUI counts
-        initializeGuiCounts() {
-            this.gui.submarineCount = SHIPS[ShipName.SUBMARINE].count;
-            this.gui.supplyBoatCount = SHIPS[ShipName.SUPPLY_BOAT].count;
-            this.gui.destroyerCount = SHIPS[ShipName.DESTROYER].count;
-            this.gui.battleshipCount = SHIPS[ShipName.BATTLESHIP].count;
-            this.gui.frigateCount = SHIPS[ShipName.FRIGATE].count;
-            this.gui.aircraftCarrierCount = SHIPS[ShipName.AIRCRAFT_CARRIER].count;
-        },
-
-        // Start game
-        startGame() {
-
-            // Player abilities
-            this.setPlayerSubmarineIsUsingAbility(false);
-            this.setPlayerSubmarineHasUsedAbility(false);
-            this.setPlayerBattleshipIsUsingAbility(false);
-            this.setPlayerBattleshipHasUsedAbility(false);
-            this.setPlayerBattleshipHealth(4);
-            this.setPlayerAircraftCarrierIsUsingAbility(false);
-            this.setPlayerAircraftCarrierHasUsedAbility(false);
-            this.setPlayerAircraftCarrierHealth(10);
-            this.setPlayerAircraftCarrierShots(3);
-
-            // Computer abilities
-            this.setComputerSubmarineIsUsingAbility(false);
-            this.setComputerSubmarineHasUsedAbility(false);
-            this.setComputerBattleshipIsUsingAbility(false);
-            this.setComputerBattleshipHasUsedAbility(false);
-            this.setComputerBattleshipHealth(4);
-            this.setComputerAircraftCarrierIsUsingAbility(false);
-            this.setComputerAircraftCarrierHasUsedAbility(false);
-            this.setComputerAircraftCarrierHealth(10);
-            this.setComputerAircraftCarrierShots(3);
-
-            this.setPlayerIsMoveInProgress(false);
-            this.setComputerIsMoveInProgress(false);
-
-            // The player makes the first move
-            this.setPlayerHasCurrentTurn(true);
-            this.setComputerHasCurrentTurn(false);
-        },
-
-        substractPlayerShipsHealth() {
-            this.setPlayerBattleshipHealth(4);
-            this.setPlayerAircraftCarrierHealth(10);
-
+            // Player Board
             for (const row of this.player.board.tiles) {
                 for (const tile of row) {
-                    if (tile.ship && tile.contains.successfulShot) {
-                        if (tile.ship.name === ShipName.BATTLESHIP) {
-                            this.setPlayerBattleshipHealth(this.player.[ShipName.BATTLESHIP].health - 1);
-                        } else if (tile.ship.name === ShipName.AIRCRAFT_CARRIER) {
-                            this.setPlayerAircraftCarrierHealth(this.player.[ShipName.AIRCRAFT_CARRIER].health - 1);
-                        } else if (tile.ship.name === ShipName.SUBMARINE) {
-                            this.setPlayerSubmarineHasUsedAbility(true);
+                    if (tile.shipHitbox && tile.contains.successfulShot) {
+                        if (tile.shipHitbox === ShipName.BATTLESHIP) {
+                            this.setPlayerShipHealth(ShipName.BATTLESHIP, this.player[ShipName.BATTLESHIP].health - 1);
+                        } else if (tile.shipHitbox === ShipName.AIRCRAFT_CARRIER) {
+                            this.setPlayerShipHealth(ShipName.AIRCRAFT_CARRIER, this.player[ShipName.AIRCRAFT_CARRIER].health - 1);
                         }
                     }
                 }
             }
 
-            if (this.player.[ShipName.BATTLESHIP].health === 0) {
-                this.setPlayerBattleshipHasUsedAbility(true);
-            } else if (this.player.[ShipName.AIRCRAFT_CARRIER].health === 0) {
-                this.setPlayerAircraftCarrierHasUsedAbility(true);
-            }
-        },
-
-        substractComputerShipsHealth() {
-            this.setComputerBattleshipHealth(4);
-            this.setComputerAircraftCarrierHealth(10);
-
+            // Computer Board
             for (const row of this.computer.board.tiles) {
                 for (const tile of row) {
-                    if (tile.ship && tile.contains.successfulShot) {
-                        if (tile.ship.name === ShipName.BATTLESHIP) {
-                            this.setComputerBattleshipHealth(this.computer.[ShipName.BATTLESHIP].health - 1);
-                        } else if (tile.ship.name === ShipName.AIRCRAFT_CARRIER) {
-                            this.setComputerAircraftCarrierHealth(this.computer.[ShipName.AIRCRAFT_CARRIER].health - 1);
-                        } else if (tile.ship.name === ShipName.SUBMARINE) {
-                            this.setComputerSubmarineHasUsedAbility(true);
+                    if (tile.shipHitbox && tile.contains.successfulShot) {
+                        if (tile.shipHitbox === ShipName.BATTLESHIP) {
+                            this.setComputerShipHealth(ShipName.BATTLESHIP, this.computer[ShipName.BATTLESHIP].health - 1);
+                        } else if (tile.shipHitbox === ShipName.AIRCRAFT_CARRIER) {
+                            this.setComputerShipHealth(ShipName.AIRCRAFT_CARRIER, this.computer[ShipName.AIRCRAFT_CARRIER].health - 1);
                         }
                     }
                 }
             }
 
-            if (this.computer.[ShipName.BATTLESHIP].health === 0) {
-                this.setComputerBattleshipHasUsedAbility(true);
-            } else if (this.computer.[ShipName.AIRCRAFT_CARRIER].health === 0) {
-                this.setComputerAircraftCarrierHasUsedAbility(true);
+            this.useAbilitiesIfShipsAreSunk();
+        },
+
+        useAbilitiesIfShipsAreSunk() {
+            if (this.player[ShipName.BATTLESHIP].health === 0) {
+                this.setPlayerShipHasUsedAbility(ShipName.BATTLESHIP, true);
+            } else if (this.player[ShipName.AIRCRAFT_CARRIER].health === 0) {
+                this.setPlayerShipHasUsedAbility(ShipName.AIRCRAFT_CARRIER, true);
             }
-        }
+
+            // Manually check if the submarine has been hit, as it has a health of 1
+
+            // Player Board
+            for (const row of this.player.board.tiles) {
+                for (const tile of row) {
+                    if (tile.shipHitbox && tile.contains.successfulShot && tile.shipHitbox === ShipName.SUBMARINE) {
+                        this.setPlayerShipHasUsedAbility(ShipName.SUBMARINE, true);
+                    }
+                }
+            }
+
+            // Computer Board
+            for (const row of this.computer.board.tiles) {
+                for (const tile of row) {
+                    if (tile.shipHitbox && tile.contains.successfulShot && tile.shipHitbox === ShipName.SUBMARINE) {
+                        this.setComputerShipHasUsedAbility(ShipName.SUBMARINE, true);
+                    }
+                }
+            }
+
+        },
+
     },
-    persist: true,
 });

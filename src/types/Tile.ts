@@ -1,10 +1,7 @@
-import Ship from "./Ship";
+import ShipName from "./ShipName";
+import Orientation from "./Orientation";
 
 
-/**
- * @property `contains` - Regular and preview sprites indicate if an SVG sprite should be rendered on this tile.
- * @property `ship` - If ship is present, we consider that a hitbox is present on this tile.
- */
 export default class Tile {
 
     background: {
@@ -17,28 +14,27 @@ export default class Tile {
         missedShot: boolean;
         successfulShot: boolean;
         uncoveredShip: boolean;
-
-        regularSprite: boolean;
-        previewSprite: boolean;
     };
 
-    ship?: Ship
+    shipSprite?: {
+        isPreview: boolean;
+        name: ShipName;
+        orientation: Orientation;
+    };
 
-    constructor() {
-        this.background = {
-            isWater: false,
-            isLand: false,
-            isOutOfBounds: false,
-        };
+    shipHitbox?: ShipName;
 
-        this.contains = {
-            missedShot: false,
-            successfulShot: false,
-            uncoveredShip: false,
-
-            regularSprite: false,
-            previewSprite: false,
-        };
+    constructor(background: {
+        isWater: boolean;
+        isLand: boolean;
+        isOutOfBounds: boolean;
+    }, contains: {
+        missedShot: boolean;
+        successfulShot: boolean;
+        uncoveredShip: boolean;
+    }) {
+        this.background = background;
+        this.contains = contains;
     }
 
     isInvalidSquare(): boolean {

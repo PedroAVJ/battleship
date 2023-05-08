@@ -4,40 +4,41 @@
       Battleship Game
     </h1>
     <div class="boards">
-      <Board :tiles="store.player.board.tiles" user="player" />
+      <PlayerBoard :tiles="store.player.board.tiles" user="player" />
     </div>
     <div class="gui">
+
       <!-- Display if all ships have been placed -->
       <button @click="startGame" class="primary-button"
-        v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) === 0">
+        v-if="store.player.allShipsPlaced()">
         Start Game
       </button>
 
       <!-- Display if there are still ships to place -->
-      <h2 class="text" v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) !== 0">
-        Drag and drop ships to place them on the board
-      </h2>
-      <div class="ship-container" v-if="Object.values(store.gui).reduce((sum, value) => sum + value, 0) !== 0">
-        <ShipItem :name="ShipName.AIRCRAFT_CARRIER" :gui-count="store.gui.aircraftCarrierCount"
-          v-if="store.gui.aircraftCarrierCount > 0">
-          <AircraftCarrier class="svg" />
-        </ShipItem>
-        <ShipItem :name="ShipName.SUBMARINE" :gui-count="store.gui.submarineCount" v-if="store.gui.submarineCount > 0">
-          <Submarine class="svg" />
-        </ShipItem>
-        <ShipItem :name="ShipName.DESTROYER" :gui-count="store.gui.destroyerCount" v-if="store.gui.destroyerCount > 0">
-          <Destroyer class="svg" />
-        </ShipItem>
-        <ShipItem :name="ShipName.BATTLESHIP" :gui-count="store.gui.battleshipCount" v-if="store.gui.battleshipCount > 0">
-          <Battleship class="svg" />
-        </ShipItem>
-        <ShipItem :name="ShipName.FRIGATE" :gui-count="store.gui.frigateCount" v-if="store.gui.frigateCount > 0">
-          <Frigate class="svg" />
-        </ShipItem>
-        <ShipItem :name="ShipName.SUPPLY_BOAT" :gui-count="store.gui.supplyBoatCount"
-          v-if="store.gui.supplyBoatCount > 0">
-          <SupplyBoat class="svg" />
-        </ShipItem>
+      <div v-else>
+        <h2 class="text">
+          Drag and drop ships to place them on the board
+        </h2>
+        <div class="ship-container">
+          <ShipItem :ship-name="ShipName.AIRCRAFT_CARRIER">
+            <AircraftCarrier class="svg" />
+          </ShipItem>
+          <ShipItem :ship-name="ShipName.SUBMARINE">
+            <Submarine class="svg" />
+          </ShipItem>
+          <ShipItem :ship-name="ShipName.DESTROYER">
+            <Destroyer class="svg" />
+          </ShipItem>
+          <ShipItem :ship-name="ShipName.BATTLESHIP">
+            <Battleship class="svg" />
+          </ShipItem>
+          <ShipItem :ship-name="ShipName.FRIGATE">
+            <Frigate class="svg" />
+          </ShipItem>
+          <ShipItem :ship-name="ShipName.SUPPLY_BOAT">
+            <SupplyBoat class="svg" />
+          </ShipItem>
+        </div>
       </div>
 
     </div>
@@ -45,11 +46,12 @@
 </template>
 
 <script lang="ts" setup>
-import Board from '@/components/Board.vue';
 import ShipItem from '@/components/ShipItem.vue'
 import ShipName from '@/types/ShipName';
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
+import Tile from '@/types/Tile';
+import PlayerBoard from '@/components/PlayerBoard.vue';
 
 // SVG's
 import Submarine from '@/components/SVGs/Ships/Submarine.vue'
@@ -59,12 +61,21 @@ import Battleship from '@/components/SVGs/Ships/Battleship.vue'
 import Frigate from '@/components/SVGs/Ships/Frigate.vue'
 import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
 
-
 const store = useStore()
 const router = useRouter()
 
 function startGame() {
-  store.startGame()
+
+  // Save the current board state, as it will be reset when the game starts
+  const player_board_tiles = JSON.parse(JSON.stringify(store.player.board.tiles)) as Tile[][]
+  const computer_board_tiles = JSON.parse(JSON.stringify(store.computer.board.tiles)) as Tile[][]
+
+  store.$reset()
+
+  // Restore the board state
+  store.player.board.tiles = player_board_tiles
+  store.computer.board.tiles = computer_board_tiles
+
   store.computer.board.randomlyPlaceShips()
   router.push({ name: 'Game' })
 }
@@ -171,4 +182,5 @@ h2 {
 
 .start-game:hover {
   background-color: #f57c00;
-}</style>
+}
+</style>

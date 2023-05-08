@@ -1,12 +1,13 @@
 <template>
-  <router-view />
+  <div id="app">
+    <router-view />
+  </div>
 </template>
 
-<!-- This are the styles for the whole app -->
 <style>
-/** For some reason Bootstrap overrides the background color of the body tag, so we need to override it back */
-body {
-  background-color: #1a3a4e !important;
+#app {
+  background-color: #1a3a4e;
+  min-height: 100vh;
 }
 
 .primary-button {
@@ -22,6 +23,7 @@ body {
   font-weight: 600;
   padding: 0.5rem 1rem;
   transition: background-color 0.3s;
+  text-decoration: none;
 }
 
 .primary-button:hover {
@@ -49,5 +51,57 @@ body {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   height: 100%;
 }
+
+.board-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  background-color: #3c6e8f;
+  align-items: center;
+  text-align: center;
+  padding: 15px;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 500px;
+  width: 500px;
+}
+
+.board-row {
+  display: flex;
+  flex: 1;
+  width: 100%;
+}
+
+.board-cell {
+  flex: 1;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.water {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #2c3e50;
+  position: relative;
+  background-color: #4a6a85;
+}
+
+.land {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #2c3e50;
+  position: relative;
+  background-color: #2ecc71;
+}
+
+.out-of-bounds {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-color: #3c6e8f;
+}
 </style>
+
 

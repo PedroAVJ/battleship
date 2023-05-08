@@ -1,16 +1,26 @@
-import Ship from './Ship';
 import Tile from './Tile';
-import SHIPS from '@/constants/Ships';
 import ShipName from './ShipName';
 import Orientation from './Orientation';
+import SHIPS from '@/constants/Ships';
 
 
 export default class Board {
 
     tiles: Tile[][];
 
-    constructor() {
-        this.tiles = [[]];
+    constructor(tiles: Tile[][]) {
+        this.tiles = tiles;
+    }
+
+    isGameOver(): boolean {
+        for (const row of this.tiles) {
+            for (const tile of row) {
+                if (tile.shipHitbox && !tile.contains.uncoveredShip) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     hasValidMove(): boolean {
@@ -21,20 +31,7 @@ export default class Board {
                 }
             }
         }
-
         return false;
-    }
-
-    isGameOver(): boolean {
-        for (const row of this.tiles) {
-            for (const tile of row) {
-                if (tile.ship && !tile.contains.uncoveredShip) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     makeRandomValidMove(): { row: number, col: number } {
@@ -50,56 +47,84 @@ export default class Board {
         if (this.tiles[row][col].isInvalidSquare()) {
             return this.makeRandomValidMove();
         }
-
         return { row, col };
     }
 
-    isInvalidShipPlacement(ship: Ship, row: number, col: number): boolean {
-        const shipHitboxes = ship.getShipHitboxes();
+    getShipHitboxes(shipName: ShipName, orientation: Orientation): { row: number, col: number }[] {
+        const shipHitboxes: { row: number, col: number }[] = [];
+        for (let i = 0; i < SHIPS[shipName].length; i++) {
+            for (let j = 0; j < SHIPS[shipName].width; j++) {
+    
+                // If the ship is horizontal, i represents the column and j represents the row
+                // This is because the length moves horizontally and the width moves vertically
+                // X X X X X
+                // X X X X X
+                if (orientation === Orientation.HORIZONTAL) {
+                    shipHitboxes.push({
+                        row: j,
+                        col: i,
+                    });
+                }
+    
+                // If the ship is vertical, i represents the row and j represents the column
+                // This is because the length moves vertically and the width moves horizontally
+                // X X
+                // X X
+                // X X
+                // X X
+                if (orientation === Orientation.VERTICAL) {
+                    shipHitboxes.push({
+                        row: i,
+                        col: j,
+                    });
+                }
+            }
+        }
+    
+        return shipHitboxes;
+    }
 
+    isInvalidShipPlacement(shipName: ShipName, shipOrientation: Orientation, row: number, col: number): boolean {
+        const shipHitboxes = this.getShipHitboxes(shipName, shipOrientation);
         for (const hitbox of shipHitboxes) {
             const tile = this.tiles[hitbox.row + row][hitbox.col + col];
             if (tile.isInvalidSquare()) return true;
-
-            // Ship hitbox check
-            if (tile.ship) return true;
-
+            if (tile.shipHitbox) return true;
         }
-
         return false;
     }
 
-    placeShip(ship: Ship, row: number, col: number): void {
-        if (this.isInvalidShipPlacement(ship, row, col)) {
+    placeShip(shipName: ShipName, shipOrientation: Orientation, row: number, col: number): void {
+        if (this.isInvalidShipPlacement(shipName, shipOrientation, row, col)) {
             throw new Error('Invalid ship placement.');
         }
-        const shipHitboxes = ship.getShipHitboxes();
+        const shipHitboxes = this.getShipHitboxes(shipName, shipOrientation);
         for (const hitbox of shipHitboxes) {
-            this.tiles[hitbox.row + row][hitbox.col + col].ship = ship;
+            this.tiles[hitbox.row + row][hitbox.col + col].shipHitbox = shipName;
 
-            // If this is the top left corner of the ship (the first hitbox), set the ship sprite
-            if (hitbox.row === 0 && hitbox.col === 0) {
-                this.tiles[hitbox.row + row][hitbox.col + col].contains.regularSprite = true;
+            const hitboxIsTopLeftCorner = hitbox.row === 0 && hitbox.col === 0;
+            if (hitboxIsTopLeftCorner) {
+                this.tiles[hitbox.row + row][hitbox.col + col].shipSprite = {
+                    name: shipName,
+                    orientation: shipOrientation,
+                    isPreview: false,
+                }
             }
         }
     }
 
     randomlyPlaceShips(): void {
-
-        // Since TS doesn't infer the type in a for loop, we need to uses Object.values
-        Object.values(ShipName).forEach((shipName) => {
+        const shipNames = Object.values(ShipName);
+        shipNames.forEach((shipName) => {
             for (let i = 0; i < SHIPS[shipName].count; i++) {
                 while (true) {
                     const row = Math.floor(Math.random() * this.tiles.length);
                     const col = Math.floor(Math.random() * this.tiles[0].length);
                     const orientation = Math.random() < 0.5 ? Orientation.HORIZONTAL : Orientation.VERTICAL;
-                    const ship = new Ship(shipName, orientation);
 
-                    if (this.isInvalidShipPlacement(ship, row, col)) {
-                        continue;
-                    }
+                    if (this.isInvalidShipPlacement(shipName, orientation, row, col)) continue;
 
-                    this.placeShip(ship, row, col);
+                    this.placeShip(shipName, orientation, row, col);
                     break;
                 }
             }
@@ -110,7 +135,7 @@ export default class Board {
     uncoverShip(shipName: ShipName): void {
         for (const row of this.tiles) {
             for (const tile of row) {
-                if (tile.ship && tile.ship.name === shipName) {
+                if (tile.shipHitbox && tile.shipHitbox === shipName) {
                     tile.contains.uncoveredShip = true;
                 }
             }
@@ -118,19 +143,14 @@ export default class Board {
     }
 
     submarineAttack(row_origin: number, col_origin: number): void {
-
-        // Iterate over a 3x3 area around the square
         for (let row = row_origin - 1; row <= row_origin + 1; row++) {
             for (let col = col_origin - 1; col <= col_origin + 1; col++) {
                 const tile = this.tiles[row][col];
                 if (tile.isInvalidSquare()) continue;
 
-                // If the square contains a ship, uncover it
-                if (tile.ship !== undefined) {
+                if (tile.shipHitbox) {
                     tile.contains.uncoveredShip = true;
                 }
-
-                // Otherwise, mark it as a missed shot
                 else {
                     tile.contains.missedShot = true;
                 }
@@ -141,19 +161,14 @@ export default class Board {
     }
 
     battleshipAttack(row_origin: number, col_origin: number): void {
-
-        // Iterate over a 3x3 area around the square
         for (let row = row_origin - 1; row <= row_origin + 1; row++) {
             for (let col = col_origin - 1; col <= col_origin + 1; col++) {
                 const tile = this.tiles[row][col];
                 if (tile.isInvalidSquare()) continue;
 
-                // If the square contains a ship, hit it
-                if (tile.ship !== undefined) {
+                if (tile.shipHitbox) {
                     tile.contains.successfulShot = true;
                 }
-
-                // Otherwise, mark it as a missed shot
                 else {
                     tile.contains.missedShot = true;
                 }
@@ -167,12 +182,9 @@ export default class Board {
         const tile = this.tiles[row][col];
         if (tile.isInvalidSquare()) return;
 
-        // If the square contains a ship, hit it
-        if (tile.ship !== undefined) {
+        if (tile.shipHitbox !== undefined) {
             tile.contains.successfulShot = true;
         }
-
-        // Otherwise, mark it as a missed shot
         else {
             tile.contains.missedShot = true;
         }
