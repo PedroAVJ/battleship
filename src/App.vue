@@ -108,6 +108,34 @@
   position: relative;
   background-color: #3c6e8f;
 }
+
+/* Add media query for mobile screens */
+@media (max-width: 767px) {
+  .primary-text {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .secondary-text {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .secondary-background {
+    width: 120px;
+    padding: 10px;
+  }
+
+  .board-wrapper {
+    height: 300px;
+    width: 300px;
+  }
+
+  .primary-button {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
 </style>
 
 

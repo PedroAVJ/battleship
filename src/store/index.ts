@@ -1,97 +1,143 @@
 import { defineStore } from 'pinia';
-import RootState from '@/types/RootState';
-import Orientation from '@/types/Orientation';
-import SHIPS from '@/utils/Ships';
-import ShipName from '@/types/ShipName';
-import Tile from '@/types/Tile';
-import User from '@/types/User';
-import Board from '@/types/Board';
-
+import { RootState, Tile } from '@/utils/Interfaces';
+import { ShipName, Orientation } from '@/utils/Enums';
+import { SHIPS } from '@/utils/Constants';
 
 export const useStore = defineStore({
-    persist: true,
     id: 'rootStore',
+    persist: {
+        debug: true,
+    },
     state: (): RootState => ({
-        player: new User(),
-        computer: new User(),
+        player: {
+            [ShipName.SUBMARINE]: {
+                guiCount: SHIPS[ShipName.SUBMARINE].count,
+                isUsingAbility: false,
+                hasUsedAbility: false,
+            },
+            [ShipName.SUPPLY_BOAT]: {
+                guiCount: SHIPS[ShipName.SUPPLY_BOAT].count,
+            },
+            [ShipName.DESTROYER]: {
+                guiCount: SHIPS[ShipName.DESTROYER].count,
+            },
+            [ShipName.BATTLESHIP]: {
+                guiCount: SHIPS[ShipName.BATTLESHIP].count,
+                isUsingAbility: false,
+                hasUsedAbility: false,
+                health: SHIPS[ShipName.BATTLESHIP].health,
+            },
+            [ShipName.FRIGATE]: {
+                guiCount: SHIPS[ShipName.FRIGATE].count,
+            },
+            [ShipName.AIRCRAFT_CARRIER]: {
+                guiCount: SHIPS[ShipName.AIRCRAFT_CARRIER].count,
+                isUsingAbility: false,
+                hasUsedAbility: false,
+                health: SHIPS[ShipName.AIRCRAFT_CARRIER].health,
+                shots: SHIPS[ShipName.AIRCRAFT_CARRIER].shots,
+            },
+            isMakingMove: false,
+            hasCurrentTurn: false,
+            board: [[]],
+        },
+        computer: {
+            [ShipName.SUBMARINE]: {
+                guiCount: SHIPS[ShipName.SUBMARINE].count,
+                isUsingAbility: false,
+                hasUsedAbility: false,
+            },
+            [ShipName.SUPPLY_BOAT]: {
+                guiCount: SHIPS[ShipName.SUPPLY_BOAT].count,
+            },
+            [ShipName.DESTROYER]: {
+                guiCount: SHIPS[ShipName.DESTROYER].count,
+            },
+            [ShipName.BATTLESHIP]: {
+                guiCount: SHIPS[ShipName.BATTLESHIP].count,
+                isUsingAbility: false,
+                hasUsedAbility: false,
+                health: SHIPS[ShipName.BATTLESHIP].health,
+            },
+            [ShipName.FRIGATE]: {
+                guiCount: SHIPS[ShipName.FRIGATE].count,
+            },
+            [ShipName.AIRCRAFT_CARRIER]: {
+                guiCount: SHIPS[ShipName.AIRCRAFT_CARRIER].count,
+                isUsingAbility: false,
+                hasUsedAbility: false,
+                health: SHIPS[ShipName.AIRCRAFT_CARRIER].health,
+                shots: SHIPS[ShipName.AIRCRAFT_CARRIER].shots,
+            },
+            isMakingMove: false,
+            hasCurrentTurn: false,
+            board: [[]],
+        },
+        currentlyDraggedShip: undefined,
     }),
     actions: {
 
         setCurrentlyDraggedShip(shipName: ShipName, shipOrientation: Orientation) {
-            this.currentlyDraggedShip = {
-                name: shipName,
-                orientation: shipOrientation,
-            }
+            this.$patch({
+                currentlyDraggedShip: {
+                    name: shipName,
+                    orientation: shipOrientation,
+                },
+            });
         },
 
         // Player
         setPlayerShipGUICount(shipName: ShipName, guiCount: number) {
-            this.player[shipName].guiCount = guiCount;
+            this.$patch({ player: { [shipName]: { guiCount: guiCount } } });
         },
         setPlayerShipIsUsingAbility(shipName: ShipName.SUBMARINE | ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, isUsingAbility: boolean) {
-            this.player[shipName].isUsingAbility = isUsingAbility;
+            this.$patch({ player: { [shipName]: { isUsingAbility: isUsingAbility } } });
         },
         setPlayerShipHasUsedAbility(shipName: ShipName.SUBMARINE | ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, hasUsedAbility: boolean) {
-            this.player[shipName].hasUsedAbility = hasUsedAbility;
+            this.$patch({ player: { [shipName]: { hasUsedAbility: hasUsedAbility } } });
         },
         setPlayerShipHealth(shipName: ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, health: number) {
-            this.player[shipName].health = health;
+            this.$patch({ player: { [shipName]: { health: health } } });
         },
         setPlayerAircraftCarrierShots(shots: number) {
-            this.player[ShipName.AIRCRAFT_CARRIER].shots = shots;
+            this.$patch({ player: { [ShipName.AIRCRAFT_CARRIER]: { shots: shots } } });
         },
         setPlayerIsMakingMove(isMakingMove: boolean) {
-            this.player.isMakingMove = isMakingMove;
+            this.$patch({ player: { isMakingMove: isMakingMove } });
         },
         setPlayerHasCurrentTurn(hasCurrentTurn: boolean) {
-            this.player.hasCurrentTurn = hasCurrentTurn;
+            this.$patch({ player: { hasCurrentTurn: hasCurrentTurn } });
         },
-        setPlayerBoardTiles(tiles: ReadonlyArray<ReadonlyArray<Readonly<Tile>>>) {
-            let board = []
-            for (let row of tiles) {
-                let boardRow = []
-                for (let tile of row) {
-                    let boardTile = new Tile(tile.background, tile.contains)
-                    boardRow.push(boardTile)
-                }
-                board.push(boardRow)
-            }
-            this.player.board = new Board(board);
+        setPlayerBoard(board: ReadonlyArray<ReadonlyArray<Tile>>) {
+            const newBoard = JSON.parse(JSON.stringify(board));
+            this.$patch({ player: { board: newBoard } });
         },
 
         // Computer
         setComputerShipGUICount(shipName: ShipName, guiCount: number) {
-            this.computer[shipName].guiCount = guiCount;
+            this.$patch({ computer: { [shipName]: { guiCount: guiCount } } });
         },
         setComputerShipIsUsingAbility(shipName: ShipName.SUBMARINE | ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, isUsingAbility: boolean) {
-            this.computer[shipName].isUsingAbility = isUsingAbility;
+            this.$patch({ computer: { [shipName]: { isUsingAbility: isUsingAbility } } });
         },
         setComputerShipHasUsedAbility(shipName: ShipName.SUBMARINE | ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, hasUsedAbility: boolean) {
-            this.computer[shipName].hasUsedAbility = hasUsedAbility;
+            this.$patch({ computer: { [shipName]: { hasUsedAbility: hasUsedAbility } } });
         },
         setComputerShipHealth(shipName: ShipName.BATTLESHIP | ShipName.AIRCRAFT_CARRIER, health: number) {
-            this.computer[shipName].health = health;
+            this.$patch({ computer: { [shipName]: { health: health } } });
         },
         setComputerAircraftCarrierShots(shots: number) {
-            this.computer[ShipName.AIRCRAFT_CARRIER].shots = shots;
+            this.$patch({ computer: { [ShipName.AIRCRAFT_CARRIER]: { shots: shots } } });
         },
         setComputerIsMakingMove(isMakingMove: boolean) {
-            this.computer.isMakingMove = isMakingMove;
+            this.$patch({ computer: { isMakingMove: isMakingMove } });
         },
         setComputerHasCurrentTurn(hasCurrentTurn: boolean) {
-            this.computer.hasCurrentTurn = hasCurrentTurn;
+            this.$patch({ computer: { hasCurrentTurn: hasCurrentTurn } });
         },
-        setComputerBoardTiles(tiles: ReadonlyArray<ReadonlyArray<Readonly<Tile>>>) {
-            let board = []
-            for (let row of tiles) {
-                let boardRow = []
-                for (let tile of row) {
-                    let boardTile = new Tile(tile.background, tile.contains)
-                    boardRow.push(boardTile)
-                }
-                board.push(boardRow)
-            }
-            this.computer.board = new Board(board);
+        setComputerBoard(board: ReadonlyArray<ReadonlyArray<Tile>>) {
+            const newBoard = JSON.parse(JSON.stringify(board));
+            this.$patch({ computer: { board: newBoard } });
         },
 
         recalculateShipsHealth() {
@@ -103,7 +149,7 @@ export const useStore = defineStore({
             this.setComputerShipHealth(ShipName.AIRCRAFT_CARRIER, SHIPS[ShipName.AIRCRAFT_CARRIER].health);
 
             // Player Board
-            for (const row of this.player.board.tiles) {
+            for (const row of this.player.board) {
                 for (const tile of row) {
                     if (tile.shipHitbox && tile.contains.successfulShot) {
                         if (tile.shipHitbox === ShipName.BATTLESHIP) {
@@ -116,7 +162,7 @@ export const useStore = defineStore({
             }
 
             // Computer Board
-            for (const row of this.computer.board.tiles) {
+            for (const row of this.computer.board) {
                 for (const tile of row) {
                     if (tile.shipHitbox && tile.contains.successfulShot) {
                         if (tile.shipHitbox === ShipName.BATTLESHIP) {
@@ -141,7 +187,7 @@ export const useStore = defineStore({
             // Manually check if the submarine has been hit, as it has a health of 1
 
             // Player Board
-            for (const row of this.player.board.tiles) {
+            for (const row of this.player.board) {
                 for (const tile of row) {
                     if (tile.shipHitbox && tile.contains.successfulShot && tile.shipHitbox === ShipName.SUBMARINE) {
                         this.setPlayerShipHasUsedAbility(ShipName.SUBMARINE, true);
@@ -150,7 +196,7 @@ export const useStore = defineStore({
             }
 
             // Computer Board
-            for (const row of this.computer.board.tiles) {
+            for (const row of this.computer.board) {
                 for (const tile of row) {
                     if (tile.shipHitbox && tile.contains.successfulShot && tile.shipHitbox === ShipName.SUBMARINE) {
                         this.setComputerShipHasUsedAbility(ShipName.SUBMARINE, true);

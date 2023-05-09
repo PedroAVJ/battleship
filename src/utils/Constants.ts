@@ -1,9 +1,49 @@
-import Tile from "@/types/Tile";
-import MapName from "@/types/MapName";
+import { ShipName, MapName } from "./Enums";
+import { Tile } from "./Interfaces";
 
-const tileSchema = {
+export const SHIPS = {
+
+    [ShipName.SUBMARINE]: {
+        length: 1,
+        width: 1,
+        count: 1,
+    },
+    [ShipName.SUPPLY_BOAT]: {
+        length: 2,
+        width: 1,
+        count: 1,
+    },
+    [ShipName.DESTROYER]: {
+        length: 3,
+        width: 1,
+        count: 1,
+    },
+    [ShipName.BATTLESHIP]: {
+        length: 4,
+        width: 1,
+        count: 1,
+        health: 4,
+    },
+    [ShipName.FRIGATE]: {
+        length: 5,
+        width: 1,
+        count: 1,
+    },
+    [ShipName.AIRCRAFT_CARRIER]: {
+        length: 5,
+        width: 2,
+        count: 1,
+        health: 10,
+        shots: 3,
+    },
+
+} as const;
+
+
+// Water Tile (_): see const MAPS for context
+const _: Tile = {
     background: {
-        isWater: false,
+        isWater: true,
         isLand: false,
         isOutOfBounds: false,
     },
@@ -12,23 +52,40 @@ const tileSchema = {
         successfulShot: false,
         uncoveredShip: false,
     },
-};
-// Water Tile (_): see const MAPS for context
-const _ = new Tile(tileSchema.background, tileSchema.contains);
-_.background.isWater = true;
+}
 
 // Land Tile (M): see const MAPS for context
-const M = new Tile(tileSchema.background, tileSchema.contains);
-M.background.isLand = true;
+const M: Tile = {
+    background: {
+        isWater: false,
+        isLand: true,
+        isOutOfBounds: false,
+    },
+    contains: {
+        missedShot: false,
+        successfulShot: false,
+        uncoveredShip: false,
+    },
+}
 
 // Out of bounds Tile (X): see const MAPS for context
-const X = new Tile(tileSchema.background, tileSchema.contains);
-X.background.isOutOfBounds = true;
+const X: Tile = {
+    background: {
+        isWater: false,
+        isLand: false,
+        isOutOfBounds: true,
+    },
+    contains: {
+        missedShot: false,
+        successfulShot: false,
+        uncoveredShip: false,
+    },
+}
 
 /**
  * WARNING: Use JSON.stringify() to get a deep copy of the map.
  */
-const MAPS = {
+export const MAPS = {
     [MapName.CLASSIC]: [
         [_, _, _, _, _, _, _, _, _, _],
         [_, _, _, _, _, _, _, _, _, _],
@@ -93,5 +150,3 @@ const MAPS = {
         [X, X, X, X, X, _, _, _, _, _, X, X, X, X, X],
     ],
 } as const;
-
-export default MAPS;

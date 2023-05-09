@@ -12,7 +12,7 @@
 
 <script lang="ts" setup>
 import Sprite from '@/components/Sprite.vue';
-import Tile from '@/types/Tile';
+import { Tile } from '@/utils/Interfaces';
 
 const props = defineProps<{
   tiles: ReadonlyArray<ReadonlyArray<Readonly<Tile>>>;

@@ -1,9 +1,12 @@
-import ShipName from "@/types/ShipName";
-import User from "@/types/User";
-import Orientation from "@/types/Orientation";
-import SHIPS from "./Ships";
-import Board from "@/types/Board";
-import Tile from "@/types/Tile";
+import { User, Tile } from "./Interfaces";
+import { ShipName, Orientation } from "./Enums";
+import { SHIPS } from "./Constants";
+
+
+// Hacky way to wait inlined in a function
+export function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 export function allShipsPlaced(user: User): boolean {
     let flag = true;
@@ -15,10 +18,15 @@ export function allShipsPlaced(user: User): boolean {
     return flag;
 }
 
-export function isGameOver(board: Board): boolean {
-    for (const row of board.tiles) {
+export function isGameOver(board: Tile[][]): boolean {
+
+    // Empty board is not game over
+    if (board.length === 0) return false;
+    if (board[0].length === 0) return false;
+
+    for (const row of board) {
         for (const tile of row) {
-            if (tile.shipHitbox && !tile.contains.uncoveredShip) {
+            if (tile.shipHitbox && !tile.contains.successfulShot) {
                 return false;
             }
         }
@@ -26,8 +34,8 @@ export function isGameOver(board: Board): boolean {
     return true;
 }
 
-export function hasValidMove(board: Board): boolean {
-    for (const row of board.tiles) {
+export function hasValidMove(board: Tile[][]): boolean {
+    for (const row of board) {
         for (const tile of row) {
             if (!isInvalidSquare(tile)) {
                 return true;
@@ -37,18 +45,18 @@ export function hasValidMove(board: Board): boolean {
     return false;
 }
 
-export function makeRandomValidMove(board: Board): { row: number, col: number } {
-    if (board.isGameOver()) {
+export function makeRandomValidMove(board: Tile[][]): { row: number, col: number } {
+    if (isGameOver(board)) {
         throw new Error('Game is over, cannot make a move.');
     }
-    if (!board.hasValidMove()) {
+    if (!hasValidMove(board)) {
         throw new Error('No valid moves available.');
     }
-    const row = Math.floor(Math.random() * board.tiles.length);
-    const col = Math.floor(Math.random() * board.tiles[0].length);
+    const row = Math.floor(Math.random() * board.length);
+    const col = Math.floor(Math.random() * board[0].length);
 
-    if (isInvalidSquare(board.tiles[row][col])) {
-        return board.makeRandomValidMove();
+    if (isInvalidSquare(board[row][col])) {
+        return makeRandomValidMove(board);
     }
     return { row, col };
 }
@@ -87,25 +95,25 @@ export function getShipHitboxes(shipName: ShipName, orientation: Orientation): {
     return shipHitboxes;
 }
 
-export function isInvalidShipPlacement(board: Board, shipName: ShipName, shipOrientation: Orientation, row: number, col: number): boolean {
-    const shipHitboxes = board.getShipHitboxes(shipName, shipOrientation);
+export function isInvalidShipPlacement(board: Tile[][], shipName: ShipName, shipOrientation: Orientation, row: number, col: number): boolean {
+    const shipHitboxes = getShipHitboxes(shipName, shipOrientation);
     for (const hitbox of shipHitboxes) {
-        if (hitbox.row + row >= board.tiles.length) return true;
-        if (hitbox.col + col >= board.tiles[0].length) return true;
-        const tile = board.tiles[hitbox.row + row][hitbox.col + col];
+        if (hitbox.row + row >= board.length) return true;
+        if (hitbox.col + col >= board[0].length) return true;
+        const tile = board[hitbox.row + row][hitbox.col + col];
         if (isInvalidSquare(tile)) return true;
         if (tile.shipHitbox) return true;
     }
     return false;
 }
 
-export function placeShip(board: Board, shipName: ShipName, shipOrientation: Orientation, row: number, col: number): void {
-    if (board.isInvalidShipPlacement(shipName, shipOrientation, row, col)) {
+export function placeShip(board: Tile[][], shipName: ShipName, shipOrientation: Orientation, row: number, col: number): void {
+    if (isInvalidShipPlacement(board, shipName, shipOrientation, row, col)) {
         throw new Error('Invalid ship placement.');
     }
-    const shipHitboxes = board.getShipHitboxes(shipName, shipOrientation);
+    const shipHitboxes = getShipHitboxes(shipName, shipOrientation);
     for (const hitbox of shipHitboxes) {
-        const tile = board.tiles[hitbox.row + row][hitbox.col + col];
+        const tile = board[hitbox.row + row][hitbox.col + col];
         tile.shipHitbox = shipName;
         if (tile.shipSprite) {
             tile.shipSprite.isPreview = false;
@@ -113,18 +121,18 @@ export function placeShip(board: Board, shipName: ShipName, shipOrientation: Ori
     }
 }
 
-export function randomlyPlaceShips(board: Board): void {
+export function randomlyPlaceShips(board: Tile[][]): void {
     const shipNames = Object.values(ShipName);
     shipNames.forEach((shipName) => {
         for (let i = 0; i < SHIPS[shipName].count; i++) {
             while (true) {
-                const row = Math.floor(Math.random() * board.tiles.length);
-                const col = Math.floor(Math.random() * board.tiles[0].length);
+                const row = Math.floor(Math.random() * board.length);
+                const col = Math.floor(Math.random() * board[0].length);
                 const orientation = Math.random() < 0.5 ? Orientation.HORIZONTAL : Orientation.VERTICAL;
 
-                if (board.isInvalidShipPlacement(shipName, orientation, row, col)) continue;
+                if (isInvalidShipPlacement(board, shipName, orientation, row, col)) continue;
 
-                board.placeShip(shipName, orientation, row, col);
+                placeShip(board, shipName, orientation, row, col);
                 break;
             }
         }
@@ -132,8 +140,8 @@ export function randomlyPlaceShips(board: Board): void {
 
 }
 
-export function uncoverShip(board: Board, shipName: ShipName): void {
-    for (const row of board.tiles) {
+export function uncoverShip(board: Tile[][], shipName: ShipName): void {
+    for (const row of board) {
         for (const tile of row) {
             if (tile.shipHitbox && tile.shipHitbox === shipName) {
                 tile.contains.uncoveredShip = true;
@@ -142,10 +150,15 @@ export function uncoverShip(board: Board, shipName: ShipName): void {
     }
 }
 
-export function submarineAttack(board: Board, row_origin: number, col_origin: number): void {
+export function submarineAttack(board: Tile[][], row_origin: number, col_origin: number): void {
     for (let row = row_origin - 1; row <= row_origin + 1; row++) {
         for (let col = col_origin - 1; col <= col_origin + 1; col++) {
-            const tile = board.tiles[row][col];
+
+            // Out of bounds check
+            if (row < 0 || row >= board.length) continue;
+            if (col < 0 || col >= board[0].length) continue;
+
+            const tile = board[row][col];
             if (isInvalidSquare(tile)) continue;
 
             if (tile.shipHitbox) {
@@ -160,26 +173,21 @@ export function submarineAttack(board: Board, row_origin: number, col_origin: nu
 
 }
 
-export function battleshipAttack(board: Board, row_origin: number, col_origin: number): void {
+export function battleshipAttack(board: Tile[][], row_origin: number, col_origin: number): void {
     for (let row = row_origin - 1; row <= row_origin + 1; row++) {
         for (let col = col_origin - 1; col <= col_origin + 1; col++) {
-            const tile = board.tiles[row][col];
-            if (isInvalidSquare(tile)) continue;
-
-            if (tile.shipHitbox) {
-                tile.contains.successfulShot = true;
-            }
-            else {
-                tile.contains.missedShot = true;
-            }
-
+            normalAttack(board, row, col);
         }
     }
-
 }
 
-export function normalAttack(board: Board, row: number, col: number): void {
-    const tile = board.tiles[row][col];
+export function normalAttack(board: Tile[][], row: number, col: number): void {
+
+    // Out of bounds check
+    if (row < 0 || row >= board.length) return;
+    if (col < 0 || col >= board[0].length) return;
+
+    const tile = board[row][col];
     if (isInvalidSquare(tile)) return;
 
     if (tile.shipHitbox !== undefined) {
@@ -188,7 +196,6 @@ export function normalAttack(board: Board, row: number, col: number): void {
     else {
         tile.contains.missedShot = true;
     }
-
 }
 
 export function isInvalidSquare(tile: Tile): boolean {

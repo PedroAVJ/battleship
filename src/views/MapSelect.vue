@@ -55,11 +55,11 @@
 </template>
 
 <script lang="ts" setup>
-import MapName from '@/types/MapName';
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
-import MAPS from '@/utils/Maps';
 import MapBoard from '@/components/MapBoard.vue';
+import { MapName } from '@/utils/Enums';
+import { MAPS } from '@/utils/Constants';
 
 const router = useRouter();
 const store = useStore();
@@ -71,30 +71,30 @@ function setMap(mapName: MapName) {
   store.$reset();
 
   // Then set the tiles
-  store.setPlayerBoardTiles(tiles);
-  store.setComputerBoardTiles(tiles);
+  store.setPlayerBoard(tiles);
+  store.setComputerBoard(tiles);
 
   router.push({ name: 'PlaceShips' });
 }
 </script>
 
 <style scoped>
-  .map-selection-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-  }
+.map-selection-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
 
-  .carousel-item {
-    width: 100%;
-  }
+.carousel-item {
+  width: 100%;
+}
 
-  .carousel-item-content {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
+.carousel-item-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 </style>

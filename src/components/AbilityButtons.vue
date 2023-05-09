@@ -23,7 +23,7 @@ import { useStore } from '@/store'
 import { computed } from 'vue';
 import { onMounted, ref, Ref } from 'vue';
 import { Tooltip } from 'bootstrap';
-import ShipName from '@/types/ShipName';
+import { ShipName } from '@/utils/Enums';
 
 // SVGs
 import Submarine from '@/components/SVGs/Ships/Submarine.vue';
@@ -33,36 +33,56 @@ import Battleship from '@/components/SVGs/Ships/Battleship.vue';
 
 const store = useStore()
 
+// This determines if the user is on a mobile device
+const isMobile = computed(() => /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent))
+
 // Tooltip
 const submarine: Ref<HTMLElement | null> = ref(null)
 const aircraftCarrier: Ref<HTMLElement | null> = ref(null)
 const battleship: Ref<HTMLElement | null> = ref(null)
 
+const submarineTooltip: Ref<Tooltip | null> = ref(null)
+const aircraftCarrierTooltip: Ref<Tooltip | null> = ref(null)
+const battleshipTooltip: Ref<Tooltip | null> = ref(null)
+
 onMounted(() => {
+  if (isMobile.value) return;
   if (submarine.value) {
-    const tooltipInstance = new Tooltip(submarine.value)
+    submarineTooltip.value = new Tooltip(submarine.value)
   }
   if (aircraftCarrier.value) {
-    const tooltipInstance = new Tooltip(aircraftCarrier.value)
+    aircraftCarrierTooltip.value = new Tooltip(aircraftCarrier.value)
   }
   if (battleship.value) {
-    const tooltipInstance = new Tooltip(battleship.value)
+    battleshipTooltip.value = new Tooltip(battleship.value)
   }
 })
+
+function hideTooltips() {
+  if (submarineTooltip.value) {
+    submarineTooltip.value.hide();
+  }
+  if (aircraftCarrierTooltip.value) {
+    aircraftCarrierTooltip.value.hide();
+  }
+  if (battleshipTooltip.value) {
+    battleshipTooltip.value.hide();
+  }
+}
 
 const isSubmarineAbilityButtonDisabled = computed(() => {
   if (store.player.hasCurrentTurn) {
     return (
-      store.player[ShipName.SUBMARINE].hasUsedAbility
-
+      store.player.isMakingMove
+      || store.player[ShipName.SUBMARINE].hasUsedAbility
       || store.player[ShipName.SUBMARINE].isUsingAbility
       || store.player[ShipName.AIRCRAFT_CARRIER].isUsingAbility
       || store.player[ShipName.BATTLESHIP].isUsingAbility
     )
   } else {
     return (
-      store.computer[ShipName.SUBMARINE].hasUsedAbility
-
+      store.computer.isMakingMove
+      || store.computer[ShipName.SUBMARINE].hasUsedAbility
       || store.computer[ShipName.SUBMARINE].isUsingAbility
       || store.computer[ShipName.AIRCRAFT_CARRIER].isUsingAbility
       || store.computer[ShipName.BATTLESHIP].isUsingAbility
@@ -73,16 +93,16 @@ const isSubmarineAbilityButtonDisabled = computed(() => {
 const isAircraftCarrierAbilityButtonDisabled = computed(() => {
   if (store.player.hasCurrentTurn) {
     return (
-      store.player[ShipName.AIRCRAFT_CARRIER].hasUsedAbility
-
+      store.player.isMakingMove
+      || store.player[ShipName.AIRCRAFT_CARRIER].hasUsedAbility
       || store.player[ShipName.SUBMARINE].isUsingAbility
       || store.player[ShipName.AIRCRAFT_CARRIER].isUsingAbility
       || store.player[ShipName.BATTLESHIP].isUsingAbility
     )
   } else {
     return (
-      store.computer[ShipName.AIRCRAFT_CARRIER].hasUsedAbility
-
+      store.player.isMakingMove
+      || store.computer[ShipName.AIRCRAFT_CARRIER].hasUsedAbility
       || store.computer[ShipName.SUBMARINE].isUsingAbility
       || store.computer[ShipName.AIRCRAFT_CARRIER].isUsingAbility
       || store.computer[ShipName.BATTLESHIP].isUsingAbility
@@ -93,16 +113,16 @@ const isAircraftCarrierAbilityButtonDisabled = computed(() => {
 const isBattleshipAbilityButtonDisabled = computed(() => {
   if (store.player.hasCurrentTurn) {
     return (
-      store.player[ShipName.BATTLESHIP].hasUsedAbility
-
+      store.player.isMakingMove
+      || store.player[ShipName.BATTLESHIP].hasUsedAbility
       || store.player[ShipName.SUBMARINE].isUsingAbility
       || store.player[ShipName.AIRCRAFT_CARRIER].isUsingAbility
       || store.player[ShipName.BATTLESHIP].isUsingAbility
     )
   } else {
     return (
-      store.computer[ShipName.BATTLESHIP].hasUsedAbility
-
+      store.computer.isMakingMove
+      || store.computer[ShipName.BATTLESHIP].hasUsedAbility
       || store.computer[ShipName.SUBMARINE].isUsingAbility
       || store.computer[ShipName.AIRCRAFT_CARRIER].isUsingAbility
       || store.computer[ShipName.BATTLESHIP].isUsingAbility
@@ -136,26 +156,23 @@ const battleshipAbilityButtonClasses = computed(() => {
 
 function useSubmarineAbility() {
   if (store.player.hasCurrentTurn) {
-    store.player[ShipName.SUBMARINE].hasUsedAbility = true;
-  } else if (store.computer.hasCurrentTurn) {
-    store.computer[ShipName.SUBMARINE].hasUsedAbility = true;
+    store.player[ShipName.SUBMARINE].isUsingAbility = true;
   }
+  hideTooltips();
 }
 
 function useAircraftCarrierAbility() {
   if (store.player.hasCurrentTurn) {
-    store.player[ShipName.AIRCRAFT_CARRIER].hasUsedAbility = true;
-  } else if (store.computer.hasCurrentTurn) {
-    store.computer[ShipName.AIRCRAFT_CARRIER].hasUsedAbility = true;
+    store.player[ShipName.AIRCRAFT_CARRIER].isUsingAbility = true;
   }
+  hideTooltips();
 }
 
 function useBattleshipAbility() {
   if (store.player.hasCurrentTurn) {
-    store.player[ShipName.BATTLESHIP].hasUsedAbility = true;
-  } else if (store.computer.hasCurrentTurn) {
-    store.computer[ShipName.BATTLESHIP].hasUsedAbility = true;
+    store.player[ShipName.BATTLESHIP].isUsingAbility = true;
   }
+  hideTooltips();
 }
 </script>
 

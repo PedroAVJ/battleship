@@ -1,8 +1,20 @@
-import ShipName from './ShipName';
-import Tile from './Tile';
+import { ShipName, Orientation } from "./Enums";
 
 
-export default interface User {
+export interface RootState {
+
+    player: User;
+    computer: User;
+
+    currentlyDraggedShip?: {
+        name: ShipName;
+        orientation: Orientation;
+    }
+
+}
+
+
+export interface User {
 
     [ShipName.SUBMARINE]: {
         guiCount: number;
@@ -41,5 +53,30 @@ export default interface User {
     hasCurrentTurn: boolean;
 
     board: Tile[][];
+
+}
+
+
+export interface Tile {
+
+    background: {
+        isWater: boolean;
+        isLand: boolean;
+        isOutOfBounds: boolean;
+    };
+
+    contains: {
+        missedShot: boolean;
+        successfulShot: boolean;
+        uncoveredShip: boolean;
+    };
+
+    shipSprite?: {
+        isPreview: boolean;
+        name: ShipName;
+        orientation: Orientation;
+    };
+
+    shipHitbox?: ShipName;
 
 }

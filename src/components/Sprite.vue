@@ -4,7 +4,7 @@
 
   <!-- Only show uncovered ship if the tile hasn't been shot at yet -->
   <Uncovered 
-    v-if="tile.contains.uncoveredShip && !tile.contains.successfulShot"
+    v-if="displayUncoveredShip"
     class="uncovered"
   />
 
@@ -19,10 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import ShipName from '@/types/ShipName'
-import Orientation from '@/types/Orientation'
-import Tile from '@/types/Tile'
 import { computed } from 'vue'
+import { ShipName, Orientation } from '@/utils/Enums'
+import { Tile } from '@/utils/Interfaces'
 
 // SVG's
 import Miss from '@/components/SVGs/Miss.vue'
@@ -38,7 +37,16 @@ import AircraftCarrier from '@/components/SVGs/Ships/AircraftCarrier.vue'
 
 const props = defineProps<{
   tile: Tile;
+  isEnemyBoard?: boolean;
 }>();
+
+const displayUncoveredShip = computed(() => {
+  if (props.isEnemyBoard) {
+    return props.tile.contains.uncoveredShip && !props.tile.contains.successfulShot
+  } else {
+    return props.tile.contains.uncoveredShip && !props.tile.contains.successfulShot && !props.tile.shipHitbox
+  }
+});
 
 const submarineClass = computed(() => {
   const classes = ['submarine'];
