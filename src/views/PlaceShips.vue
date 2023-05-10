@@ -51,7 +51,7 @@ import ShipItem from '@/components/ShipItem.vue'
 import { useStore } from '@/store';
 import { useRouter } from 'vue-router';
 import PlayerBoard from '@/components/PlayerBoard.vue';
-import { allShipsPlaced, randomlyPlaceShips } from '@/utils/Game.js';
+import { allShipsPlaced, randomlyPlaceShips } from '@/utils/Game';
 import { ShipName } from '@/utils/Enums';
 import { Tile } from '@/utils/Interfaces';
 import { computed } from 'vue';

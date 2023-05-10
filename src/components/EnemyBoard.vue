@@ -15,7 +15,7 @@ import Sprite from '@/components/Sprite.vue';
 import { useStore } from '@/store';
 import { ShipName } from '@/utils/Enums';
 import { Tile } from '@/utils/Interfaces';
-import { isGameOver, isInvalidSquare, uncoverShip, submarineAttack, normalAttack, battleshipAttack, makeRandomValidMove, sleep } from '@/utils/Game.js';
+import { isGameOver, isInvalidSquare, uncoverShip, submarineAttack, normalAttack, battleshipAttack, makeRandomValidMove, sleep } from '@/utils/Game';
 
 const store = useStore();
 

@@ -118,7 +118,7 @@ import { ref, Ref, watch } from 'vue';
 import { Modal } from 'bootstrap';
 import PlayerBoard from '@/components/PlayerBoard.vue';
 import EnemyBoard from '@/components/EnemyBoard.vue';
-import { isGameOver } from '@/utils/Game.js';
+import { isGameOver } from '@/utils/Game';
 import { ShipName } from '@/utils/Enums';
 
 const store = useStore()

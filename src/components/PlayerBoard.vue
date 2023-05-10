@@ -24,7 +24,7 @@
 import Sprite from '@/components/Sprite.vue';
 import { useStore } from '@/store';
 import { Tile } from '@/utils/Interfaces';
-import { isInvalidShipPlacement, placeShip } from '@/utils/Game.js';
+import { isInvalidShipPlacement, placeShip } from '@/utils/Game';
 
 const store = useStore();
 
