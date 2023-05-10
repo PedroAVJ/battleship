@@ -15,7 +15,7 @@ import Sprite from '@/components/Sprite.vue';
 import { useStore } from '@/store';
 import { ShipName } from '@/utils/Enums';
 import { Tile } from '@/utils/Interfaces';
-import { isGameOver, isInvalidSquare, uncoverShip, submarineAttack, normalAttack, battleshipAttack, makeRandomValidMove, sleep } from '@/utils/Game';
+import { isGameOver, isInvalidSquare, uncoverShip, submarineAttack, normalAttack, battleshipAttack, makeRandomValidMove, sleep } from '@/utils/Game.js';
 
 const store = useStore();
 
@@ -77,7 +77,7 @@ async function Attack(row: number, col: number) {
   store.recalculateShipsHealth();
 
   // Waiting gives the player time to see the result of their move
-  // await sleep(1000);
+  await sleep(1000);
 
   // If the player won the game, prevent computer move from happening in the background
   if (isGameOver(store.computer.board)) {
@@ -92,7 +92,7 @@ async function Attack(row: number, col: number) {
   store.setComputerHasCurrentTurn(true);
 
   // Waiting gives the player time to see the board change turns
-  // await sleep(1000);
+  await sleep(1000);
 
   // For now, always try to use the abilities if it hasn't already
   if (!store.computer[ShipName.AIRCRAFT_CARRIER].hasUsedAbility) {
@@ -104,7 +104,7 @@ async function Attack(row: number, col: number) {
   }
 
   // Waiting gives the player time to see the computer choose an ability
-  // await sleep(1000);
+  await sleep(1000);
 
   // For now, computer moves are random
   const move = makeRandomValidMove(store.player.board);
@@ -150,7 +150,7 @@ async function Attack(row: number, col: number) {
   store.recalculateShipsHealth();
 
   // Waiting gives the player time to see the result of the computer's move
-  // await sleep(2000);
+  await sleep(2000);
 
   store.setComputerHasCurrentTurn(false);
   store.setPlayerHasCurrentTurn(true);
