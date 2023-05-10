@@ -75,7 +75,7 @@
           </h2>
           <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-              Uncovers a 3x3 area of the board
+              Uncovers a 3x3 area of the board. If the ship is sunk, the ability is consumed.
             </div>
           </div>
         </div>
@@ -87,7 +87,7 @@
           </h2>
           <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-              Hits a 3x3 area of the board
+              Hits a 3x3 area of the board. If the ship is sunk, the ability is consumed.
             </div>
           </div>
         </div>
@@ -99,7 +99,7 @@
           </h2>
           <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-              Grants you 2 extra shots to use on the board
+              Grants you 2 extra shots to use on the board. If the ship is sunk, the ability is consumed.
             </div>
           </div>
         </div>
