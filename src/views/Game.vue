@@ -59,7 +59,7 @@
         </div>
         <AbilityButtons />
       </div>
-      <button class="primary-button mt-3" @click="startNewGame" v-if="store.player.hasCurrentTurn">
+      <button class="primary-button mt-3" @click="startNewGame">
         Start New Game
       </button>
     </div>

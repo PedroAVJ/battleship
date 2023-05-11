@@ -194,7 +194,8 @@ export function normalAttack(board: Tile[][], row: number, col: number): void {
     const tile = board[row][col];
     if (isInvalidSquare(tile)) return;
 
-    if (tile.shipHitbox !== undefined) {
+
+    if (tile.shipHitbox) {
         tile.contains.successfulShot = true;
     }
     else {
@@ -237,19 +238,23 @@ export function useAbility(user: User): void {
         }
 
         if (Math.random() < probability) {
-            user[ShipName.BATTLESHIP].hasUsedAbility = true;
+            user[ShipName.BATTLESHIP].isUsingAbility = true;
             return;
         }
 
-    } else if (!user[ShipName.SUBMARINE].hasUsedAbility) {
+    }
+
+    if (!user[ShipName.SUBMARINE].hasUsedAbility) {
         
         // Since its health is 1, the probability is constant
         if (Math.random() < 0.1) {
-            user[ShipName.SUBMARINE].hasUsedAbility = true;
+            user[ShipName.SUBMARINE].isUsingAbility = true;
             return;
         }
 
-    } else if (!user[ShipName.AIRCRAFT_CARRIER].hasUsedAbility) {
+    }
+
+    if (!user[ShipName.AIRCRAFT_CARRIER].hasUsedAbility) {
         
         // Randomly use this ability, as a function of the aircraft carrier health
         const health = user[ShipName.AIRCRAFT_CARRIER].health;
@@ -273,7 +278,7 @@ export function useAbility(user: User): void {
         }
 
         if (Math.random() < probability) {
-            user[ShipName.AIRCRAFT_CARRIER].hasUsedAbility = true;
+            user[ShipName.AIRCRAFT_CARRIER].isUsingAbility = true;
             return;
         }
     }
@@ -290,98 +295,110 @@ export function useAbility(user: User): void {
  * squares in the direction of the longest straight line of hits.
  */
 export function mostLikelyAdjacentSquare(user: User):  { row: number, col: number } {
-    const answer: { row: number, col: number } = { row: -1, col: -1 };
 
-    // Brute force search for the longest straight line of hits
-    // Since the state space is small, this is fine
-    let longestStraightLine = 0;
+    // Initialize the scores array
+    const scores: number[][] = [];
     for (let row = 0; row < user.board.length; row++) {
+        scores.push([]);
         for (let col = 0; col < user.board[0].length; col++) {
-            const tile = user.board[row][col];
-            if (isInvalidSquare(tile)) continue;
+            scores[row].push(0);
+        }
+    }
 
-            // Top
-            let straightLine = 0;
-            for (let i = row - 1; i >= 0; i--) {
-                const tile = user.board[i][col];
-                
-                // If it isn't a hit, then stop
-                if (!tile.contains.successfulShot) break;
-                if (!tile.shipHitbox) break;
+    // Create a copy of the board, where we will remove the ships, as to not leak information
+    let boardWithoutShips = JSON.parse(JSON.stringify(user.board)) as Tile[][];
+    for (const row of boardWithoutShips) {
+        for (const tile of row) {
+            if (tile.shipHitbox) {
+                tile.shipSprite = undefined;
 
-                // If the ship is already sunk, then stop
-                if (user[tile.shipHitbox].health === 0) break;
+                // Because we don't want to take into account sunk ships
+                // we will change the contains successful shot to false and
+                // make it a missed shot
+                const shipName = tile.shipHitbox;
+                if (user[shipName].health === 0) {
+                    tile.contains.successfulShot = false;
+                    tile.contains.missedShot = true;
+                }
 
-                straightLine++;
-            }
-            if (straightLine > longestStraightLine) {
-                longestStraightLine = straightLine;
-                answer.row = row - 1;
-                answer.col = col;
-            }
-
-            // Bottom
-            straightLine = 0;
-            for (let i = row + 1; i < user.board.length; i++) {
-                const tile = user.board[i][col];
-                
-                // If it isn't a hit, then stop
-                if (!tile.contains.successfulShot) break;
-                if (!tile.shipHitbox) break;
-
-                // If the ship is already sunk, then stop
-                if (user[tile.shipHitbox].health === 0) break;
-
-                straightLine++;
-            }
-            if (straightLine > longestStraightLine) {
-                longestStraightLine = straightLine;
-                answer.row = row + 1;
-                answer.col = col;
-            }
-
-            // Left
-            straightLine = 0;
-            for (let i = col - 1; i >= 0; i--) {
-                const tile = user.board[row][i];
-                
-                // If it isn't a hit, then stop
-                if (!tile.contains.successfulShot) break;
-                if (!tile.shipHitbox) break;
-
-                // If the ship is already sunk, then stop
-                if (user[tile.shipHitbox].health === 0) break;
-
-                straightLine++;
-            }
-            if (straightLine > longestStraightLine) {
-                longestStraightLine = straightLine;
-                answer.row = row;
-                answer.col = col - 1;
-            }
-
-            // Right
-            straightLine = 0;
-            for (let i = col + 1; i < user.board[0].length; i++) {
-                const tile = user.board[row][i];
-                
-                // If it isn't a hit, then stop
-                if (!tile.contains.successfulShot) break;
-                if (!tile.shipHitbox) break;
-
-                // If the ship is already sunk, then stop
-                if (user[tile.shipHitbox].health === 0) break;
-
-                straightLine++;
-            }
-            if (straightLine > longestStraightLine) {
-                longestStraightLine = straightLine;
-                answer.row = row;
-                answer.col = col + 1;
+                // In any case, we will remove the ship hitbox
+                tile.shipHitbox = undefined;
             }
         }
     }
-    return answer;
+
+    // Iterate over the board
+    for (let row = 0; row < boardWithoutShips.length; row++) {
+        for (let col = 0; col < boardWithoutShips[0].length; col++) {
+            const tile = boardWithoutShips[row][col];
+            if (isInvalidSquare(tile)) continue;
+
+            // Top
+            let scoreTop = 0;
+            for (let i = row - 1; i >= 0; i--) {
+                if (boardWithoutShips[i][col].contains.successfulShot) {
+                    scoreTop++;
+                } else {
+                    break;
+                }
+            }
+
+            // Bottom
+            let scoreBottom = 0;
+            for (let i = row + 1; i < boardWithoutShips.length; i++) {
+                if (boardWithoutShips[i][col].contains.successfulShot) {
+                    scoreBottom++;
+                } else {
+                    break;
+                }
+            }
+
+            // Left
+            let scoreLeft = 0;
+            for (let i = col - 1; i >= 0; i--) {
+                if (boardWithoutShips[row][i].contains.successfulShot) {
+                    scoreLeft++;
+                } else {
+                    break;
+                }
+            }
+
+            // Right
+            let scoreRight = 0;
+            for (let i = col + 1; i < boardWithoutShips[0].length; i++) {
+                if (boardWithoutShips[row][i].contains.successfulShot) {
+                    scoreRight++;
+                } else {
+                    break;
+                }
+            }
+
+            // Update the scores
+            scores[row][col] = Math.max(scoreTop, scoreBottom, scoreLeft, scoreRight);
+        }
+    }
+
+    // Find the square with the highest score
+    let maxScore = 0;
+    let maxScoreRow = -1;
+    let maxScoreCol = -1;
+    for (let row = 0; row < scores.length; row++) {
+        for (let col = 0; col < scores[0].length; col++) {
+            if (scores[row][col] > maxScore) {
+                maxScore = scores[row][col];
+                maxScoreRow = row;
+                maxScoreCol = col;
+            }
+        }
+    }
+
+    // If the max score is 0, then we will just make a random move
+    if (maxScore === 0) {
+        return makeRandomValidMove(user.board);
+    }
+
+    // Otherwise, we will make the move with the highest score
+    return { row: maxScoreRow, col: maxScoreCol };
 }
 
 /**
@@ -408,9 +425,26 @@ export function makeOptimalMove(user: User): { row: number, col: number } {
         }
     });
 
+    // Order the ships by health, so that we can place the larger ships first
+    shipsNotYetSunk.sort((a, b) => {
+        const shipAHealth = SHIPS[a].length * SHIPS[a].width;
+        const shipBHealth = SHIPS[b].length * SHIPS[b].width;
+        return shipBHealth - shipAHealth;
+    });
+
+    // Define a board which will not contain any ships, as to not leak information
+    let boardWithoutShips = JSON.parse(JSON.stringify(user.board)) as Tile[][];
+    for (const row of boardWithoutShips) {
+        for (const tile of row) {
+            tile.shipHitbox = undefined;
+            tile.shipSprite = undefined;
+        }
+    }
+
+
     // Run the simulations
     for (let i = 0; i < numberOfSimulations; i++) {
-        const board = JSON.parse(JSON.stringify(user.board)) as Tile[][];
+        const board = JSON.parse(JSON.stringify(boardWithoutShips)) as Tile[][];
         
         // For each simulation, we will attempt to place all the ships
         // from the ships that are not yet sunk
@@ -434,9 +468,6 @@ export function makeOptimalMove(user: User): { row: number, col: number } {
             heatMap[row][col] /= numberOfSimulations;
         }
     }
-
-    // log it for debugging
-    console.log(heatMap);
 
     // Now we find the square with the highest probability
     let maxProbability = 0;

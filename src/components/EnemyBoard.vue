@@ -15,7 +15,7 @@ import Sprite from '@/components/Sprite.vue';
 import { useStore } from '@/store';
 import { ShipName } from '@/utils/Enums';
 import { Tile } from '@/utils/Interfaces';
-import { isGameOver, isInvalidSquare, uncoverShip, submarineAttack, normalAttack, battleshipAttack, makeRandomValidMove, sleep, useAbility, mostLikelyAdjacentSquare, makeOptimalMove } from '@/utils/Game';
+import { isGameOver, isInvalidSquare, uncoverShip, submarineAttack, normalAttack, battleshipAttack, sleep, useAbility, mostLikelyAdjacentSquare, makeOptimalMove } from '@/utils/Game';
 
 const store = useStore();
 
@@ -104,7 +104,7 @@ async function Attack(row: number, col: number) {
   for (let row = 0; row < store.player.board.length; row++) {
     for (let col = 0; col < store.player.board[row].length; col++) {
       const tile = store.player.board[row][col];
-      if (tile.contains.uncoveredShip) {
+      if (tile.contains.uncoveredShip && !tile.contains.successfulShot) {
         uncoveredSquare = {
           row: row,
           col: col
@@ -213,14 +213,39 @@ async function Attack(row: number, col: number) {
     store.setComputerShipIsUsingAbility(ShipName.AIRCRAFT_CARRIER, false);
   }
   else {
-    const move = makeOptimalMove(store.player);
-    normalAttack(store.player.board, move.row, move.col);
+    
+    // If there is an uncovered ship, attack it
+    if (uncoveredSquare.row !== -1 && uncoveredSquare.col !== -1) {
+      normalAttack(store.player.board, uncoveredSquare.row, uncoveredSquare.col);
+    }
+
+    // If hunt mode is active, attack the most likely adjacent square
+    else if (huntMode) {
+      const move = mostLikelyAdjacentSquare(store.player);
+      normalAttack(store.player.board, move.row, move.col);
+    }
+
+    // Otherwise, make an optimal move
+    else {
+      const move = makeOptimalMove(store.player);
+      normalAttack(store.player.board, move.row, move.col);
+    }
+
   }
 
   store.recalculateShipsHealth();
 
   // Waiting gives the player time to see the result of the computer's move
   await sleep(2000);
+
+  // If the computer won the game, prevent the board from switching turns
+  if (isGameOver(store.player.board)) {
+
+    // This triggers the watcher that shows the modal, in case a user won
+    store.setPlayerBoard(store.player.board);
+    store.setComputerBoard(store.computer.board);
+    return;
+  }
 
   store.setComputerHasCurrentTurn(false);
   store.setPlayerHasCurrentTurn(true);

@@ -179,6 +179,8 @@ export const useStore = defineStore({
         },
 
         useAbilitiesIfShipsAreSunk() {
+
+            // Player
             if (this.player[ShipName.BATTLESHIP].health === 0) {
                 this.setPlayerShipHasUsedAbility(ShipName.BATTLESHIP, true);
             } else if (this.player[ShipName.AIRCRAFT_CARRIER].health === 0) {
@@ -186,6 +188,16 @@ export const useStore = defineStore({
             } else if (this.player[ShipName.SUBMARINE].health === 0) {
                 this.setPlayerShipHasUsedAbility(ShipName.SUBMARINE, true);
             }
+
+            // Computer
+            if (this.computer[ShipName.BATTLESHIP].health === 0) {
+                this.setComputerShipHasUsedAbility(ShipName.BATTLESHIP, true);
+            } else if (this.computer[ShipName.AIRCRAFT_CARRIER].health === 0) {
+                this.setComputerShipHasUsedAbility(ShipName.AIRCRAFT_CARRIER, true);
+            } else if (this.computer[ShipName.SUBMARINE].health === 0) {
+                this.setComputerShipHasUsedAbility(ShipName.SUBMARINE, true);
+            }
+
         },
 
     },

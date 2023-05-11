@@ -101,7 +101,7 @@ const isAircraftCarrierAbilityButtonDisabled = computed(() => {
     )
   } else {
     return (
-      store.player.isMakingMove
+      store.computer.isMakingMove
       || store.computer[ShipName.AIRCRAFT_CARRIER].hasUsedAbility
       || store.computer[ShipName.SUBMARINE].isUsingAbility
       || store.computer[ShipName.AIRCRAFT_CARRIER].isUsingAbility
