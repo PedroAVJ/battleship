@@ -22,7 +22,6 @@ export const SHIPS = {
         length: 4,
         width: 1,
         count: 1,
-        health: 4,
     },
     [ShipName.FRIGATE]: {
         length: 5,
@@ -33,7 +32,6 @@ export const SHIPS = {
         length: 5,
         width: 2,
         count: 1,
-        health: 10,
         shots: 3,
     },
 

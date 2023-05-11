@@ -18,34 +18,38 @@ export interface User {
 
     [ShipName.SUBMARINE]: {
         guiCount: number;
+        health: number;
         isUsingAbility: boolean;
         hasUsedAbility: boolean;
     }
 
     [ShipName.SUPPLY_BOAT]: {
         guiCount: number;
+        health: number;
     }
 
     [ShipName.DESTROYER]: {
         guiCount: number;
+        health: number;
     }
 
     [ShipName.BATTLESHIP]: {
         guiCount: number;
+        health: number;
         isUsingAbility: boolean;
         hasUsedAbility: boolean;
-        health: number;
     }
 
     [ShipName.FRIGATE]: {
         guiCount: number;
+        health: number;
     }
 
     [ShipName.AIRCRAFT_CARRIER]: {
         guiCount: number;
+        health: number;
         isUsingAbility: boolean;
         hasUsedAbility: boolean;
-        health: number;
         shots: number;
     }
 

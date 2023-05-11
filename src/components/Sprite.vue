@@ -9,12 +9,12 @@
   />
 
   <div v-if="tile.shipSprite">
-    <Submarine v-if="tile.shipSprite.name === ShipName.SUBMARINE" :class="submarineClass" />
-    <SupplyBoat v-if="tile.shipSprite.name === ShipName.SUPPLY_BOAT" :class="supplyBoatClass" />
-    <Destroyer v-if="tile.shipSprite.name === ShipName.DESTROYER" :class="destroyerClass" />
-    <Battleship v-if="tile.shipSprite.name === ShipName.BATTLESHIP" :class="battleshipClass" />
-    <Frigate v-if="tile.shipSprite.name === ShipName.FRIGATE" :class="frigateClass" />
-    <AircraftCarrier v-if="tile.shipSprite.name === ShipName.AIRCRAFT_CARRIER" :class="aircraftCarrierClass" />
+    <Submarine v-if="displaySubmarine" :class="submarineClass" />
+    <SupplyBoat v-if="displaySupplyBoat" :class="supplyBoatClass" />
+    <Destroyer v-if="displayDestroyer" :class="destroyerClass" />
+    <Battleship v-if="displayBattleship" :class="battleshipClass" />
+    <Frigate v-if="displayFrigate" :class="frigateClass" />
+    <AircraftCarrier v-if="displayAircraftCarrier" :class="aircraftCarrierClass" />
   </div>
 </template>
 
@@ -22,6 +22,7 @@
 import { computed } from 'vue'
 import { ShipName, Orientation } from '@/utils/Enums'
 import { Tile } from '@/utils/Interfaces'
+import { useStore } from '@/store'
 
 // SVG's
 import Miss from '@/components/SVGs/Miss.vue'
@@ -39,12 +40,67 @@ const props = defineProps<{
   tile: Tile;
   isEnemyBoard?: boolean;
 }>();
+const store = useStore();
 
 const displayUncoveredShip = computed(() => {
   if (props.isEnemyBoard) {
     return props.tile.contains.uncoveredShip && !props.tile.contains.successfulShot
   } else {
     return props.tile.contains.uncoveredShip && !props.tile.contains.successfulShot && !props.tile.shipHitbox
+  }
+});
+
+const displaySubmarine = computed(() => {
+  if (props.isEnemyBoard) {
+    return props.tile.shipSprite?.name === ShipName.SUBMARINE
+      && store.computer[ShipName.SUBMARINE].health === 0
+  } else {
+    return props.tile.shipSprite?.name === ShipName.SUBMARINE
+  }
+});
+
+const displaySupplyBoat = computed(() => {
+  if (props.isEnemyBoard) {
+    return props.tile.shipSprite?.name === ShipName.SUPPLY_BOAT
+      && store.computer[ShipName.SUPPLY_BOAT].health === 0
+  } else {
+    return props.tile.shipSprite?.name === ShipName.SUPPLY_BOAT
+  }
+});
+
+const displayDestroyer = computed(() => {
+  if (props.isEnemyBoard) {
+    return props.tile.shipSprite?.name === ShipName.DESTROYER
+      && store.computer[ShipName.DESTROYER].health === 0
+  } else {
+    return props.tile.shipSprite?.name === ShipName.DESTROYER
+  }
+});
+
+const displayBattleship = computed(() => {
+  if (props.isEnemyBoard) {
+    return props.tile.shipSprite?.name === ShipName.BATTLESHIP
+      && store.computer[ShipName.BATTLESHIP].health === 0
+  } else {
+    return props.tile.shipSprite?.name === ShipName.BATTLESHIP
+  }
+});
+
+const displayFrigate = computed(() => {
+  if (props.isEnemyBoard) {
+    return props.tile.shipSprite?.name === ShipName.FRIGATE
+      && store.computer[ShipName.FRIGATE].health === 0
+  } else {
+    return props.tile.shipSprite?.name === ShipName.FRIGATE
+  }
+});
+
+const displayAircraftCarrier = computed(() => {
+  if (props.isEnemyBoard) {
+    return props.tile.shipSprite?.name === ShipName.AIRCRAFT_CARRIER
+      && store.computer[ShipName.AIRCRAFT_CARRIER].health === 0
+  } else {
+    return props.tile.shipSprite?.name === ShipName.AIRCRAFT_CARRIER
   }
 });
 

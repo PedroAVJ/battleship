@@ -115,14 +115,18 @@ export function placeShip(board: Tile[][], shipName: ShipName, shipOrientation: 
     for (const hitbox of shipHitboxes) {
         const tile = board[hitbox.row + row][hitbox.col + col];
         tile.shipHitbox = shipName;
-        if (tile.shipSprite) {
-            tile.shipSprite.isPreview = false;
+        const isFirstHitbox = hitbox.row === 0 && hitbox.col === 0;
+        if (isFirstHitbox) {
+            tile.shipSprite = {
+                name: shipName,
+                orientation: shipOrientation,
+                isPreview: false,
+            }
         }
     }
 }
 
-export function randomlyPlaceShips(board: Tile[][]): void {
-    const shipNames = Object.values(ShipName);
+export function randomlyPlaceShips(board: Tile[][], shipNames: ShipName[]): void {
     shipNames.forEach((shipName) => {
         for (let i = 0; i < SHIPS[shipName].count; i++) {
             while (true) {
@@ -205,4 +209,254 @@ export function isInvalidSquare(tile: Tile): boolean {
         || tile.contains.missedShot
         || tile.contains.successfulShot;
     return isInvalidSquare;
+}
+
+export function useAbility(user: User): void {
+
+    // The priority of the abilities is as follows:
+    // 1. Battleship
+    // 2. Submarine
+    // 3. Aircraft Carrier
+    // This goes from most powerful to least powerful
+
+    if (!user[ShipName.BATTLESHIP].hasUsedAbility) {
+
+        // Randomly use this ability, as a function of the battleship health
+        const health = user[ShipName.BATTLESHIP].health;
+
+        // Base probability is 5%
+        let probability = 0.05;
+
+        // Probability increases as the battleship health decreases
+        if (health === 3) {
+            probability = 0.1;
+        } else if (health === 2) {
+            probability = 0.4;
+        } else if (health === 1) {
+            probability = 0.8;
+        }
+
+        if (Math.random() < probability) {
+            user[ShipName.BATTLESHIP].hasUsedAbility = true;
+            return;
+        }
+
+    } else if (!user[ShipName.SUBMARINE].hasUsedAbility) {
+        
+        // Since its health is 1, the probability is constant
+        if (Math.random() < 0.1) {
+            user[ShipName.SUBMARINE].hasUsedAbility = true;
+            return;
+        }
+
+    } else if (!user[ShipName.AIRCRAFT_CARRIER].hasUsedAbility) {
+        
+        // Randomly use this ability, as a function of the aircraft carrier health
+        const health = user[ShipName.AIRCRAFT_CARRIER].health;
+
+        // Base probability is 5%
+        let probability = 0.05;
+
+        // Probability increases as the aircraft carrier health decreases
+        if (health === 6) {
+            probability = 0.1;
+        } else if (health === 5) {
+            probability = 0.15;
+        } else if (health === 4) {
+            probability = 0.2;
+        } else if (health === 3) {
+            probability = 0.30;
+        } else if (health === 2) {
+            probability = 0.60;
+        } else if (health === 1) {
+            probability = 0.90;
+        }
+
+        if (Math.random() < probability) {
+            user[ShipName.AIRCRAFT_CARRIER].hasUsedAbility = true;
+            return;
+        }
+    }
+
+    // Getting here means that no ability was used
+    return;
+}
+
+/**
+ * It will try to return moves that are adjacent
+ * to squares which still haven't been fully sunk.
+ * Because all ships are longer than wider (except for the submarine,
+ * which is equal in length and width), it is best to look for adjacent
+ * squares in the direction of the longest straight line of hits.
+ */
+export function mostLikelyAdjacentSquare(user: User):  { row: number, col: number } {
+    const answer: { row: number, col: number } = { row: -1, col: -1 };
+
+    // Brute force search for the longest straight line of hits
+    // Since the state space is small, this is fine
+    let longestStraightLine = 0;
+    for (let row = 0; row < user.board.length; row++) {
+        for (let col = 0; col < user.board[0].length; col++) {
+            const tile = user.board[row][col];
+            if (isInvalidSquare(tile)) continue;
+
+            // Top
+            let straightLine = 0;
+            for (let i = row - 1; i >= 0; i--) {
+                const tile = user.board[i][col];
+                
+                // If it isn't a hit, then stop
+                if (!tile.contains.successfulShot) break;
+                if (!tile.shipHitbox) break;
+
+                // If the ship is already sunk, then stop
+                if (user[tile.shipHitbox].health === 0) break;
+
+                straightLine++;
+            }
+            if (straightLine > longestStraightLine) {
+                longestStraightLine = straightLine;
+                answer.row = row - 1;
+                answer.col = col;
+            }
+
+            // Bottom
+            straightLine = 0;
+            for (let i = row + 1; i < user.board.length; i++) {
+                const tile = user.board[i][col];
+                
+                // If it isn't a hit, then stop
+                if (!tile.contains.successfulShot) break;
+                if (!tile.shipHitbox) break;
+
+                // If the ship is already sunk, then stop
+                if (user[tile.shipHitbox].health === 0) break;
+
+                straightLine++;
+            }
+            if (straightLine > longestStraightLine) {
+                longestStraightLine = straightLine;
+                answer.row = row + 1;
+                answer.col = col;
+            }
+
+            // Left
+            straightLine = 0;
+            for (let i = col - 1; i >= 0; i--) {
+                const tile = user.board[row][i];
+                
+                // If it isn't a hit, then stop
+                if (!tile.contains.successfulShot) break;
+                if (!tile.shipHitbox) break;
+
+                // If the ship is already sunk, then stop
+                if (user[tile.shipHitbox].health === 0) break;
+
+                straightLine++;
+            }
+            if (straightLine > longestStraightLine) {
+                longestStraightLine = straightLine;
+                answer.row = row;
+                answer.col = col - 1;
+            }
+
+            // Right
+            straightLine = 0;
+            for (let i = col + 1; i < user.board[0].length; i++) {
+                const tile = user.board[row][i];
+                
+                // If it isn't a hit, then stop
+                if (!tile.contains.successfulShot) break;
+                if (!tile.shipHitbox) break;
+
+                // If the ship is already sunk, then stop
+                if (user[tile.shipHitbox].health === 0) break;
+
+                straightLine++;
+            }
+            if (straightLine > longestStraightLine) {
+                longestStraightLine = straightLine;
+                answer.row = row;
+                answer.col = col + 1;
+            }
+        }
+    }
+    return answer;
+}
+
+/**
+ * We will compute a heat map of the board, where each square
+ * is assigned a value based on the probability that it contains
+ * a ship. Calculating this precisely takes too long, so we will
+ * use the Monte Carlo method to estimate this probability.
+ */
+export function makeOptimalMove(user: User): { row: number, col: number } {
+    const numberOfSimulations = 1000;
+    const heatMap: number[][] = [];
+    for (let row = 0; row < user.board.length; row++) {
+        heatMap.push([]);
+        for (let col = 0; col < user.board[0].length; col++) {
+            heatMap[row].push(0);
+        }
+    }
+
+    // List of ships that are not yet sunk
+    const shipsNotYetSunk: ShipName[] = [];
+    Object.values(ShipName).forEach((shipName) => {
+        if (user[shipName].health > 0) {
+            shipsNotYetSunk.push(shipName);
+        }
+    });
+
+    // Run the simulations
+    for (let i = 0; i < numberOfSimulations; i++) {
+        const board = JSON.parse(JSON.stringify(user.board)) as Tile[][];
+        
+        // For each simulation, we will attempt to place all the ships
+        // from the ships that are not yet sunk
+
+        randomlyPlaceShips(board, shipsNotYetSunk);
+
+        // Now we update the heat map, based on the ships that were placed
+        for (let row = 0; row < board.length; row++) {
+            for (let col = 0; col < board[0].length; col++) {
+                const tile = board[row][col];
+                if (tile.shipHitbox) {
+                    heatMap[row][col]++;
+                }
+            }
+        }
+    }
+
+    // Divide by the number of simulations to get the probability
+    for (let row = 0; row < heatMap.length; row++) {
+        for (let col = 0; col < heatMap[0].length; col++) {
+            heatMap[row][col] /= numberOfSimulations;
+        }
+    }
+
+    // log it for debugging
+    console.log(heatMap);
+
+    // Now we find the square with the highest probability
+    let maxProbability = 0;
+    let maxProbabilityRow = -1;
+    let maxProbabilityCol = -1;
+    for (let row = 0; row < heatMap.length; row++) {
+        for (let col = 0; col < heatMap[0].length; col++) {
+            if (heatMap[row][col] > maxProbability) {
+                maxProbability = heatMap[row][col];
+                maxProbabilityRow = row;
+                maxProbabilityCol = col;
+            }
+        }
+    }
+
+    // If the max probability is 0, then we will just make a random move
+    if (maxProbability === 0) {
+        return makeRandomValidMove(user.board);
+    }
+
+    // Otherwise, we will make the move with the highest probability
+    return { row: maxProbabilityRow, col: maxProbabilityCol };
 }

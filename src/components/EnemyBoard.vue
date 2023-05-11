@@ -3,7 +3,7 @@
     <div v-for="(row, rowIndex) in store.computer.board" :key="rowIndex" class="board-row">
       <div v-for="(col, colIndex) in row" :key="colIndex" class="board-cell">
         <div :class="getBackground(col)" @click="Attack(rowIndex, colIndex)" @touchend="Attack(rowIndex, colIndex)">
-          <Sprite :tile="removeShipFromTile(col)" :is-enemy-board="true" />
+          <Sprite :tile="col" :isEnemyBoard="true" />
         </div>
       </div>
     </div>
@@ -15,7 +15,7 @@ import Sprite from '@/components/Sprite.vue';
 import { useStore } from '@/store';
 import { ShipName } from '@/utils/Enums';
 import { Tile } from '@/utils/Interfaces';
-import { isGameOver, isInvalidSquare, uncoverShip, submarineAttack, normalAttack, battleshipAttack, makeRandomValidMove, sleep } from '@/utils/Game';
+import { isGameOver, isInvalidSquare, uncoverShip, submarineAttack, normalAttack, battleshipAttack, makeRandomValidMove, sleep, useAbility, mostLikelyAdjacentSquare, makeOptimalMove } from '@/utils/Game';
 
 const store = useStore();
 
@@ -24,12 +24,6 @@ function getBackground(tile: Tile): string {
   if (tile.background.isLand) return 'land';
   if (tile.background.isOutOfBounds) return 'out-of-bounds';
   return '';
-}
-
-function removeShipFromTile(tile: Tile): Tile {
-  const new_tile = { ...tile };
-  new_tile.shipSprite = undefined;
-  return new_tile;
 }
 
 async function Attack(row: number, col: number) {
@@ -59,6 +53,9 @@ async function Attack(row: number, col: number) {
     // If it isn't the last shot, allow the player to make another move, while still using the ability and not changing turns
     if (store.player[ShipName.AIRCRAFT_CARRIER].shots != 0) {
       store.setPlayerIsMakingMove(false);
+
+      // This call also triggers a computed property that shows the ship if it has been sunk
+      store.recalculateShipsHealth();
 
       // This triggers the watcher that shows the modal, in case a user won
       store.setPlayerBoard(store.player.board);
@@ -94,36 +91,108 @@ async function Attack(row: number, col: number) {
   // Waiting gives the player time to see the board change turns
   await sleep(1000);
 
-  // For now, always try to use the abilities if it hasn't already
-  if (!store.computer[ShipName.AIRCRAFT_CARRIER].hasUsedAbility) {
-    store.setComputerShipIsUsingAbility(ShipName.AIRCRAFT_CARRIER, true);
-  } else if (!store.computer[ShipName.BATTLESHIP].hasUsedAbility) {
-    store.setComputerShipIsUsingAbility(ShipName.BATTLESHIP, true);
-  } else if (!store.computer[ShipName.SUBMARINE].hasUsedAbility) {
-    store.setComputerShipIsUsingAbility(ShipName.SUBMARINE, true);
+  // Let the AI decide if it should use an ability
+  useAbility(store.computer);
+
+  // If there is an uncovered ship, save it, as this will take priority over the optimal move
+  let uncoveredSquare = { row: -1, col: -1 };
+
+  // Likewise, if there is a square were we know a ship that is not sunk is, save it
+  let huntMode = false;
+
+  // Find both of these values
+  for (let row = 0; row < store.player.board.length; row++) {
+    for (let col = 0; col < store.player.board[row].length; col++) {
+      const tile = store.player.board[row][col];
+      if (tile.contains.uncoveredShip) {
+        uncoveredSquare = {
+          row: row,
+          col: col
+        };
+      }
+
+      if (tile.contains.successfulShot || tile.contains.uncoveredShip) {
+        if (!tile.shipHitbox) continue;
+
+        // Make sure the ship is not sunk
+        const health = store.player[tile.shipHitbox].health;
+        if (health === 0) continue;
+
+        huntMode = true;
+      }
+    }
   }
 
   // Waiting gives the player time to see the computer choose an ability
   await sleep(1000);
 
-  // For now, computer moves are random
-  const move = makeRandomValidMove(store.player.board);
+  // Let the AI make a move, given the ability it chose
   if (store.computer[ShipName.SUBMARINE].isUsingAbility) {
-    submarineAttack(store.player.board, move.row, move.col);
+
+    // If there is an uncovered ship, attack it
+    if (uncoveredSquare.row !== -1 && uncoveredSquare.col !== -1) {
+      submarineAttack(store.player.board, uncoveredSquare.row, uncoveredSquare.col);
+    }
+
+    // If hunt mode is active, attack the most likely adjacent square
+    else if (huntMode) {
+      const move = mostLikelyAdjacentSquare(store.player);
+      submarineAttack(store.player.board, move.row, move.col);
+    }
+
+    // Otherwise, make an optimal move
+    else {
+      const move = makeOptimalMove(store.player);
+      submarineAttack(store.player.board, move.row, move.col);
+    }
+
     uncoverShip(store.computer.board, ShipName.SUBMARINE);
     store.setComputerShipHasUsedAbility(ShipName.SUBMARINE, true);
     store.setComputerShipIsUsingAbility(ShipName.SUBMARINE, false);
   }
   else if (store.computer[ShipName.BATTLESHIP].isUsingAbility) {
-    battleshipAttack(store.player.board, move.row, move.col);
+
+    // If there is an uncovered ship, attack it
+    if (uncoveredSquare.row !== -1 && uncoveredSquare.col !== -1) {
+      battleshipAttack(store.player.board, uncoveredSquare.row, uncoveredSquare.col);
+    }
+
+    // If hunt mode is active, attack the most likely adjacent square
+    else if (huntMode) {
+      const move = mostLikelyAdjacentSquare(store.player);
+      battleshipAttack(store.player.board, move.row, move.col);
+    }
+
+    // Otherwise, make an optimal move
+    else {
+      const move = makeOptimalMove(store.player);
+      battleshipAttack(store.player.board, move.row, move.col);
+    }
+
     uncoverShip(store.computer.board, ShipName.BATTLESHIP);
     store.setComputerShipHasUsedAbility(ShipName.BATTLESHIP, true);
     store.setComputerShipIsUsingAbility(ShipName.BATTLESHIP, false);
   }
   else if (store.computer[ShipName.AIRCRAFT_CARRIER].isUsingAbility) {
     while (store.computer[ShipName.AIRCRAFT_CARRIER].shots != 0) {
-      const current_move = makeRandomValidMove(store.player.board);
-      normalAttack(store.player.board, current_move.row, current_move.col);
+      
+      // If there is an uncovered ship, attack it
+      if (uncoveredSquare.row !== -1 && uncoveredSquare.col !== -1) {
+        normalAttack(store.player.board, uncoveredSquare.row, uncoveredSquare.col);
+      }
+
+      // If hunt mode is active, attack the most likely adjacent square
+      else if (huntMode) {
+        const move = mostLikelyAdjacentSquare(store.player);
+        normalAttack(store.player.board, move.row, move.col);
+      }
+
+      // Otherwise, make an optimal move
+      else {
+        const move = makeOptimalMove(store.player);
+        normalAttack(store.player.board, move.row, move.col);
+      }
+
       store.setComputerAircraftCarrierShots(store.computer[ShipName.AIRCRAFT_CARRIER].shots - 1);
 
       // If the computer won, return as to prevent the next move from happening in the background
@@ -144,6 +213,7 @@ async function Attack(row: number, col: number) {
     store.setComputerShipIsUsingAbility(ShipName.AIRCRAFT_CARRIER, false);
   }
   else {
+    const move = makeOptimalMove(store.player);
     normalAttack(store.player.board, move.row, move.col);
   }
 

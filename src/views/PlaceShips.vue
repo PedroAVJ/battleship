@@ -82,7 +82,8 @@ function startGame() {
   store.setPlayerBoard(player_board_tiles)
   store.setComputerBoard(computer_board_tiles)
 
-  randomlyPlaceShips(store.computer.board)
+  const ships = Object.values(ShipName)
+  randomlyPlaceShips(store.computer.board, ships)
   store.setPlayerHasCurrentTurn(true)
   router.push({ name: 'Game' })
 }
