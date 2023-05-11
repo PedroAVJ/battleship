@@ -1,2 +1,2 @@
 "use strict";(self["webpackChunkbattleship"]=self["webpackChunkbattleship"]||[]).push([[448],{2448:function(t,e,n){n.r(e),n.d(e,{default:function(){return o}});var a=n(3396);const r={class:"d-flex flex-column align-items-center justify-content-center vh-100"},s=(0,a._)("h1",{class:"primary-text mb-4"}," BattleShip++ ",-1);function c(t,e){const n=(0,a.up)("router-link");return(0,a.wg)(),(0,a.iD)("div",r,[s,(0,a.Wm)(n,{class:"primary-button",to:{name:"MapSelect"}},{default:(0,a.w5)((()=>[(0,a.Uk)(" Play Against an AI ")])),_:1})])}var l=n(89);const i={},u=(0,l.Z)(i,[["render",c]]);var o=u}}]);
-//# sourceMappingURL=448.d6a80f4a.js.map
+//# sourceMappingURL=448.083501d9.js.map
