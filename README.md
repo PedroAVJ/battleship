@@ -1,8 +1,10 @@
 # Battleship++
 
-An extended version of the classic game Battleship, including new maps, new ships, ship abilities, and an AI to play against!
+Experience the excitement of the classic Battleship game with a modern twist! Battleship++ features new maps, unique ships with special abilities, and a challenging AI opponent to put your strategic skills to the test!
 
-![Battleship Game Screenshot](./assets/screenshot.png)
+<div align="center">
+  <img src="./assets/screenshot.png" alt="Battleship Game Screenshot">
+</div>
 
 ## Table of Contents
 
@@ -52,30 +54,56 @@ To run the development server and access the game locally:
 
 ## Design & Architecture
 
-The reason I chose to build a battleship clone is twofold: first, I wanted to showcase something that was inherently visual, as I believe that it is easiest to gauge a systems complexity when you can see it in action, compared to something like a form. Second, I wanted something that requiered a challenging amount of logic, mostly in how coupled certain components were, and how to manage state between them.
+### Motivation
+
+I chose to build a Battleship clone for two reasons:
+
+1. Showcase a visually engaging project, as it's easier to gauge a system's complexity when you can see it in action.
+2. Implement challenging logic, especially with regards to component coupling and state management.
 
 ### Stack
 
-The project was built using Vue 3 and Typescript. I used Pinia for state management as it is the more modern solution and comes with built-in Typescript support (as opposed to Vuex, which uses magic strings) and Vue Router for navigation. I also used Bootstrap 5 for the carousel and the modals.
+- Vue 3 and TypeScript for the main framework and typing.
+- Pinia for state management, due to its modern design and built-in TypeScript support.
+- Vue Router for navigation.
+- Bootstrap 5 for carousel and modals.
 
-The components themselves all use TS, and are written using the composition API. This provides a lot more flexibility when it comes to making the code readable, which was very important as I have worked with the options API before and found it very easy to lose track of what was going on.
+### Component Design
 
-I also use the pinia persisted state plugin to save the game state to local storage, so that the game can be resumed after a refresh.
+Components use TypeScript and the Composition API, providing better readability and flexibility compared to the Options API.
 
-### Architecture
+### Game State Persistence
 
-The most reelevant parte of the architecture is the flow between the Board, the Square and the sprite. Because both the enemy and the player requiere a slightly different implementation of the Board, I decided to create a PlayerBoard, EnemyBoard and MapBoard. The PlayerBoard is the one that is used to place the ships, and the EnemyBoard is the one that is used to play the game. The MapBoard is a simple component that displays the map selection screen. Even if some little code is repeated, they require very different and long implementations, so I decided to keep them separate, instead of using a system like passing a prop to the Board to determine if it is the player, enemy or map board.
+Pinia persisted state plugin saves game state to local storage, allowing game resumption after a refresh.
 
-### Design
+## Architecture
 
-Most of the low level logic is implement inside my Game.ts file, inside the utils folder. It's mainly a collection of utility functions for universal tasks like ship placement, tile checking and board resolutions. One thing I did do that is not recommended is the fact that only for the board properties inside my RootState I decided to not use an explicit action in order to mutate it, this is because I manipulate the board everywhere, and having to write a bunch of boilerplate code for every single action would have been a pain. The tradeoff was that there were certain things I had to do to as not all reactivity gets triggered by the board being mutated, for example my modals displaying if the player or computer won.
+### Boards
 
-### AI
+There are three types of boards:
 
-The computers algorithm is relativly straight forward. It first randomly choose if it should use an ability, based on the current health of said ships, so if a ship has a lower health it will be more likely to use the ability.
+1. PlayerBoard: For ship placement.
+2. EnemyBoard: For gameplay.
+3. MapBoard: For map selection.
 
-The next part will always shoot at a tile were an uncovered ship is.
+Despite some code repetition, these boards have separate implementations due to their distinct and extensive requirements.
 
-If there isn't an uncovered ship. It will try to shoot at a tile that is adjacent to a ship, as it is more likely that the ship is in that direction. Because all ships are longer than they are wide, it will always shoot in the direction of the longest straight line of hits.
+### Utility Functions
 
-Finally if there aren't any hits that can't be accounted for in the board. We use a Monte Carlo algorithm to randomly place the remaining ships, and generate a heatmap of the most likely places for the ships to be. The computer will then shoot at the tile with the highest probability of containing a ship.
+Low-level logic is implemented in the `Game.ts` file inside the `utils` folder. It contains utility functions for ship placement, tile checking, and board resolutions, among other things.
+
+### State Management
+
+For board tiles in `RootState`, explicit actions are not used to mutate the state. This decision was made to avoid excessive boilerplate code, but it requires additional reactivity management, such as when displaying modals for when a user wins or loses.
+
+## AI
+
+### Ability Usage
+
+The computer algorithm randomly decides to use an ability based on the current health of the ships, with lower health ships being more likely to use their abilities.
+
+### Target Selection
+
+1. If a ship is uncovered, the AI targets it.
+2. If there are no uncovered ships, the AI targets the adjacent tiles of shot at squares to maximize the probability of hitting a ship. It shoots in the direction of the longest straight line of hits.
+3. If no unaccounted hits are on the board, a Monte Carlo algorithm places the remaining ships and generates a heatmap for likely ship locations. The computer targets the tile with the highest probability of containing a ship.
