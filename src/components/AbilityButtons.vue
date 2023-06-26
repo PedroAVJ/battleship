@@ -1,16 +1,16 @@
 <template>
   <div class="ability-button-container">
-    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Uncover a 3x3 area of the computer's board"
+    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Descubre un área de 3x3 del tablero del enemigo"
       ref="submarine" :disabled="isSubmarineAbilityButtonDisabled" @click="useSubmarineAbility"
       :class="submarineAbilityButtonClasses">
       <Submarine class="ability-icon" />
     </button>
-    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Gives you 2 extra turns" ref="aircraftCarrier"
+    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Te da 2 turnos extra" ref="aircraftCarrier"
       :disabled="isAircraftCarrierAbilityButtonDisabled" @click="useAircraftCarrierAbility"
       :class="aircraftCarrierAbilityButtonClasses">
       <AircraftCarrier class="ability-icon" />
     </button>
-    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Hits a 3x3 area of the computer's board"
+    <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Golpea un área de 3x3 del tablero del enemigo"
       ref="battleship" :disabled="isBattleshipAbilityButtonDisabled" @click="useBattleshipAbility"
       :class="battleshipAbilityButtonClasses">
       <Battleship class="ability-icon" />

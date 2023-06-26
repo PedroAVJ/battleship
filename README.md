@@ -1,109 +1,109 @@
 # Battleship++
 
-Experience the excitement of the classic Battleship game with a modern twist! Battleship++ features new maps, unique ships with special abilities, and a challenging AI opponent to put your strategic skills to the test!
+¡Experimenta la emoción del clásico juego de Battleship con un giro moderno! Battleship++ cuenta con nuevos mapas, barcos únicos con habilidades especiales y un desafiante oponente de IA para poner a prueba tus habilidades estratégicas.
 
 <div align="center">
-  <img src="./assets/screenshot.png" alt="Battleship Game Screenshot">
+  <img src="./assets/screenshot.png" alt="Captura de pantalla del juego de Battleship">
 </div>
 
-## Table of Contents
+## Índice
 
-- [Live Demo](#live-demo)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Design & Architecture](#design--architecture)
+- [Demo en vivo](#demo-en-vivo)
+- [Características](#características)
+- [Instalación](#instalación)
+- [Uso](#uso)
+- [Diseño y Arquitectura](#diseño-&-arquitectura)
 
-## Live Demo
+## Demo en Vivo
 
-You can play the game online [here](https://pedroavj.github.io/battleship/).
+Puedes jugar el juego en línea [aquí](https://pedroavj.github.io/battleship/).
 
-## Features
+## Características
 
-- Responsive design for desktop and mobile devices
-- Single-player mode against an AI opponent
-- Various maps to choose from
-- New ship types with unique abilities
-- Intuitive drag-and-drop interface for ship placement
+- Diseño adaptable para dispositivos de escritorio y móviles
+- Modo para un solo jugador contra un oponente de IA
+- Varios mapas para elegir
+- Nuevos tipos de barcos con habilidades únicas
+- Interfaz intuitiva de arrastrar y soltar para la colocación de barcos
 
-## Installation
+## Instalación
 
-To set up the project locally, follow these steps:
+Para configurar el proyecto localmente, sigue estos pasos:
 
-1. Clone the repository:
+1. Clona el repositorio:
 
 ```git clone https://github.com/pedroavj/battleship.git```
 
-2. Change into the project directory:
+2. Cambia al directorio del proyecto:
 
 ```cd battleship```
 
-3. Install dependencies:
+3. Instala las dependencias:
 
 ```npm install```
 
-## Usage
+## Uso
 
-To run the development server and access the game locally:
+Para ejecutar el servidor de desarrollo y acceder al juego localmente:
 
-1. Start the development server:
+1. Inicia el servidor de desarrollo:
 
 ```npm run serve```
 
-2. Open your browser and navigate to the local server URL (usually http://localhost:8080).
+2. Abre tu navegador y navega a la URL del servidor local (usualmente http://localhost:8080).
 
-## Design & Architecture
+## Diseño & Arquitectura
 
-### Motivation
+### Motivación
 
-I chose to build a Battleship clone for two reasons:
+Elegí construir un clon de Battleship por dos razones:
 
-1. Showcase a visually engaging project, as it's easier to gauge a system's complexity when you can see it in action.
-2. Implement challenging logic, especially with regards to component coupling and state management.
+1. Mostrar un proyecto visualmente atractivo, ya que es más fácil evaluar la complejidad de un sistema cuando se puede ver en acción.
+2. Implementar una lógica desafiante, especialmente en lo que respecta al acoplamiento de componentes y la gestión del estado.
 
-### Stack
+### Tecnologías
 
-- Vue 3 and TypeScript for the main framework and typing.
-- Pinia for state management, due to its modern design and built-in TypeScript support.
-- Vue Router for navigation.
-- Bootstrap 5 for carousel and modals.
+- Vue 3 y TypeScript para el marco principal y la tipificación.
+- Pinia para la gestión del estado, debido a su diseño moderno y soporte incorporado para TypeScript.
+- Vue Router para la navegación.
+- Bootstrap 5 para carrusel y modales.
 
-### Component Design
+### Diseño de Componentes
 
-Components use TypeScript and the Composition API, providing better readability and flexibility compared to the Options API.
+Los componentes utilizan TypeScript y la API de Composición, proporcionando una mejor legibilidad y flexibilidad en comparación con la API de Opciones.
 
-### Game State Persistence
+### Persistencia del Estado del Juego
 
-Pinia persisted state plugin saves game state to local storage, allowing game resumption after a refresh.
+El plugin de estado persistido de Pinia guarda el estado del juego en el almacenamiento local, permitiendo la reanudación del juego después de un refresco.
 
-## Architecture
+## Arquitectura
 
-### Boards
+### Tableros
 
-There are three types of boards:
+Existen tres tipos de tableros:
 
-1. PlayerBoard: For ship placement.
-2. EnemyBoard: For gameplay.
-3. MapBoard: For map selection.
+1. PlayerBoard: Para la colocación de barcos.
+2. EnemyBoard: Para el juego.
+3. MapBoard: Para la selección de mapas.
 
-Despite some code repetition, these boards have separate implementations due to their distinct and extensive requirements.
+A pesar de alguna repetición de código, estos tableros tienen implementaciones separadas debido a sus requisitos distintos y extensos.
 
-### Utility Functions
+### Funciones de Utilidad
 
-Low-level logic is implemented in the `Game.ts` file inside the `utils` folder. It contains utility functions for ship placement, tile checking, and board resolutions, among other things.
+La lógica de bajo nivel está implementada en el archivo Game.ts dentro de la carpeta utils. Contiene funciones de utilidad para la colocación de barcos, la comprobación de casillas, y las resoluciones de tablero, entre otras cosas.
 
-### State Management
+### Gestión del Estado
 
-For board tiles in `RootState`, explicit actions are not used to mutate the state. This decision was made to avoid excessive boilerplate code, but it requires additional reactivity management, such as when displaying modals for when a user wins or loses.
+Para las casillas del tablero en RootState, no se utilizan acciones explícitas para mutar el estado. Esta decisión se tomó para evitar un código de plantilla excesivo, pero requiere una gestión de reactividad adicional, como cuando se muestran modales para cuando un usuario gana o pierde.
 
 ## AI
 
-### Ability Usage
+### Uso de Habilidades
 
-The computer algorithm randomly decides to use an ability based on the current health of the ships, with lower health ships being more likely to use their abilities.
+El algoritmo del ordenador decide aleatoriamente usar una habilidad basándose en la salud actual de los barcos, siendo más probable que los barcos con menor salud utilicen sus habilidades.
 
-### Target Selection
+### Selección de Objetivo
 
-1. If a ship is uncovered, the AI targets it.
-2. If there are no uncovered ships, the AI targets the adjacent tiles of shot at squares to maximize the probability of hitting a ship. It shoots in the direction of the longest straight line of hits.
-3. If no unaccounted hits are on the board, a Monte Carlo algorithm places the remaining ships and generates a heatmap for likely ship locations. The computer targets the tile with the highest probability of containing a ship.
+1. Si un barco está descubierto, la IA lo tiene en su punto de mira.
+2. Si no hay barcos descubiertos, la IA apunta a las casillas adyacentes a las cuadrículas disparadas para maximizar la probabilidad de acertar a un barco. Dispara en la dirección de la línea recta más larga de aciertos.
+3. Si no hay impactos sin contabilizar en el tablero, un algoritmo de Monte Carlo coloca los barcos restantes y genera un mapa de calor para las posibles ubicaciones de los barcos. El ordenador apunta a la casilla con la mayor probabilidad de contener un barco.

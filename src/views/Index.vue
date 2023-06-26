@@ -4,7 +4,7 @@
       BattleShip++
     </h1>
     <router-link class="primary-button" :to="{ name: 'MapSelect' }">
-      Play Against an AI
+      Juega Contra la Computadora
     </router-link>
   </div>
 </template>

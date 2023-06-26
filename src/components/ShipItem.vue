@@ -10,13 +10,13 @@
 
     </div>
     <span class="secondary-text">
-      Size: {{ SHIPS[props.shipName].length }} x {{ SHIPS[props.shipName].width }}
+      Tamaño: {{ SHIPS[props.shipName].length }} x {{ SHIPS[props.shipName].width }}
     </span>
     <button :class="['primary-button', orientation]" @click="toggleOrientation">
       {{ orientation }}
     </button>
     <span class="secondary-text">
-      Count: x{{ store.player[shipName].guiCount }}
+      Disponibles: x{{ store.player[shipName].guiCount }}
     </span>
   </div>
 </template>

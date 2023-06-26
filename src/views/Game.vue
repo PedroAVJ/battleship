@@ -6,25 +6,25 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="staticBackdropLabel" v-if="isGameOver(store.player.board)">
-            Game Over!
+            Juego terminado!
           </h1>
           <h1 class="modal-title fs-5" id="staticBackdropLabel" v-else-if="isGameOver(store.computer.board)">
-            Congratulations!
+            Victoria!
           </h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <h2 v-if="isGameOver(store.player.board)" class="secondary-text">
-            You Lose!
+            Perdiste!
           </h2>
           <h2 v-else-if="isGameOver(store.computer.board)" class="secondary-text">
-            You Win!
+            Ganaste!
           </h2>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary" @click="startNewGame()" data-bs-dismiss="modal">Start New
-            Game</button>
+          <button type="button" class="btn btn-primary" @click="startNewGame()" data-bs-dismiss="modal">Empezar nuevo
+            juego</button>
         </div>
       </div>
     </div>
@@ -35,11 +35,11 @@
 
     <!-- Boards -->
     <h2 class="player-text" v-if="store.computer.hasCurrentTurn">
-      Player Board
+      Tablero Aliado
     </h2>
     <PlayerBoard v-if="store.computer.hasCurrentTurn" />
     <h2 class="computer-text" v-if="store.player.hasCurrentTurn">
-      Enemy Board
+      Tablero Enemigo
     </h2>
     <EnemyBoard v-if="store.player.hasCurrentTurn" />
 
@@ -47,10 +47,10 @@
     <div class="gui mt-3 mb-3">
       <div v-if="!isGameOver(store.player.board) || !isGameOver(store.computer.board)">
         <h3 v-if="store.player.hasCurrentTurn" class="player-text">
-          Your Turn
+          Tu turno
         </h3>
         <h3 v-else-if="store.computer.hasCurrentTurn" class="computer-text">
-          Enemy's Turn
+          Turno de el enemigo
         </h3>
         <div>
           <h3 class="secondary-text">
@@ -60,7 +60,7 @@
         <AbilityButtons />
       </div>
       <button class="primary-button mt-3" @click="startNewGame">
-        Start New Game
+        Empezar nuevo juego
       </button>
     </div>
 
@@ -70,36 +70,38 @@
         <div class="accordion-item">
           <h2 class="accordion-header">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-              Submarine Ability
+              Habilidad del Submarino
             </button>
           </h2>
           <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-              Uncovers a 3x3 area of the board. If the ship is sunk, the ability is consumed.
+              Descubre un área de 3x3 del tablero. Si el barco se hunde, la habilidad se consume.
             </div>
           </div>
         </div>
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-              Battleship Ability
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseTwo">
+              Habilidad del Battleship
             </button>
           </h2>
           <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-              Hits a 3x3 area of the board. If the ship is sunk, the ability is consumed.
+              Ataca un área de 3x3 del tablero. Si el barco se hunde, la habilidad se consume.
             </div>
           </div>
         </div>
         <div class="accordion-item">
           <h2 class="accordion-header">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-              Aircraft Carrier Ability
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+              data-bs-target="#collapseThree">
+              Habilidad del Portaaviones
             </button>
           </h2>
           <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
             <div class="accordion-body">
-              Grants you 2 extra shots to use on the board. If the ship is sunk, the ability is consumed.
+              Te otorga 2 disparos extra para usar en el tablero. Si el barco se hunde, la habilidad se consume.
             </div>
           </div>
         </div>

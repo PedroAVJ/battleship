@@ -1,26 +1,26 @@
 <template>
   <div class="view-wrapper">
     <h1 class="primary-text" v-if="allShipsPlaced(store.player)">
-      Start Game
+      Empezar Juego
     </h1>
     <h1 class="primary-text" v-else>
-      Place Your Ships
+      Coloca tus naves
     </h1>
     <PlayerBoard />
 
     <!-- Display if all ships have been placed -->
     <button @click="startGame" class="primary-button mt-5"
       v-if="allShipsPlaced(store.player)">
-      Start Game
+      Empezar Juego
     </button>
 
     <!-- Display if there are still ships to place -->
     <div v-else class="gui">
       <h2 class="primary-text mt-5" v-if="isMobile">
-        Tap on a ship and tap the board to place it
+        Toca un barco y toca el tablero para colocarlo
       </h2>
       <h2 class="primary-text mt-5" v-else>
-        Drag a ship and drop it on the board to place it
+        Arrastra un barco y suéltalo en el tablero para colocarlo
       </h2>
       <div class="ship-container">
         <ShipItem :ship-name="ShipName.AIRCRAFT_CARRIER">
